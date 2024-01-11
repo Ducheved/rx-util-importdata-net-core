@@ -120,4 +120,19 @@ namespace ImportData
       { ignoreDuplicates, ignoreDuplicates}
     };
     }
+
+    public enum RequiredType
+    {
+        NotRequired = 0,
+        Required = 1,
+        ForSearch = 2
+    }
+
+    public enum PropertyType
+    {
+        Simple = 0,
+        Entity = 1,
+        EntityWithCreate = 2,
+        WithTransformation = 3
+    }
 }

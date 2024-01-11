@@ -6,16 +6,29 @@ namespace ImportData.IntegrationServicesClient.Models
     public class IPersons : ICounterparties
     {
 		private DateTimeOffset? dateOfBirth;
-		public string LastName { get; set; }
-        public string FirstName { get; set; }
-        public string MiddleName { get; set; }
-        public DateTimeOffset? DateOfBirth
+
+        [PropertyOptions("Фамилия", RequiredType.ForSearch, PropertyType.Simple)]
+        public string LastName { get; set; }
+
+		[PropertyOptions("Имя", RequiredType.ForSearch, PropertyType.Simple)]
+		public string FirstName { get; set; }
+
+		[PropertyOptions("Отчество", RequiredType.ForSearch, PropertyType.Simple)]
+		public string MiddleName { get; set; }
+
+		[PropertyOptions("Дата рождения", RequiredType.NotRequired, PropertyType.WithTransformation)]
+		public DateTimeOffset? DateOfBirth
 		{
-			get { return dateOfBirth; }
-			set { dateOfBirth = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
+		    get { return dateOfBirth; }
+		    set { dateOfBirth = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
 		}
+
+		[PropertyOptions("СНИЛС", RequiredType.NotRequired, PropertyType.WithTransformation)]
 		public string INILA { get; set; }
+
         public string ShortName { get; set; }
-        public string Sex { get; set; }
+
+		[PropertyOptions("Пол", RequiredType.NotRequired, PropertyType.WithTransformation)]
+		public string Sex { get; set; }
     }
 }

@@ -38,7 +38,9 @@ namespace ImportData
       var listResult = new List<List<Structures.ExceptionsStruct>>();
       logger.Info("===================Чтение строк из файла===================");
       var watch = System.Diagnostics.Stopwatch.StartNew();
-      // Пропускаем 1 строку, т.к. в ней заголовки таблицы.
+
+	  // Пропускаем 1 строку, т.к. в ней заголовки таблицы.
+	  var titles = importData.First().ToArray();
       foreach (var importItem in importData.Skip(1))
       {
         int countItem = importItem.Count();
@@ -61,6 +63,7 @@ namespace ImportData
       {
         supplementEntity = false;
         var entity = (Entity)getEntity.Invoke(processor, new object[] { importItem.ToArray(), extraParameters });
+        entity.NamingParameters = titles.Select((k, i) => (k, i)).ToDictionary(x => x.k, x => importItem[x.i]);
 
         if (!supplementEntityList.Contains(importItem[2]))
           supplementEntityList.Add(importItem[2]);
