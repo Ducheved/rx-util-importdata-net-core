@@ -33,6 +33,16 @@ namespace ImportData
             return new List<Structures.ExceptionsStruct>();
         }
 
+        public virtual IEnumerable<Structures.ExceptionsStruct> Validate(NLog.Logger logger, int shift = 0)
+        {
+            return new List<Structures.ExceptionsStruct>();
+        }
+
+        public virtual void Validate(List<Structures.ExceptionsStruct> exceptionList, uint rowNumber, NLog.Logger logger, int shift = 0)
+        {
+
+        }
+
         /// <summary>
         /// Преобразовать зачение в дату.
         /// </summary>

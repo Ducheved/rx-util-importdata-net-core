@@ -1,11 +1,22 @@
-﻿namespace ImportData
+﻿using System;
+
+namespace ImportData
 {
-  public class Structures
-  {
-    public struct ExceptionsStruct
+    public enum ExceptionType
     {
-      public string ErrorType;
-      public string Message;
+        Warn,
+        Error
     }
-  }
+
+    public class Structures
+    {
+        public struct ExceptionsStruct
+        {
+            public uint RowNumber;
+            public string ErrorType;
+            public string Message;
+
+            public ExceptionType exceptionType;
+        }
+    }
 }
