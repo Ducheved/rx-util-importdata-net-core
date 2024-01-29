@@ -17,7 +17,7 @@ namespace ImportData
     {
       var entity = (T)Activator.CreateInstance(typeof(T));
       entity.Parameters = parameters;
-      entity.ExtraParameters = extraParameters;
+      Entity.ExtraParameters = extraParameters;
       return entity;
     }
   }

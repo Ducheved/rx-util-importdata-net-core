@@ -54,7 +54,7 @@ namespace ImportData.IntegrationServicesClient
     /// </summary>
     /// <typeparam name="T">Тип сущности.</typeparam>
     /// <returns></returns>
-    public static IEnumerable<T> GetEntities<T>() where T : class
+        public static IEnumerable<T> GetEntities<T>() where T : class
     {
       var data = client.For<T>().FindEntriesAsync().Result;
 

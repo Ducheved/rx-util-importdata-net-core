@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ImportData.Dto;
+using ImportData.Entities;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -10,7 +12,7 @@ namespace ImportData
     public class Entity
     {
         public string[] Parameters;
-        public Dictionary<string, string> ExtraParameters;
+        public static Dictionary<string, string> ExtraParameters;
         public int PropertiesCount = 0;
 
         /// <summary>
@@ -30,17 +32,22 @@ namespace ImportData
         /// <returns>Список ошибок.</returns>
         public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
         {
-            return new List<Structures.ExceptionsStruct>();
+            return null;
         }
 
-        public virtual IEnumerable<Structures.ExceptionsStruct> Validate(NLog.Logger logger, int shift = 0)
+        //public virtual IEnumerable<Structures.ExceptionsStruct> Validate(NLog.Logger logger, int shift = 0)
+        //{
+        //    return new List<Structures.ExceptionsStruct>();
+        //}
+
+        public virtual IDtoEntity Validate(List<Structures.ExceptionsStruct> exceptionList, uint rowNumber, NLog.Logger logger, int shift = 0)
         {
-            return new List<Structures.ExceptionsStruct>();
+            return null;
         }
 
-        public virtual void Validate(List<Structures.ExceptionsStruct> exceptionList, uint rowNumber, NLog.Logger logger, int shift = 0)
+        public static async Task SaveToRX(List<IDtoEntity> dtoEntities, List<Structures.ExceptionsStruct> exceptions, NLog.Logger logger)
         {
-
+            await Task.Run(() => Console.WriteLine());
         }
 
         /// <summary>
@@ -59,8 +66,7 @@ namespace ImportData
                 if (DateTimeOffset.TryParse(value.Trim(), culture.DateTimeFormat, DateTimeStyles.AssumeUniversal, out date))
                     return date;
 
-                var dateDouble = 0.0;
-                if (double.TryParse(value.Trim(), style, culture, out dateDouble))
+                if (double.TryParse(value.Trim(), style, culture, out double dateDouble))
                     return new DateTimeOffset(DateTime.FromOADate(dateDouble), TimeSpan.Zero);
 
                 throw new FormatException("Неверный формат строки.");

@@ -4,6 +4,8 @@ namespace ImportData
 {
     public enum ExceptionType
     {
+        Info,
+        Debug,
         Warn,
         Error
     }

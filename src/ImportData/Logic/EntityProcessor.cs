@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NLog;
 using System.Diagnostics;
+using ImportData.Dto;
 
 namespace ImportData
 {   
@@ -200,8 +201,12 @@ namespace ImportData
             watch.Stop();
             logger.Info($"Времени затрачено на чтение строк из файла: {watch.ElapsedMilliseconds} мс");
 
+            logger.Info("======================Валидация сущностей=====================");
+            var exceptions = new List<Structures.ExceptionsStruct>();
+            var dtoEntities = GetValidEntities(rowsList, rowsCount, propertiesCount, extraParameters, type, logger, watch, exceptions, searchDoubles);
+
             logger.Info("======================Импорт сущностей=====================");
-            var exceptions = Import(rowsList, rowsCount, propertiesCount, extraParameters, type, logger, watch, searchDoubles);
+            Import(type, dtoEntities, exceptions, logger);
 
             logger.Info("=============Запись результатов импорта в файл=============");
             watch.Restart();
@@ -237,7 +242,7 @@ namespace ImportData
         #endregion
 
         #region Import
-        public static List<List<Structures.ExceptionsStruct>> Import(List<string[]> rowsList, int rowsCount, int propertiesCount, Dictionary<string, string> extraParameters, Type type, Logger logger, Stopwatch watch, string searchDoubles)
+        public static List<List<Structures.ExceptionsStruct>> ImportOLD(List<string[]> rowsList, int rowsCount, int propertiesCount, Dictionary<string, string> extraParameters, Type type, Logger logger, Stopwatch watch, string searchDoubles)
         {
             uint row = 2;
             uint rowImported = 1;
@@ -313,88 +318,86 @@ namespace ImportData
         }
         #endregion
 
-        public static List<List<Structures.ExceptionsStruct>> Import2(List<string[]> rowsList, int rowsCount, int propertiesCount, Dictionary<string, string> extraParameters, Type type, Logger logger, Stopwatch watch, string searchDoubles)
+        public static List<IDtoEntity> GetValidEntities(List<string[]> rowsList, int rowsCount, int propertiesCount, Dictionary<string, string> extraParameters, Type type, Logger logger, Stopwatch watch, List<Structures.ExceptionsStruct> exceptions, string searchDoubles)
         {
-            uint row = 2;
-            uint rowImported = 1;
+            uint currentRow = 2;
+            uint validRows = 0;
             Type genericType = typeof(EntityWrapper<>);
             Type[] typeArgs = { Type.GetType(type.ToString()) };
             Type wrapperType = genericType.MakeGenericType(typeArgs);
             var getEntity = wrapperType.GetMethod("GetEntity");
             object processor = Activator.CreateInstance(wrapperType);
-            var supplementEntityList = new List<string>();
-            var exceptionList = new List<Structures.ExceptionsStruct>();
-            var exceptionsResult = new List<List<Structures.ExceptionsStruct>>();
-            var errorMessage = string.Empty;
-            bool supplementEntity;
+            var message = string.Empty;
+
+            var dtoEntities = new List<IDtoEntity>();
 
             foreach (var importItem in rowsList)
             {
-                supplementEntity = false;
-
                 var entity = (Entity)getEntity.Invoke(processor, new object[] { importItem.ToArray(), extraParameters });
-
-                if (!supplementEntityList.Contains(importItem[2]))
-                    supplementEntityList.Add(importItem[2]);
-
-                if (supplementEntityList.Contains(importItem[0]))
-                    supplementEntity = true;
 
                 if (entity != null)
                 {
                     if (propertiesCount >= entity.GetPropertiesCount())
                     {
-                        logger.Info($"Обработка сущности {row - 1}");
+                        logger.Info($"Строка {currentRow}. Валидация сущности.");
                         watch.Restart();
 
-                        //exceptionList = entity.SaveToRX(logger, supplementEntity, searchDoubles).ToList();
-                        exceptionList = entity.Validate(logger).ToList();
+                        var dtoEntity = entity.Validate(exceptions, currentRow, logger);
+
+                        if (dtoEntity != null)
+                            dtoEntities.Add(dtoEntity); 
 
                         watch.Stop();
 
-                        if (exceptionList.Any(x => x.ErrorType == Constants.ErrorTypes.Error))
+                        if (exceptions.Any(e => e.RowNumber == currentRow && e.ErrorType == Constants.ErrorTypes.Error))
                         {
-                            logger.Info($"Сущность {row - 1} не импортирована");
+                            logger.Info($"Строка {currentRow}. Сущность не валидна.");
                         }
                         else
                         {
-                            logger.Info($"Сущность {row - 1} импортирована");
-                            logger.Info($"Времени затрачено на импорт сущности: {watch.ElapsedMilliseconds} мс");
-                            rowImported++;
+                            logger.Info($"Строка {currentRow}. Сущность прошла валидацию.");
+                            logger.Info($"Времени затрачено на валидацию сущности: {watch.ElapsedMilliseconds} мс");
+                            validRows++;
                         }
                     }
                     else
                     {
-                        errorMessage = string.Format("Количества входных параметров для сущности {0} недостаточно. " +
-                            "Количество ожидаемых параметров {1}. Количество переданных параметров {2}.", row - 1, entity.GetPropertiesCount(), propertiesCount);
+                        message = string.Format("Строка {0}. Количества входных параметров для сущности недостаточно. " +
+                            "Количество ожидаемых параметров {1}. Количество переданных параметров {2}.", entity.GetPropertiesCount(), propertiesCount, currentRow);
                     }
                 }
                 else
-                    errorMessage = string.Format("Сущность {0} не определена.", row - 1);
+                    message = string.Format("Строка {0}. Сущность не определена", currentRow);
 
-                if (!string.IsNullOrEmpty(errorMessage))
+                if (!string.IsNullOrEmpty(message))
                 {
-                    exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = errorMessage });
-                    logger.Error(errorMessage);
+                    exceptions.Add(new Structures.ExceptionsStruct { RowNumber = currentRow, ErrorType = Constants.ErrorTypes.Error, Message = message });
+                    logger.Error(message);
                 }
 
-                exceptionsResult.Add(exceptionList);
-
-                row++;
+                currentRow++;
             }
 
-            var percent1 = (double)(rowImported - 1) / (double)rowsCount * 100.00;
-            logger.Info($"\rИмпортировано {rowImported - 1} сущностей из {rowsCount} ({percent1:F2}%)");
+            var percent1 = validRows / rowsCount * 100.00;
+            logger.Info($"\rВалидацию прошло {validRows} сущностей из {rowsCount} ({percent1:F2}%)");
 
-            return exceptionsResult;
+            return dtoEntities;
+        }
+
+        public async static Task Import(Type type, List<IDtoEntity> dtoEntities, List<Structures.ExceptionsStruct>  exceptions, Logger logger)
+        {
+            //type.GetMethod(nameof(Entity.SaveToRX)).Invoke(new object [] { dtoEntities, exceptions, logger });
+
+            await Contract.SaveToRX(dtoEntities, exceptions, logger);
         }
 
         #region Write
-        public static void Write(ExcelProcessor excelProcessor, List<List<Structures.ExceptionsStruct>> exceptionsResult, int propertiesCount, int rowsCount)
+        public static void Write(ExcelProcessor excelProcessor, List<Structures.ExceptionsStruct> exceptions, int propertiesCount, int rowsCount)
         {
-            uint row = 2;
-
+            uint currentRow = 2;
+            var currentDate = DateTime.Now.ToString("d");
             var listArrayParams = new List<ArrayList>();
+
             string[] text = new string[] { "Итог", "Дата", "Подробности" };
             for (int i = 1; i <= 3; i++)
             {
@@ -403,49 +406,29 @@ namespace ImportData
                 listArrayParams.Add(arrayParams);
             }
 
-            foreach (var result in exceptionsResult)
+            var error = "Загружен";
+            var exceptionsDict = exceptions.GroupBy(e => new { e.RowNumber, e.ErrorType }).ToDictionary(g => g.Key, g => string.Join("; ", g.Select(m => m.Message)));
+
+            foreach (var item in exceptionsDict)
             {
-                if (result.Where(x => x.ErrorType == Constants.ErrorTypes.Error).Any())
+                if (item.Key.ErrorType == Constants.ErrorTypes.Warn)
+                    error = "Загружен частично";
+
+                if (item.Key.ErrorType == Constants.ErrorTypes.Error)
+                    error = "Не загружен";
+
+                text = null;
+                text = new string[] { error, currentDate, item.Value };
+                for (int i = 1; i <= 3; i++)
                 {
-                    // TODO: Добавить локализацию строки.
-                    var message = string.Join("; ", result.Where(x => x.ErrorType == Constants.ErrorTypes.Error).Select(x => x.Message).ToArray());
-                    text = null;
-                    text = new string[] { "Не загружен", DateTime.Now.ToString("d"), message };
-                    for (int i = 1; i <= 3; i++)
-                    {
-                        var title = excelProcessor.GetExcelColumnName(propertiesCount + i);
-                        var arrayParams = new ArrayList { text[i - 1], title, row };
-                        listArrayParams.Add(arrayParams);
-                    }
+                    var title = excelProcessor.GetExcelColumnName(propertiesCount + i);
+                    var arrayParams = new ArrayList { text[i - 1], title, currentRow };
+                    listArrayParams.Add(arrayParams);
                 }
-                else if (result.Where(x => x.ErrorType == Constants.ErrorTypes.Warn).Any())
-                {
-                    // TODO: Добавить локализацию строки.
-                    var message = string.Join(Environment.NewLine, result.Where(x => x.ErrorType == Constants.ErrorTypes.Warn).Select(x => x.Message).ToArray());
-                    text = null;
-                    text = new string[] { "Загружен частично", DateTime.Now.ToString("d"), message };
-                    for (int i = 1; i <= 3; i++)
-                    {
-                        var title = excelProcessor.GetExcelColumnName(propertiesCount + i);
-                        var arrayParams = new ArrayList { text[i - 1], title, row };
-                        listArrayParams.Add(arrayParams);
-                    }
-                }
-                else
-                {
-                    // TODO: Добавить локализацию строки.
-                    text = null;
-                    text = new string[] { "Загружен", DateTime.Now.ToString("d"), string.Empty };
-                    for (int i = 1; i <= 3; i++)
-                    {
-                        var title = excelProcessor.GetExcelColumnName(propertiesCount + i);
-                        var arrayParams = new ArrayList { text[i - 1], title, row };
-                        listArrayParams.Add(arrayParams);
-                    }
-                }
-                row++;
+
+                currentRow++;
             }
-            
+
             excelProcessor.InsertText(listArrayParams, rowsCount);
         }
         #endregion

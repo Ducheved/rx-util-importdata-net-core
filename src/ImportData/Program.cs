@@ -7,6 +7,7 @@ using NLog;
 using ImportData.Entities.Databooks;
 using ImportData.IntegrationServicesClient.Exceptions;
 using ImportData.IntegrationServicesClient.Models;
+using Simple.OData.Client;
 
 namespace ImportData
 {
@@ -18,7 +19,7 @@ namespace ImportData
     public static void Main(string[] args)
     {
         //args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importaddendums", "-ub", "true", "-f", $@"Приложения.xlsx" };
-        args = new[] { "-n", "Administrator", "-p", "1Qwerty", "-a", "importcontracts", "-f", $@"D:\DirectumDev\rx-util-importdata-net-core\Template\Шаблон для загрузки договоров в DirectumRX.xlsx" };
+        args = new[] { "-n", "Integration Service", "-p", "1Qwerty", "-a", "importcontracts", "-f", $@"D:\DirectumDev\rx-util-importdata-net-core\Template\Шаблон для загрузки договоров в DirectumRX.xlsx" };
         //args = new[] { "-n", "Administrator", "-p", "1Qwerty", "-a", "importlogins", "-f", $@"D:\DirectumDev\rx-util-importdata-net-core\Template\Шаблон для загрузки логинов в DirectumRX.xlsx" };
 
         logger.Info("=========================== Process Start ===========================");
@@ -44,7 +45,7 @@ namespace ImportData
             { "d|search_doubles=", "Признак поиска дублей сущностей.", d => ignoreDuplicates = d},
             { "ub|update_body=", "Признак обновления последней версии документа.", t => extraParameters.Add("update_body", t) },
             { "h|help", "Show this help", v => isHelp = (v != null) },
-    };
+        };
 
         try
         {
