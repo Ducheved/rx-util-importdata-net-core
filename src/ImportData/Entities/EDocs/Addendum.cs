@@ -71,6 +71,18 @@ namespace ImportData
                     return exceptionList;
                 }
 
+                variableForParameters = this.Parameters[shift + 4].Trim();
+                var counterparty = BusinessLogic.GetEntityWithFilter<ICounterparties>(c => c.Name == variableForParameters, exceptionList, logger);
+
+                if (counterparty == null)
+                {
+                    var message = string.Format("Не найден контрагент \"{0}\".", this.Parameters[shift + 4]);
+                    exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+                    logger.Error(message);
+
+                    return exceptionList;
+                }
+
                 variableForParameters = this.Parameters[shift + 5].Trim();
                 documentKind = BusinessLogic.GetEntityWithFilter<IDocumentKinds>(d => d.Name == variableForParameters, exceptionList, logger);
 
@@ -130,7 +142,7 @@ namespace ImportData
 
                 note = this.Parameters[shift + 13].Trim();
 
-                var leadDocResearchResult = IOfficialDocuments.GetLeadingDocument(logger, regNumberLeadingDocument, regDateLeadingDocument);
+                var leadDocResearchResult = IOfficialDocuments.GetLeadingDocument(logger, regNumberLeadingDocument, regDateLeadingDocument, counterparty.Id);
                 leadingDocument = leadDocResearchResult.leadingDocument;
                 if (!string.IsNullOrEmpty(leadDocResearchResult.errorMessage))
                 {
