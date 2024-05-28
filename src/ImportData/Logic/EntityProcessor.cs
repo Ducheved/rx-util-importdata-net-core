@@ -40,7 +40,6 @@ namespace ImportData
       var watch = System.Diagnostics.Stopwatch.StartNew();
 
 	  // Пропускаем 1 строку, т.к. в ней заголовки таблицы.
-	  var titles = importData.First().ToArray();
       foreach (var importItem in importData.Skip(1))
       {
         int countItem = importItem.Count();
@@ -53,6 +52,9 @@ namespace ImportData
         arrayItems.Clear();
         row++;
       }
+
+	  var titles = importData.First();
+	  titles = titles.Take(titles.Count() - 3).ToList();
       watch.Stop();
       var elapsedMs = watch.ElapsedMilliseconds;
       logger.Info($"Времени затрачено на чтение строк из файла: {elapsedMs} мс");
@@ -77,7 +79,8 @@ namespace ImportData
           {
             logger.Info($"Обработка сущности {row - 1}");
             watch.Restart();
-            exceptionList = entity.SaveToRX(logger, supplementEntity, searchDoubles).ToList();
+         //   exceptionList = entity.SaveToRX(logger, supplementEntity, searchDoubles).ToList();
+            exceptionList = entity.Save(logger, supplementEntity, searchDoubles).ToList();
             watch.Stop();
             elapsedMs = watch.ElapsedMilliseconds;
             if (exceptionList.Any(x => x.ErrorType == Constants.ErrorTypes.Error))

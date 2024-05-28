@@ -1,4 +1,6 @@
-﻿namespace ImportData.IntegrationServicesClient.Models
+﻿using System.Collections.Generic;
+
+namespace ImportData.IntegrationServicesClient.Models
 {
     [EntityName("Организация")]
     public class ICompanies : ICounterparties
@@ -41,6 +43,18 @@
             };
 
             return company;
+        }
+
+        new public static ICompanies FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+        {
+            var name = propertiesForSearch["Name"];
+            return BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name, exceptionList, logger);
+        }
+
+        new public static ICompanies CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+        {
+            var name = propertiesForSearch["Name"];
+            return BusinessLogic.CreateEntity<ICompanies>(new ICompanies() { Name = name, Status = "Active" }, exceptionList, logger);
         }
     }
 }

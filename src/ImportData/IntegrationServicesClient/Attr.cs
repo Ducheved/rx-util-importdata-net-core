@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ImportData.IntegrationServicesClient
 {
@@ -18,16 +19,18 @@ namespace ImportData.IntegrationServicesClient
 
     public class PropertyOptions : Attribute
     {
-        public PropertyOptions(string excelName, RequiredType required, PropertyType type)
+        public PropertyOptions(string excelName, RequiredType required, PropertyType type, AdditionalCharacters characters = AdditionalCharacters.Default)
         {
             ExcelName = excelName;
 		    Required = required;
 		    Type = type;
-	    }
+            Characters = characters;
+        }
 
         public string ExcelName { get; }
 		public RequiredType Required { get; }
 		public PropertyType Type { get; }
+        public AdditionalCharacters Characters { get; }
 
         public bool IsRequired()
         {
@@ -36,7 +39,7 @@ namespace ImportData.IntegrationServicesClient
 
         public bool IsSimple()
         {
-            return Type == PropertyType.Simple;
+            return Type != PropertyType.Entity || Type != PropertyType.EntityWithCreate;
         }
 	}
 }

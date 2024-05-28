@@ -3,11 +3,11 @@
     [EntityName("Контрагент")]
     public class ICounterparties : IEntity
     {
-		[PropertyOptions("ИНН", RequiredType.ForSearch, PropertyType.WithTransformation)]
+		[PropertyOptions("ИНН", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
 		public string TIN { get; set; }
 
 		// ВАЖНО: в организациях зовется по-другому
-		[PropertyOptions("Адрес регистрации", RequiredType.ForSearch, PropertyType.Simple)]
+		[PropertyOptions("Адрес регистрации", RequiredType.NotRequired, PropertyType.Simple)]
 		public string LegalAddress { get; set; }
 
 		[PropertyOptions("Почтовый адрес", RequiredType.NotRequired, PropertyType.Simple)]
@@ -28,23 +28,25 @@
 		[PropertyOptions("Нерезидент", RequiredType.NotRequired, PropertyType.Simple)]
 		public bool Nonresident { get; set; }
 
-		[PropertyOptions("ОГРН", RequiredType.ForSearch, PropertyType.WithTransformation)]
+		[PropertyOptions("ОГРН", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
 		public string PSRN { get; set; }
 
-		[PropertyOptions("ОКПО", RequiredType.NotRequired, PropertyType.WithTransformation)]
+		[PropertyOptions("ОКПО", RequiredType.NotRequired, PropertyType.Simple)]
 		public string NCEO { get; set; }
 
-		[PropertyOptions("ОКВЭД", RequiredType.NotRequired, PropertyType.WithTransformation)]
+		[PropertyOptions("ОКВЭД", RequiredType.NotRequired, PropertyType.Simple)]
 		public string NCEA { get; set; }
 
 		[PropertyOptions("Номер счета", RequiredType.NotRequired, PropertyType.Simple)]
 		public string Account { get; set; }
 
-		//[PropertyOptions("", RequiredType.ForSearch, PropertyType.Simple)]
+		[PropertyOptions("", RequiredType.NotRequired, PropertyType.Simple)]
 		public string CanExchange { get; set; }
-		//[PropertyOptions("", RequiredType.ForSearch, PropertyType.Simple)]
+		
+		[PropertyOptions("", RequiredType.NotRequired, PropertyType.Simple)]
 		public string Code { get; set; }
-		//[PropertyOptions("", RequiredType.ForSearch, PropertyType.Simple)]
+		
+		[PropertyOptions("", RequiredType.Required, PropertyType.Simple)]
 		public string Status { get; set; }
 
 		[PropertyOptions("Населенный пункт", RequiredType.NotRequired, PropertyType.Entity)]

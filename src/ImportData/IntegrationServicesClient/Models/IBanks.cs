@@ -1,4 +1,6 @@
-﻿namespace ImportData.IntegrationServicesClient.Models
+﻿using System.Collections.Generic;
+
+namespace ImportData.IntegrationServicesClient.Models
 {
     [EntityName("Банк")]
     public  class IBanks : ICounterparties
@@ -9,5 +11,11 @@
         public string BIC { get; set; }
         public string CorrespondentAccount { get; set; }
         public bool IsSystem { get; set; }
+
+        new public static IBanks FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+        {
+            var name = propertiesForSearch[Constants.KeyAttributes.Name];
+            return BusinessLogic.GetEntityWithFilter<IBanks>(x => x.Name == name, exceptionList, logger);
+        }
     }
 }
