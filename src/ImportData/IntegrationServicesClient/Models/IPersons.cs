@@ -32,13 +32,13 @@ namespace ImportData.IntegrationServicesClient.Models
 		[PropertyOptions("Пол", RequiredType.NotRequired, PropertyType.Simple)]
 		public string Sex { get; set; }
 
-		new public static IPersons CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+		new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
 		{
 			var firstName = propertiesForSearch["FirstName"];
 			var middleName = propertiesForSearch["MiddleName"];
 			var lastName = propertiesForSearch["LastName"];
 
-			return BusinessLogic.CreateEntity<IPersons>(new IPersons() { FirstName = firstName, MiddleName = middleName, LastName = lastName, Name = string.Format("{0} {1} {2}", lastName, firstName, middleName), Status = "Active" }, exceptionList, logger);
+			return BusinessLogic.CreateEntity(new IPersons() { FirstName = firstName, MiddleName = middleName, LastName = lastName, Name = string.Format("{0} {1} {2}", lastName, firstName, middleName), Status = "Active" }, exceptionList, logger);
 		}
 
 		new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
@@ -66,6 +66,14 @@ namespace ImportData.IntegrationServicesClient.Models
 			entity.ResultValues["Status"] = "Active";
 
 			return false;
+		}
+
+		new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+		{
+			if (isNewEntity)
+				BusinessLogic.CreateEntity((IPersons)entity, exceptionList, logger);
+			else
+				BusinessLogic.UpdateEntity((IPersons)entity, exceptionList, logger);
 		}
 	}
 }

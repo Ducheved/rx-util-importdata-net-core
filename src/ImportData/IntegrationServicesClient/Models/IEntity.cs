@@ -36,7 +36,7 @@ namespace ImportData.IntegrationServicesClient.Models
 		/// <param name="exceptionList">Список ошибок.</param>
 		/// <param name="logger">Логировщик.</param>
 		/// <returns>Созданная сущность.</returns>
-        public static IPersons CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+        public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
         {
             return null;
         }
@@ -61,6 +61,18 @@ namespace ImportData.IntegrationServicesClient.Models
         public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
         {
             return false;
+        }
+
+        /// <summary>
+        /// Создание / обновление сущности через OData.
+        /// </summary>
+        /// <param name="entity">Сущность.</param>
+        /// <param name="isNewEntity">True, если сущность создается, false, если обновляется.</param>
+        /// <param name="exceptionList">Список ошибок.</param>
+		/// <param name="logger">Логировщик.</param>
+        public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+        {
+           // Будет переопределен в дочерних классах.
         }
     }
 }

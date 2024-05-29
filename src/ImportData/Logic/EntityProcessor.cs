@@ -72,14 +72,14 @@ namespace ImportData
 
         if (supplementEntityList.Contains(importItem[0]))
           supplementEntity = true;
-
+        
         if (entity != null)
         {
           if (importItemCount >= entity.GetPropertiesCount())
           {
             logger.Info($"Обработка сущности {row - 1}");
             watch.Restart();
-         //   exceptionList = entity.SaveToRX(logger, supplementEntity, searchDoubles).ToList();
+           // exceptionList = entity.SaveToRX(logger, supplementEntity, searchDoubles).ToList();
             exceptionList = entity.Save(logger, supplementEntity, searchDoubles).ToList();
             watch.Stop();
             elapsedMs = watch.ElapsedMilliseconds;

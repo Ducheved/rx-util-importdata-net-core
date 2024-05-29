@@ -34,7 +34,7 @@ namespace ImportData.IntegrationServicesClient.Models
 		[PropertyOptions("Персона", RequiredType.NotRequired, PropertyType.EntityWithCreate, AdditionalCharacters.CreateFromOtherProperties)]
         public IPersons Person { get; set; }
 
-        new public static IContacts FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+        new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
         {
             var name = propertiesForSearch[Constants.KeyAttributes.Name];
             return BusinessLogic.GetEntityWithFilter<IContacts>(x => x.Name == name, exceptionList, logger);
@@ -52,6 +52,14 @@ namespace ImportData.IntegrationServicesClient.Models
 			entity.ResultValues["Status"] = "Active";
 
 			return false;
+		}
+
+		new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+		{
+			if (isNewEntity)
+				BusinessLogic.CreateEntity((IContacts)entity, exceptionList, logger);
+			else
+				BusinessLogic.UpdateEntity((IContacts)entity, exceptionList, logger);
 		}
 	}
 }

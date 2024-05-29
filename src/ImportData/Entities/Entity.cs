@@ -76,7 +76,7 @@ namespace ImportData
 					if (property.PropertyType == typeof(DateTimeOffset?))
 					{
 						variableForParameters = TransformDateTime((string)variableForParameters, options, exceptionList, logger);
-						if ((DateTimeOffset)variableForParameters == DateTimeOffset.MinValue && options.IsRequired())
+						if (variableForParameters == null && options.IsRequired())
 							return exceptionList;
 					}
 
@@ -124,10 +124,8 @@ namespace ImportData
 				// Заполнение полей.
 				UpdateProperties(entity);
 
-				if (isNewEntity)
-					BusinessLogic.CreateEntity(entity, exceptionList, logger);
-				else
-					BusinessLogic.UpdateEntity(entity, exceptionList, logger);
+				// Создание сущности.
+				MethodCall(EntityType, "CreateOrUpdate", entity, isNewEntity, exceptionList, logger);
 			}
 			catch (Exception ex)
 			{
@@ -284,7 +282,7 @@ namespace ImportData
 		/// <param name="exceptionList">Список ошибок.</param>
 		/// <param name="logger">Логировщик.</param>
 		/// <returns>Преобразованная дата.</returns>
-		public DateTimeOffset TransformDateTime(string value, PropertyOptions options, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+		public DateTimeOffset? TransformDateTime(string value, PropertyOptions options, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
 		{
 			var style = NumberStyles.Number | NumberStyles.AllowCurrencySymbol;
 			var culture = CultureInfo.CreateSpecificCulture("en-GB");
@@ -301,7 +299,7 @@ namespace ImportData
 				else
 					GetWarnResult(exceptionList, logger, message, options.ExcelName, value);
 				
-				return DateTimeOffset.MinValue;
+				return null;
 			}
 		}
 
