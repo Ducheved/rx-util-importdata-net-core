@@ -11,6 +11,8 @@ using System.Text.RegularExpressions;
 using ImportData.IntegrationServicesClient.Exceptions;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Extensions.Logging;
+using DocumentFormat.OpenXml.Vml.Office;
+using System.Reflection;
 
 namespace ImportData
 {
@@ -36,6 +38,24 @@ namespace ImportData
       }
 
       return string.Empty;
+    }
+
+    /// <summary>
+    /// Получить значения атрибутов свойства.
+    /// </summary>
+    /// <param name="p">Свойство.</param>
+    /// <returns>Значения атрибутов.</returns>
+    public static PropertyOptions GetPropertyOptions(PropertyInfo p)
+    {
+        Attribute[] attrs = Attribute.GetCustomAttributes(p);
+
+        foreach (Attribute attr in attrs)
+        {
+            if (attr is PropertyOptions)
+                return (PropertyOptions)attr;
+        }
+
+        return null;
     }
 
     /// <summary>

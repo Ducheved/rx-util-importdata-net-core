@@ -10,6 +10,7 @@ namespace ImportData
     class Person : Entity
     {
         public int PropertiesCount = 17;
+        protected override Type EntityType { get { return typeof(IPersons); } }
         /// <summary>
         /// Получить наименование число запрашиваемых параметров.
         /// </summary>

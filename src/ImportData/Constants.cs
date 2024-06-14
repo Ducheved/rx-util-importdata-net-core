@@ -19,6 +19,11 @@ namespace ImportData
             public const string Debug = "Debug";
         }
 
+        public class KeyAttributes
+        {
+            public const string Name = "Name";
+        }
+
         public class SheetNames
         {
             public const string BusinessUnits = "НашиОрганизации";
@@ -106,6 +111,8 @@ namespace ImportData
             public const string NotValidTinRegionCode = "Введите ИНН с корректным кодом региона";
             public const string NotValidTin = "Введите ИНН с корректной контрольной цифрой.";
             public const string IncorrecNceoLength = "ОКПО должен содержать 8 или 10 цифр";
+            public const string EmptyColumn = "Не заполнено поле {0}.";
+            public const string EmptyProperty = "Не найдено значение для свойства {0}.";
         }
 
         public class ConfigServices
@@ -119,5 +126,25 @@ namespace ImportData
     {
       { ignoreDuplicates, ignoreDuplicates}
     };
+    }
+
+    public enum RequiredType
+    {
+        NotRequired = 0,
+        Required = 1
+    }
+
+    public enum PropertyType
+    {
+        Simple = 0,
+        Entity = 1,
+        EntityWithCreate = 2
+    }
+
+    public enum AdditionalCharacters
+    {
+        Default = 0,
+        ForSearch = 1,
+        CreateFromOtherProperties = 2
     }
 }

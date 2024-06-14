@@ -8,6 +8,7 @@ namespace ImportData.Entities.Databooks
     public class Contact : Entity
     {
         public int PropertiesCount = 10;
+        protected override Type EntityType { get { return typeof(IContacts); } }
 
         /// <summary>
         /// Получить наименование число запрашиваемых параметров.

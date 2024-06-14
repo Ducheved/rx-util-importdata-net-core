@@ -38,7 +38,8 @@ namespace ImportData
       var listResult = new List<List<Structures.ExceptionsStruct>>();
       logger.Info("===================Чтение строк из файла===================");
       var watch = System.Diagnostics.Stopwatch.StartNew();
-      // Пропускаем 1 строку, т.к. в ней заголовки таблицы.
+
+	  // Пропускаем 1 строку, т.к. в ней заголовки таблицы.
       foreach (var importItem in importData.Skip(1))
       {
         int countItem = importItem.Count();
@@ -51,6 +52,9 @@ namespace ImportData
         arrayItems.Clear();
         row++;
       }
+
+	  var titles = importData.First();
+	  titles = titles.Take(titles.Count() - 3).ToList();
       watch.Stop();
       var elapsedMs = watch.ElapsedMilliseconds;
       logger.Info($"Времени затрачено на чтение строк из файла: {elapsedMs} мс");
@@ -61,20 +65,22 @@ namespace ImportData
       {
         supplementEntity = false;
         var entity = (Entity)getEntity.Invoke(processor, new object[] { importItem.ToArray(), extraParameters });
+        entity.NamingParameters = titles.Select((k, i) => (k, i)).ToDictionary(x => x.k, x => importItem[x.i]);
 
         if (!supplementEntityList.Contains(importItem[2]))
           supplementEntityList.Add(importItem[2]);
 
         if (supplementEntityList.Contains(importItem[0]))
           supplementEntity = true;
-
+        
         if (entity != null)
         {
           if (importItemCount >= entity.GetPropertiesCount())
           {
             logger.Info($"Обработка сущности {row - 1}");
             watch.Restart();
-            exceptionList = entity.SaveToRX(logger, supplementEntity, searchDoubles).ToList();
+           // exceptionList = entity.SaveToRX(logger, supplementEntity, searchDoubles).ToList();
+            exceptionList = entity.Save(logger, supplementEntity, searchDoubles).ToList();
             watch.Stop();
             elapsedMs = watch.ElapsedMilliseconds;
             if (exceptionList.Any(x => x.ErrorType == Constants.ErrorTypes.Error))
