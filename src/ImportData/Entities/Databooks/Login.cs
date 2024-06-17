@@ -8,11 +8,11 @@ namespace ImportData.Entities.Databooks
   public class Login : Entity
   {
     public int PropertiesCount = 4;
-
+    protected override Type EntityType { get { return typeof(ILogins); } }
     /// <summary>
-    /// Получить наименование число запрашиваемых параметров.
+    /// Получить количество используемых параметров.
     /// </summary>
-    /// <returns>Число запрашиваемых параметров.</returns>
+    /// <returns>Количество используемых параметров.</returns>
     public override int GetPropertiesCount()
     {
       return PropertiesCount;

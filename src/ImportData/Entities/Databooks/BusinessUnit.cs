@@ -8,11 +8,12 @@ namespace ImportData
     class BusinessUnit : Entity
     {
         public int PropertiesCount = 20;
-        /// <summary>
-        /// Получить наименование число запрашиваемых параметров.
-        /// </summary>
-        /// <returns>Число запрашиваемых параметров.</returns>
-        public override int GetPropertiesCount()
+    protected override Type EntityType { get { return typeof(IBusinessUnits); } }
+    /// <summary>
+    /// Получить количетсво используемых параметров.
+    /// </summary>
+    /// <returns>Количетсво используемых параметров.</returns>
+    public override int GetPropertiesCount()
         {
             return PropertiesCount;
         }

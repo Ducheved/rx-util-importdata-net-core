@@ -9,10 +9,11 @@ namespace ImportData
 	class Currency : Entity
 	{
 		public int PropertiesCount = 6;
-		/// <summary>
-		/// Получить наименование число запрашиваемых параметров.
-		/// </summary>
-		/// <returns>Число запрашиваемых параметров.</returns>
+    protected override Type EntityType { get { return typeof(ICurrencies); } }
+    /// <summary>
+    /// Получить количество используемых параметров.
+    /// </summary>
+    /// <returns>Количество используемых параметров.</returns>
 		public override int GetPropertiesCount()
 		{
 			return PropertiesCount;
