@@ -6,20 +6,12 @@ namespace ImportData.IntegrationServicesClient.Models
   [EntityName("Учетная запись")]
   public class ILogins : IEntityBase
   {
-    public bool? NeedChangePassword { get { return false; } set { } }
+    public bool? NeedChangePassword { get; set; }
     [PropertyOptions("Логин", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
 
     public string LoginName { get; set; }
-    public string TypeAuthentication
-    {
-      get { return "Windows"; }
-      set { }
-    }
-    public string Status
-    {
-      get { return "Active"; }
-      set {; }
-    }
+    public string TypeAuthentication { get; set; }
+    public string Status { get; set; }
 
     new public static IEntityBase CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
@@ -40,6 +32,9 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
+      entity.ResultValues["NeedChangePassword"] = false;
+      entity.ResultValues["TypeAuthentication"] = "Windows";
+      entity.ResultValues["Status"] = "Active";
       return false;
     }
     new public static void CreateOrUpdate(IEntityBase entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
