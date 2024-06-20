@@ -55,16 +55,17 @@ namespace ImportData.Entities.Databooks
 
       var phones = this.Parameters[shift + 5].Trim();
       var email = this.Parameters[shift + 7].Trim();
+      var name = string.Format("{0} {1} {2}", lastName, firstName, middleName);
       var person = BusinessLogic.GetEntityWithFilter<IPersons>(x => x.FirstName == firstName && x.MiddleName == middleName && x.LastName == lastName && x.Email == email, exceptionList, logger);
 
       if (person == null)
       {
-        person = BusinessLogic.CreateEntity<IPersons>(new IPersons() { FirstName = firstName, MiddleName = middleName, LastName = lastName, Name = string.Format("{0} {1} {2}", lastName, firstName, middleName), Status = "Active", Email = email, Phones = phones }, exceptionList, logger);
-        var message = string.Format("Не удалось создать персону \"{0} {1} {2}\".", lastName, firstName, middleName);
-        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-        logger.Error(message);
-
-        return exceptionList;
+        person = BusinessLogic.CreateEntity<IPersons>(new IPersons() { FirstName = firstName, MiddleName = middleName, LastName = lastName, Name = name, Status = "Active", Email = email, Phones = phones }, exceptionList, logger);
+      }
+      else if (person.Phones != phones)
+      {
+        person.Phones = phones;
+        BusinessLogic.UpdateEntity<IPersons>(person, exceptionList, logger);
       }
 
       var variableForParameters = this.Parameters[shift + 3].Trim();
@@ -86,8 +87,9 @@ namespace ImportData.Entities.Databooks
         var isNewContact = false;
 
         if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
-          contact = BusinessLogic.GetEntityWithFilter<IContacts>(x => x.Name == person.Name, exceptionList, logger);
-
+        {
+          contact = BusinessLogic.GetEntityWithFilter<IContacts>(x => x.Email == email && x.Name == name, exceptionList, logger);
+        }
         if (contact == null)
         {
           isNewContact = true;
@@ -96,7 +98,7 @@ namespace ImportData.Entities.Databooks
 
         contact.Person = person;
         contact.Company = company;
-        contact.Name = person.Name;
+        contact.Name = name;
         contact.JobTitle = jobTitle;
         contact.Phone = person.Phones;
         contact.Fax = fax;
