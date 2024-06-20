@@ -5,6 +5,8 @@ namespace ImportData.IntegrationServicesClient.Models
   [EntityName("Регионы")]
   public class IRegions : IEntity
   {
+    [PropertyOptions("Регион", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
+    new public string Name { get; set; }
     [PropertyOptions("Состояние", RequiredType.Required, PropertyType.Simple)]
     public string Status { get; set; }
     [PropertyOptions("Код", RequiredType.Required, PropertyType.Simple)]

@@ -1,28 +1,39 @@
-﻿using System.Collections.Generic;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using System.Collections.Generic;
 
 namespace ImportData.IntegrationServicesClient.Models
 {
   [EntityName("Подразделение")]
   public class IDepartments : IRecipients
   {
-    [PropertyOptions("Телефон", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
+    [PropertyOptions("Телефон", RequiredType.NotRequired, PropertyType.Simple)]
     public string Phone { get; set; }
     [PropertyOptions("Краткое наименование", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string ShortName { get; set; }
-    [PropertyOptions("Примечание", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
+    [PropertyOptions("Примечание", RequiredType.NotRequired, PropertyType.Simple)]
     public string Note { get; set; }
     [PropertyOptions("Код", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string Code { get; set; }
-    [PropertyOptions("Наша организация", RequiredType.NotRequired, PropertyType.EntityWithCreate)]
+    [PropertyOptions("Наша организация", RequiredType.NotRequired, PropertyType.EntityWithCreate, AdditionalCharacters.ForSearch)]
     public IBusinessUnits BusinessUnit { get; set; }
     [PropertyOptions("Головное подразделение", RequiredType.NotRequired, PropertyType.EntityWithCreate)]
     public IDepartments HeadOffice { get; set; }
-    [PropertyOptions("Руководитель", RequiredType.NotRequired, PropertyType.EntityWithCreate, AdditionalCharacters.CreateFromOtherProperties)]
+    [PropertyOptions("Руководитель", RequiredType.NotRequired, PropertyType.EntityWithCreate, AdditionalCharacters.ForSearch)]
     public IEmployees Manager { get; set; }
     new public static IDepartments CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch["Name"];
-      return BusinessLogic.CreateEntity<IDepartments>(new IDepartments() { Name = name, Status = "Active" }, exceptionList, logger);
+      var name = propertiesForSearch[Constants.KeyAttributes.Department];
+      var businessUnitName = propertiesForSearch[Constants.KeyAttributes.BusinessUnit];
+      var businessUnit = BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == businessUnitName, exceptionList, logger);
+      if (businessUnit == null)
+        businessUnit = BusinessLogic.CreateEntity<IBusinessUnits>(new IBusinessUnits() { Name = businessUnitName, Status = "Active" }, exceptionList, logger);
+      return BusinessLogic.CreateEntity<IDepartments>(new IDepartments()
+      {
+        Name = name,
+        BusinessUnit = businessUnit,
+        Status = "Active"
+      }, 
+      exceptionList, logger);
     }
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
@@ -32,11 +43,17 @@ namespace ImportData.IntegrationServicesClient.Models
     new public static string GetName(Entity entity)
     {
       var manager = (IEmployees)entity.ResultValues["Manager"];
+      if (manager == null)
+        return string.Empty;
       return manager.Name;
     }
     new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      //entity.ResultValues["Name"] = GetName(entity);
+      var managerName = GetName(entity);
+      entity.ResultValues["Manager"] = BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == managerName, exceptionList, logger);
+      if (entity.ResultValues[Constants.KeyAttributes.HeadOffice] != null 
+        && ((IDepartments)entity.ResultValues[Constants.KeyAttributes.HeadOffice]).Name == (string)entity.ResultValues[Constants.KeyAttributes.Name])
+        entity.ResultValues[Constants.KeyAttributes.HeadOffice] = null;
       entity.ResultValues["Status"] = "Active";
       return false;
     }

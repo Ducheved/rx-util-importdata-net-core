@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using System.Collections.Generic;
 
 namespace ImportData.IntegrationServicesClient.Models
 {
@@ -9,7 +10,7 @@ namespace ImportData.IntegrationServicesClient.Models
     public string Phone { get; set; }
     [PropertyOptions("Примечание", RequiredType.NotRequired, PropertyType.Simple)]
     public string Note { get; set; }
-    [PropertyOptions("Эл.почта", RequiredType.Required, PropertyType.Simple)]
+    [PropertyOptions("Эл.почта", RequiredType.NotRequired, PropertyType.Simple)]
     public string Email { get; set; }
     public bool? NeedNotifyExpiredAssignments { get; set; }
     public bool? NeedNotifyNewAssignments { get; set; }
@@ -20,24 +21,34 @@ namespace ImportData.IntegrationServicesClient.Models
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var name = propertiesForSearch[Constants.KeyAttributes.Name];
-      return BusinessLogic.GetEntityWithFilter<IJobTitles>(x => x.Name == name, exceptionList, logger);
+      return BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == name, exceptionList, logger);
     }
     new public static IEmployees CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch["Name"];
-      var person = (IPersons)entity.ResultValues["Person"];
-      var department = (IDepartments)entity.ResultValues["Department"];
-      return BusinessLogic.CreateEntity<IEmployees>(
-        new IEmployees()
-        {
-          Name = name,
-          Person = person,
-          Department = department,
-          Status = "Active"
-        },
-        exceptionList,
-        logger
-        );
+      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Manager) ?
+                                    propertiesForSearch[Constants.KeyAttributes.Manager] :
+                                    propertiesForSearch.ContainsKey(Constants.KeyAttributes.CEO) ?
+                                    propertiesForSearch[Constants.KeyAttributes.CEO] :
+                                    propertiesForSearch[Constants.KeyAttributes.Name];
+      if (entity.ResultValues.TryGetValue("Person", out var person)
+        && entity.ResultValues.TryGetValue("Department", out var department))
+      {
+        return BusinessLogic.CreateEntity<IEmployees>(
+          new IEmployees()
+          {
+            Name = name,
+            Person = (IPersons)person,
+            Department = (IDepartments)department,
+            Status = "Active"
+          },
+          exceptionList,
+          logger
+          );
+      }
+      else
+      {
+        return BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == name, exceptionList, logger);
+      }
     }
 
     new public static string GetName(Entity entity)

@@ -47,24 +47,44 @@ namespace ImportData.IntegrationServicesClient.Models
     public IBanks Bank { get; set; }
     new public static IBusinessUnits CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch["Name"];
-      return BusinessLogic.CreateEntity<IBusinessUnits>(new IBusinessUnits() { Name = name, Status = "Active" }, exceptionList, logger);
+      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.BusinessUnit) ?
+                                          propertiesForSearch[Constants.KeyAttributes.BusinessUnit] :
+                                          propertiesForSearch[Constants.KeyAttributes.Name];
+      var manager = propertiesForSearch[Constants.KeyAttributes.CEO];
+      var CEO = BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == manager, exceptionList, logger);
+      return BusinessLogic.CreateEntity<IBusinessUnits>(new IBusinessUnits() { Name = name, CEO = CEO, Status = "Active" }, exceptionList, logger);
     }
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch[Constants.KeyAttributes.Name];
+      string name = string.Empty;
+      if (propertiesForSearch.TryGetValue(Constants.KeyAttributes.HeadCompany, out name) && !string.IsNullOrEmpty(name))
+      {
+        return BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name, exceptionList, logger);
+      }
+      if (propertiesForSearch.TryGetValue(Constants.KeyAttributes.BusinessUnit, out name) && !string.IsNullOrEmpty(name))
+      {
+        return BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name, exceptionList, logger);
+      }
+      if (propertiesForSearch.TryGetValue(Constants.KeyAttributes.Name, out name) && !string.IsNullOrEmpty(name))
+      {
+        return BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name, exceptionList, logger);
+      }
       return BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name, exceptionList, logger);
     }
     new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
+      if (entity.ResultValues[Constants.KeyAttributes.HeadCompany] != null
+        && ((IBusinessUnits)entity.ResultValues[Constants.KeyAttributes.HeadCompany]).Name == (string)entity.ResultValues[Constants.KeyAttributes.Name])
+        entity.ResultValues[Constants.KeyAttributes.HeadCompany] = null;
+      entity.ResultValues["Status"] = "Active";
       return false;
     }
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((IDepartments)entity, exceptionList, logger);
+        BusinessLogic.CreateEntity((IBusinessUnits)entity, exceptionList, logger);
       else
-        BusinessLogic.UpdateEntity((IDepartments)entity, exceptionList, logger);
+        BusinessLogic.UpdateEntity((IBusinessUnits)entity, exceptionList, logger);
     }
   }
 }

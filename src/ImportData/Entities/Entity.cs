@@ -86,9 +86,20 @@ namespace ImportData
             // ВАЖНО: есть сущности, которые ищутся не по имени, для них подумать, как доработать GetPropertiesForSearch,
             // он должен в зависимости от сущности брать все поля по иерархии или только поля сущности
             // пока так
-            var propertiesForSearch = new Dictionary<string, string>();
+            //var propertiesForSearch = new Dictionary<string, string>();
+            var propertiesForSearch = GetPropertiesForSearch(property.PropertyType, exceptionList, logger);
             var entityName = (string)variableForParameters;
-            propertiesForSearch.Add("Name", entityName);
+            if (propertiesForSearch == null)
+            {
+              propertiesForSearch = new Dictionary<string, string>();
+            }
+            propertiesForSearch.TryAdd(property.Name, entityName);
+            if (!propertiesForSearch.TryAdd("Name", entityName)
+              && !string.IsNullOrEmpty(entityName)
+              && !propertiesForSearch.ContainsValue(entityName))
+            {
+              propertiesForSearch["Name"] = entityName;
+            }
             variableForParameters = MethodCall(property.PropertyType, "FindEntity", propertiesForSearch, this, false, exceptionList, logger);
             if (options.Type == PropertyType.EntityWithCreate && variableForParameters == null && !string.IsNullOrEmpty(entityName))
               variableForParameters = MethodCall(property.PropertyType, "CreateEntity", propertiesForSearch, this, exceptionList, logger);

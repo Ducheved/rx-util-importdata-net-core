@@ -22,6 +22,14 @@ namespace ImportData
         public class KeyAttributes
         {
             public const string Name = "Name";
+            public const string BusinessUnit = "BusinessUnit";
+            public const string Department = "Department";
+            public const string HeadCompany = "HeadCompany";
+            public const string HeadOffice = "HeadOffice";
+            public const string Manager = "Manager";
+            public const string CEO = "CEO";
+            public const string Region = "Region";
+            public const string City = "City";
         }
 
         public class SheetNames
