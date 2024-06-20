@@ -101,6 +101,7 @@ namespace ImportData
                 {ImportCaseFiles, ImportCaseFiles},
                 {ImportCountries, ImportCountries},
                 {ImportCurrencies, ImportCurrencies},
+                {ImportSubstitutions, ImportSubstitutions},
 
                 // Инициализация клиента, для тестов.
                 {InitForTests, InitForTests}
