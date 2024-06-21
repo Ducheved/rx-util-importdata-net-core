@@ -8,13 +8,13 @@ namespace ImportData.IntegrationServicesClient.Models
   {
     private DateTimeOffset? startDate;
     private DateTimeOffset? endDate;
-    [PropertyOptions("Дата начала", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
+    [PropertyOptions("Дата начала", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public DateTimeOffset? StartDate
     {
       get { return startDate; }
       set { startDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
     }
-    [PropertyOptions("Дата завершения", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
+    [PropertyOptions("Дата завершения", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public DateTimeOffset? EndDate
     {
       get { return endDate; }

@@ -18,7 +18,7 @@ namespace ImportData.IntegrationServicesClient.Models
     public IBusinessUnits BusinessUnit { get; set; }
     [PropertyOptions("Головное подразделение", RequiredType.NotRequired, PropertyType.EntityWithCreate)]
     public IDepartments HeadOffice { get; set; }
-    [PropertyOptions("Руководитель", RequiredType.NotRequired, PropertyType.EntityWithCreate, AdditionalCharacters.ForSearch)]
+    [PropertyOptions("Руководитель", RequiredType.NotRequired, PropertyType.EntityWithCreate, AdditionalCharacters.CreateFromOtherProperties)]
     public IEmployees Manager { get; set; }
     new public static IDepartments CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {

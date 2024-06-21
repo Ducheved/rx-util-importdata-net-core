@@ -65,7 +65,9 @@ namespace ImportData
       {
         supplementEntity = false;
         var entity = (Entity)getEntity.Invoke(processor, new object[] { importItem.ToArray(), extraParameters });
-        entity.NamingParameters = titles.Select((k, i) => (k, i)).ToDictionary(x => x.k, x => importItem[x.i]);
+        entity.NamingParameters = titles.Where(x=>x != string.Empty)
+          .Select((k, i) => (k, i))
+          .ToDictionary(x => x.k, x => importItem[x.i]);
 
         if (!supplementEntityList.Contains(importItem[2]))
           supplementEntityList.Add(importItem[2]);

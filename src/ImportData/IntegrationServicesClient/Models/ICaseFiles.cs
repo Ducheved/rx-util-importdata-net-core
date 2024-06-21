@@ -1,23 +1,100 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace ImportData.IntegrationServicesClient.Models
 {
-    [EntityName("Дело")]
-    public class ICaseFiles : IEntity
+  [EntityName("Дело")]
+  public class ICaseFiles : IEntity
+  {
+    private DateTimeOffset? startDate;
+    private DateTimeOffset? endDate;
+    [PropertyOptions("Заголовок", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
+    public string Title { get; set; }
+    [PropertyOptions("Индекс", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
+    public string Index { get; set; }
+    [PropertyOptions("Дата начала", RequiredType.Required, PropertyType.Simple)]
+    public DateTimeOffset? StartDate
     {
-        public string Title { get; set; }
-        public string Index { get; set; }
-        public DateTimeOffset? StartDate { get; set; }
-        public DateTimeOffset? EndDate { get; set; }
-        public string Note { get; set; }
-        public IDepartments Department { get; set; }
-        public IFileRetentionPeriods RetentionPeriod { get; set; }
-        public bool LongTerm { get; set; }
-        public string Location { get; set; }
-        public IRegistrationGroups RegistrationGroup { get; set; }
-        public string Status { get; set; }
-        public IBusinessUnits BusinessUnit { get; set; }
+      get { return startDate; }
+      set { startDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
     }
+    [PropertyOptions("Дата окончания", RequiredType.NotRequired, PropertyType.Simple)]
+    public DateTimeOffset? EndDate
+    {
+      get { return endDate; }
+      set { endDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
+    }
+    [PropertyOptions("Примечание", RequiredType.NotRequired, PropertyType.Simple)]
+    public string Note { get; set; }
+    [PropertyOptions("Подразделение", RequiredType.NotRequired, PropertyType.Entity)]
+    public IDepartments Department { get; set; }
+    [PropertyOptions("Наименование срока хранения", RequiredType.Required, PropertyType.EntityWithCreate, AdditionalCharacters.ForSearch)]
+    public IFileRetentionPeriods RetentionPeriod { get; set; }
+    public bool LongTerm { get; set; }
+    public string Location { get; set; }
+    [PropertyOptions("Группа регистрации", RequiredType.NotRequired, PropertyType.Entity)]
+    public IRegistrationGroups RegistrationGroup { get; set; }
+    public string Status { get; set; }
+    [PropertyOptions("НОР", RequiredType.NotRequired, PropertyType.Entity)]
+    public IBusinessUnits BusinessUnit { get; set; }
+    new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    {
+      var title = propertiesForSearch["Title"];
+      var index = propertiesForSearch["Index"];
+      var name = string.Format("{0}. {1}", index, title);
+      var startDate = DateTimeOffset.Parse(propertiesForSearch["StartDate"]);
+      var period = propertiesForSearch["RetentionPeriod"];
+      var retentionPeriod = BusinessLogic.GetEntityWithFilter<IFileRetentionPeriods>(x => x.Name == period, exceptionList, logger);
+      return BusinessLogic.CreateEntity(new ICaseFiles()
+      {
+        Title = title,
+        Index = index,
+        StartDate = startDate,
+        RetentionPeriod = retentionPeriod,
+        Name = name,
+        Status = "Active"
+      }, 
+      exceptionList, logger);
+    }
+
+    new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    {
+      var title = propertiesForSearch["Title"];
+      var index = propertiesForSearch["Index"];
+      return BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Title == title && x.Index == index, exceptionList, logger);
+    }
+    new public static string GetName(Entity entity)
+    {
+      var title = entity.ResultValues["Title"];
+      var index = entity.ResultValues["Index"];
+      return string.Format("{0}. {1}", index, title);
+    }
+    new public static DateTimeOffset? GetDateTime(Entity entity, string name)
+    {
+      var date = (DateTimeOffset)entity.ResultValues[name];
+      if (date == DateTimeOffset.MinValue)
+        return null;
+      return date;
+    }
+
+    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    {
+      entity.ResultValues["Name"] = GetName(entity);
+      entity.ResultValues["StartDate"] = GetDateTime(entity, "StartDate");
+      entity.ResultValues["EndDate"] = GetDateTime(entity, "EndDate");
+      entity.ResultValues["LongTerm"] = false;
+      entity.ResultValues["Status"] = "Active";
+      return false;
+    }
+
+    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    {
+      if (isNewEntity)
+        BusinessLogic.CreateEntity((ICaseFiles)entity, exceptionList, logger);
+      else
+        BusinessLogic.UpdateEntity((ICaseFiles)entity, exceptionList, logger);
+    }
+  }
 }
