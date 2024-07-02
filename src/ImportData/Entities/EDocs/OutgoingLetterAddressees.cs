@@ -8,6 +8,7 @@ namespace ImportData
   class OutgoingLetterAddressees : Entity
   {
     public int PropertiesCount = 4;
+    protected override Type EntityType { get { return typeof(IOutgoingLetterAddresseess); } }
     /// <summary>
     /// Получить число запрашиваемых параметров.
     /// </summary>

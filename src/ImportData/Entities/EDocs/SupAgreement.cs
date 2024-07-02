@@ -13,6 +13,7 @@ namespace ImportData
   class SupAgreement : Entity
   {
     public int PropertiesCount = 22;
+    protected override Type EntityType { get { return typeof(ISupAgreements); } }
     /// <summary>
     /// Получить наименование число запрашиваемых параметров.
     /// </summary>

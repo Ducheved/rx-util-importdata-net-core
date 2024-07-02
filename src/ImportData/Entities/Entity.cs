@@ -1,8 +1,10 @@
-﻿using ImportData.IntegrationServicesClient;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using ImportData.IntegrationServicesClient;
 using ImportData.IntegrationServicesClient.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -94,6 +96,7 @@ namespace ImportData
               propertiesForSearch = new Dictionary<string, string>();
             }
             propertiesForSearch.TryAdd(property.Name, entityName);
+            //TODO: Проверить, может параметр Name и вовсе не нужен, а работать с полями, которые отмечены при разметке сущностей
             if (!propertiesForSearch.TryAdd("Name", entityName)
               && !string.IsNullOrEmpty(entityName)
               && !propertiesForSearch.ContainsValue(entityName))
@@ -137,6 +140,12 @@ namespace ImportData
 
         // Создание сущности.
         MethodCall(EntityType, "CreateOrUpdate", entity, isNewEntity, exceptionList, logger);
+        if (NamingParameters.ContainsKey(Constants.CellNameFile))
+        {
+          var filePath = NamingParameters[Constants.CellNameFile];
+          if (!string.IsNullOrWhiteSpace(filePath))
+            exceptionList.AddRange(BusinessLogic.ImportBody((IElectronicDocuments)entity, filePath, logger));
+        }
       }
       catch (Exception ex)
       {

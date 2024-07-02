@@ -10,6 +10,7 @@ namespace ImportData
   class Order : Entity
   {
     public int PropertiesCount = 14;
+    protected override Type EntityType { get { return typeof(IOrders); } }
     /// <summary>
     /// Получить наименование число запрашиваемых параметров.
     /// </summary>

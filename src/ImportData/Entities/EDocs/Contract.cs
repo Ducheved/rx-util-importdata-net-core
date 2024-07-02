@@ -13,6 +13,7 @@ namespace ImportData
   public class Contract : Entity
   {
     public int PropertiesCount = 21;
+    protected override Type EntityType { get { return typeof(IContracts); } }
     /// <summary>
     /// Получить наименование число запрашиваемых параметров.
     /// </summary>

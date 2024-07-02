@@ -380,7 +380,10 @@ namespace ImportData
         {
             {"Зарегистрирован", "Registered"},
             {"Зарезервирован", "Reserved"},
-            {"Не зарегистрирован", "NotRegistered"},
+            {"Не зарегистрирован", "NotRegistered" },
+            {"Registered", "Registered"},
+            {"Reserved", "Reserved"},
+            {"Not registered", "NotRegistered" },
             {"", null}
         };
 
@@ -408,6 +411,11 @@ namespace ImportData
             {"Аннулирован", "Obsolete"},
             {"Расторгнут", "Terminated"},
             {"Исполнен", "Closed"},
+            {"Draft", "Draft"},
+            {"Active", "Active"},
+            {"Obsolete", "Obsolete"},
+            {"Terminated", "Terminated"},
+            {"Closed", "Closed"},
             {"", null}
         };
 
@@ -475,7 +483,6 @@ namespace ImportData
         throw new WellKnownKeyNotFoundException(key, ex.Message, ex.InnerException);
       }
     }
-
     #endregion
 
     #region Проверка валидации.

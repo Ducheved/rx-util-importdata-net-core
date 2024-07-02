@@ -10,6 +10,7 @@ namespace ImportData
   class IncomingLetter : Entity
   {
     public int PropertiesCount = 14;
+    protected override Type EntityType { get { return typeof(IIncomingLetters); } }
     /// <summary>
     /// Получить наименование число запрашиваемых параметров.
     /// </summary>
