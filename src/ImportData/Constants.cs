@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ImportData.IntegrationServicesClient.Models;
+using Microsoft.Data.Edm.Library;
+using System;
 using System.Collections.Generic;
 
 namespace ImportData
@@ -23,6 +25,7 @@ namespace ImportData
     {
       public const string Name = "Name";
       public const string BusinessUnit = "BusinessUnit";
+      public const string Counterparty = "Counterparty";
       public const string Department = "Department";
       public const string HeadCompany = "HeadCompany";
       public const string HeadOffice = "HeadOffice";
@@ -32,6 +35,9 @@ namespace ImportData
       public const string City = "City";
       public const string RegistrationNumber = "RegistrationNumber";
       public const string RegistrationDate = "RegistrationDate";
+      public const string DocumentGroup = "DocumentGroup";
+      public const string DocumentKind = "DocumentKind";
+      public const string Subject = "Subject";
     }
 
     public class SheetNames
@@ -124,6 +130,8 @@ namespace ImportData
       public const string IncorrecNceoLength = "ОКПО должен содержать 8 или 10 цифр";
       public const string EmptyColumn = "Не заполнено поле {0}.";
       public const string EmptyProperty = "Не найдено значение для свойства {0}.";
+      public const string FileNotExist = "Не найден файл по пути {0}.";
+      public const string NeedRequiredDocumentBody = "Импортирумая сущность должна содержать тело документа, столбец с наименованием {0}.";
     }
 
     public class ConfigServices
@@ -137,6 +145,10 @@ namespace ImportData
     public static Dictionary<string, string> dictIgnoreDuplicates = new Dictionary<string, string>
     {
       { ignoreDuplicates, ignoreDuplicates}
+    };
+    public static readonly List<Type> RequiredDocumentBody = new List<Type>
+    {
+      typeof(IContracts)
     };
   }
 

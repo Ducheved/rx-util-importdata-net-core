@@ -37,11 +37,12 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("Вид документа", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     public IDocumentKinds DocumentKind { get; set; }
     public IOfficialDocuments LeadingDocument { get; set; }
+    [PropertyOptions("Категория", RequiredType.NotRequired, PropertyType.EntityWithCreate, AdditionalCharacters.ForSearch)]
     public IDocumentGroupBases DocumentGroup { get; set; }
     [PropertyOptions("Подразделение", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     public IDepartments Department { get; set; }
     public IEmployees DeliveredTo { get; set; }
-    [PropertyOptions("Подписал", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
+    [PropertyOptions("Подписал", RequiredType.NotRequired, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     public IEmployees OurSignatory { get; set; }
     [PropertyOptions("Подготовил", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     public IEmployees PreparedBy { get; set; }

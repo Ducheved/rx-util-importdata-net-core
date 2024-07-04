@@ -1,4 +1,7 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Vml.Office;
 using ImportData.IntegrationServicesClient;
 using ImportData.IntegrationServicesClient.Models;
 using System;
@@ -9,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace ImportData
 {
@@ -45,6 +49,14 @@ namespace ImportData
     public virtual IEnumerable<Structures.ExceptionsStruct> Save(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
+      if (NeedRequiredDocumentBody(EntityType, out var exceptions))
+      {
+        if (exceptionList.Count > 0)
+        {
+          exceptionList.AddRange(exceptions);
+          return exceptionList;
+        }
+      }
       ResultValues = new Dictionary<string, object>();
 
       var properties = EntityType.GetProperties();
@@ -142,6 +154,8 @@ namespace ImportData
         MethodCall(EntityType, "CreateOrUpdate", entity, isNewEntity, exceptionList, logger);
         if (NamingParameters.ContainsKey(Constants.CellNameFile))
         {
+          if (isNewEntity)
+            entity = (IEntityBase)MethodCall(EntityType, "FindEntity", propertiesForCreate, this, true, exceptionList, logger);
           var filePath = NamingParameters[Constants.CellNameFile];
           if (!string.IsNullOrWhiteSpace(filePath))
             exceptionList.AddRange(BusinessLogic.ImportBody((IElectronicDocuments)entity, filePath, logger));
@@ -155,6 +169,46 @@ namespace ImportData
       }
 
       return new List<Structures.ExceptionsStruct>();
+    }
+
+    /// <summary>
+    /// Проверка требования наличия пути к телу документа и самого документа по пути
+    /// </summary>
+    /// <param name="entityType">Сущность RX для заполнения.</param>
+    /// <returns>Результат проверки.</returns>
+    private bool NeedRequiredDocumentBody(Type entityType, out List<Structures.ExceptionsStruct> exceptionList)
+    {
+      exceptionList = new List<Structures.ExceptionsStruct>();
+      if (Constants.RequiredDocumentBody.Contains(entityType))
+      {
+        if (NamingParameters.ContainsKey(Constants.CellNameFile))
+        {
+          var pathToBody = NamingParameters[Constants.CellNameFile];
+          if (string.IsNullOrWhiteSpace(pathToBody))
+          {
+            exceptionList.Add(new Structures.ExceptionsStruct
+            {
+              ErrorType = Constants.ErrorTypes.Error,
+              Message = string.Format(Constants.Resources.EmptyColumn, Constants.CellNameFile)
+            });
+          }
+          if (!System.IO.File.Exists(pathToBody))
+            exceptionList.Add(new Structures.ExceptionsStruct
+            {
+              ErrorType = Constants.ErrorTypes.Error,
+              Message = string.Format(Constants.Resources.FileNotExist, pathToBody)
+            });
+        }
+        else
+          exceptionList.Add(new Structures.ExceptionsStruct
+          {
+            ErrorType = Constants.ErrorTypes.Error,
+            Message = string.Format(Constants.Resources.NeedRequiredDocumentBody, Constants.CellNameFile)
+          });
+        return true;
+      }
+      else
+        return false;
     }
 
 
@@ -264,7 +318,10 @@ namespace ImportData
       foreach (var property in entityProperties)
       {
         if (ResultValues.ContainsKey(property.Name))
-          property.SetValue(entity, ResultValues[property.Name]);
+          if (property.PropertyType == typeof(double))
+            property.SetValue(entity, Convert.ToDouble(ResultValues[property.Name]));
+          else
+            property.SetValue(entity, ResultValues[property.Name]);
       }
     }
 
