@@ -51,7 +51,7 @@ namespace ImportData
       var exceptionList = new List<Structures.ExceptionsStruct>();
       if (NeedRequiredDocumentBody(EntityType, out var exceptions))
       {
-        if (exceptionList.Count > 0)
+        if (exceptions.Count > 0)
         {
           exceptionList.AddRange(exceptions);
           return exceptionList;
@@ -152,10 +152,9 @@ namespace ImportData
 
         // Создание сущности.
         MethodCall(EntityType, "CreateOrUpdate", entity, isNewEntity, exceptionList, logger);
-        if (NamingParameters.ContainsKey(Constants.CellNameFile))
+        if (NamingParameters.ContainsKey(Constants.CellNameFile) && isNewEntity)
         {
-          if (isNewEntity)
-            entity = (IEntityBase)MethodCall(EntityType, "FindEntity", propertiesForCreate, this, true, exceptionList, logger);
+          entity = (IEntityBase)MethodCall(EntityType, "FindEntity", propertiesForCreate, this, true, exceptionList, logger);
           var filePath = NamingParameters[Constants.CellNameFile];
           if (!string.IsNullOrWhiteSpace(filePath))
             exceptionList.AddRange(BusinessLogic.ImportBody((IElectronicDocuments)entity, filePath, logger));

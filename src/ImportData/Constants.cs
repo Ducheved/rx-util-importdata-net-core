@@ -38,6 +38,7 @@ namespace ImportData
       public const string DocumentGroup = "DocumentGroup";
       public const string DocumentKind = "DocumentKind";
       public const string Subject = "Subject";
+      public const string DocumentRegister = "DocumentRegister";
     }
 
     public class SheetNames

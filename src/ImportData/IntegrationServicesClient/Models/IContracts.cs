@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Xml.Linq;
 
 namespace ImportData.IntegrationServicesClient.Models
@@ -16,7 +17,7 @@ namespace ImportData.IntegrationServicesClient.Models
       get { return registrationDate; }
       set { registrationDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
     }
-    [PropertyOptions("ИД журнала регистрации", RequiredType.Required, PropertyType.Entity)]
+    [PropertyOptions("ИД журнала регистрации", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     new public IDocumentRegisters DocumentRegister { get; set; }
     new public static IContracts FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
@@ -51,7 +52,11 @@ namespace ImportData.IntegrationServicesClient.Models
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((IContracts)entity, exceptionList, logger);
+      {
+        var lifeCycleState = ((IContracts)entity).LifeCycleState;
+        entity = BusinessLogic.CreateEntity((IContracts)entity, exceptionList, logger);
+        ((IContracts)entity)?.UpdateLifeCycleState(lifeCycleState);
+      }
       else
         BusinessLogic.UpdateEntity((IContracts)entity, exceptionList, logger);
     }
