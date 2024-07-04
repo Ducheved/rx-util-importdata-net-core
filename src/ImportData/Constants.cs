@@ -39,6 +39,8 @@ namespace ImportData
       public const string DocumentKind = "DocumentKind";
       public const string Subject = "Subject";
       public const string DocumentRegister = "DocumentRegister";
+      public const string DeliveryMethod = "DeliveryMethod";
+      public const string Correspondent = "Correspondent";
     }
 
     public class SheetNames
@@ -149,7 +151,8 @@ namespace ImportData
     };
     public static readonly List<Type> RequiredDocumentBody = new List<Type>
     {
-      typeof(IContracts)
+      typeof(IContracts),
+      typeof(IIncomingLetters)
     };
   }
 

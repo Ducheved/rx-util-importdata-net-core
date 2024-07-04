@@ -32,7 +32,7 @@ namespace ImportData.IntegrationServicesClient.Models
     public string LifeCycleState { get; set; }
     [PropertyOptions("Регистрация", RequiredType.Required, PropertyType.Simple)]
     public string RegistrationState { get; set; }
-    [PropertyOptions("Журнал регистрации", RequiredType.Required, PropertyType.Entity)]
+    [PropertyOptions("Журнал регистрации", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     public IDocumentRegisters DocumentRegister { get; set; }
     [PropertyOptions("Вид документа", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     public IDocumentKinds DocumentKind { get; set; }

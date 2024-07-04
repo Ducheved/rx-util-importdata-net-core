@@ -23,7 +23,7 @@ namespace ImportData.IntegrationServicesClient.Models
       var name = propertiesForSearch[Constants.KeyAttributes.Name];
       return BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == name, exceptionList, logger);
     }
-    new public static IEmployees CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Manager) ?
                                     propertiesForSearch[Constants.KeyAttributes.Manager] :

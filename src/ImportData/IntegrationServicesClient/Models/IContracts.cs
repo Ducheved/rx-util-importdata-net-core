@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Xml.Linq;
@@ -21,15 +22,24 @@ namespace ImportData.IntegrationServicesClient.Models
     new public IDocumentRegisters DocumentRegister { get; set; }
     new public static IContracts FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
+      var contracts = new IContracts();
       var subject = propertiesForSearch[Constants.KeyAttributes.Subject];
-      var documentKind = propertiesForSearch[Constants.KeyAttributes.DocumentKind];
-      var counterparty = propertiesForSearch[Constants.KeyAttributes.Counterparty];
-      var registrationNumber = propertiesForSearch[Constants.KeyAttributes.RegistrationNumber];
-      if (GetDate(propertiesForSearch[Constants.KeyAttributes.RegistrationDate], out var registrationDate))
+      var regNumber = propertiesForSearch[Constants.KeyAttributes.RegistrationNumber];
+      var counterpartyName = propertiesForSearch[Constants.KeyAttributes.Counterparty];
+      var docRegisterId = propertiesForSearch[Constants.KeyAttributes.DocumentRegister];
+      var counterparty = BusinessLogic.GetEntityWithFilter<ICounterparties>(x => x.Name == counterpartyName, exceptionList, logger);
+      if (GetDate(propertiesForSearch[Constants.KeyAttributes.RegistrationDate], out var registrationDate) &&
+        int.TryParse(docRegisterId, out int documentRegisterId))
       {
-        var name = $"{documentKind} №{registrationNumber} от {registrationDate.ToString("dd.MM.yyyy")} с {counterparty} \"{subject}\"";
-        return BusinessLogic.GetEntityWithFilter<IContracts>(x => x.Name == name, exceptionList, logger);
+        var documentRegister = BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(x => x.Id == documentRegisterId, exceptionList, logger);
+        contracts = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null &&
+          x.RegistrationNumber == regNumber &&
+          x.RegistrationDate.Value.ToString("d") == registrationDate.ToString("d") &&
+          x.Counterparty.Id == counterparty.Id &&
+          x.DocumentRegister.Id == documentRegister.Id, exceptionList, logger, true);
       }
+      if (contracts != null)
+        return BusinessLogic.GetEntityWithFilter<IContracts>(x => x.Id == contracts.Id, exceptionList, logger);
       return null;
     }
     new public static string GetName(Entity entity)
