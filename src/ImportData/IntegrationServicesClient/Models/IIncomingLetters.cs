@@ -10,7 +10,7 @@ namespace ImportData.IntegrationServicesClient.Models
     private DateTimeOffset? dated;
     private DateTimeOffset? registrationDate;
     [PropertyOptions("№", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
-    public string RegistrationNumber { get; set; }
+    new public string RegistrationNumber { get; set; }
     [PropertyOptions("Дата регистрации", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     new public DateTimeOffset? RegistrationDate
     {
