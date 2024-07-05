@@ -1,5 +1,9 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Office2010.Word;
+using DocumentFormat.OpenXml.Validation;
+using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Xml.Linq;
 
 namespace ImportData.IntegrationServicesClient.Models
 {
@@ -7,6 +11,7 @@ namespace ImportData.IntegrationServicesClient.Models
   public class IAddendums : IInternalDocumentBases
   {
     private DateTimeOffset? registrationDate;
+    private DateTimeOffset? documentDate;
     [PropertyOptions("Рег. №", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     new public string RegistrationNumber { get; set; }
     [PropertyOptions("Дата регистрации", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
@@ -15,17 +20,40 @@ namespace ImportData.IntegrationServicesClient.Models
       get { return registrationDate; }
       set { registrationDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
     }
+    [PropertyOptions("№ договора", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
+    new public IOfficialDocuments LeadingDocument { get; set; }
+    [PropertyOptions("Дата договора", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
+    new public DateTimeOffset? DocumentDate
+    {
+      get { return documentDate; }
+      set { documentDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
+    }
+    [PropertyOptions("Журнал регистрации", RequiredType.NotRequired, PropertyType.Entity, AdditionalCharacters.ForSearch)]
+    new public IDocumentRegisters DocumentRegister { get; set; }
+    [PropertyOptions("Регистрация", RequiredType.NotRequired, PropertyType.Simple)]
+    new public string RegistrationState { get; set; }
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
+      var addendum = new IAddendums();
       var subject = propertiesForSearch[Constants.KeyAttributes.Subject];
       var documentKindName = propertiesForSearch[Constants.KeyAttributes.DocumentKind];
+      var documentKind = BusinessLogic.GetEntityWithFilter<IDocumentKinds>(x => x.Name == documentKindName, exceptionList, logger);
+      var docRegisterId = propertiesForSearch[Constants.KeyAttributes.DocumentRegister];
       var registrationNumber = propertiesForSearch[Constants.KeyAttributes.RegistrationNumber];
-      var department = propertiesForSearch[Constants.KeyAttributes.Department];
-      if (GetDate(propertiesForSearch[Constants.KeyAttributes.RegistrationDate], out var registrationDate))
+      var leadingDocumentNumber = propertiesForSearch[Constants.KeyAttributes.LeadingDocument];
+      if (GetDate(propertiesForSearch[Constants.KeyAttributes.DocumentDate], out var leadingDocumentDate) 
+        && int.TryParse(docRegisterId, out int documentRegisterId))
       {
-        var name = $"{documentKindName} №{registrationNumber} от {registrationDate.ToString("dd.MM.yyyy")} \"{subject}\"";
-        return BusinessLogic.GetEntityWithFilter<ICompanyDirective>(x => x.Name == name, exceptionList, logger);
+        var leadingDocument = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.RegistrationNumber != null &&
+            x.RegistrationNumber == leadingDocumentNumber &&
+            x.DocumentDate.Value.ToString("d") == leadingDocumentDate.ToString("d"), exceptionList, logger, true);
+        var documentRegister = BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(x => x.Id == documentRegisterId, exceptionList, logger);
+        addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.LeadingDocument.Id == leadingDocument.Id &&
+          x.DocumentKind.Id == documentKind.Id &&
+          x.Subject == subject, exceptionList, logger, true);
       }
+      if (addendum != null)
+        return BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.Id == addendum.Id, exceptionList, logger);
       return null;
     }
     new public static string GetName(Entity entity)
@@ -46,9 +74,13 @@ namespace ImportData.IntegrationServicesClient.Models
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((ICompanyDirective)entity, exceptionList, logger);
+      {
+        var lifeCycleState = ((IAddendums)entity).LifeCycleState;
+        entity = BusinessLogic.CreateEntity((IAddendums)entity, exceptionList, logger);
+        ((IAddendums)entity)?.UpdateLifeCycleState(lifeCycleState);
+      }
       else
-        BusinessLogic.UpdateEntity((ICompanyDirective)entity, exceptionList, logger);
+        BusinessLogic.UpdateEntity((IAddendums)entity, exceptionList, logger);
     }
   }
 }

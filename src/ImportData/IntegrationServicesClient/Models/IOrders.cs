@@ -47,8 +47,8 @@ namespace ImportData.IntegrationServicesClient.Models
     }
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var subject = propertiesForSearch["Subject"];
-      var documentKindName = propertiesForSearch["DocumentKind"];
+      var subject = propertiesForSearch[Constants.KeyAttributes.Subject];
+      var documentKindName = propertiesForSearch[Constants.KeyAttributes.DocumentKind];
       var registrationNumber = propertiesForSearch[Constants.KeyAttributes.RegistrationNumber];
       var department = propertiesForSearch[Constants.KeyAttributes.Department];
       if (GetDate(propertiesForSearch[Constants.KeyAttributes.RegistrationDate], out var registrationDate))
@@ -60,8 +60,8 @@ namespace ImportData.IntegrationServicesClient.Models
     }
     new public static string GetName(Entity entity)
     {
-      var documentKind = entity.ResultValues["DocumentKind"];
-      var subject = entity.ResultValues["Subject"];
+      var subject = entity.ResultValues[Constants.KeyAttributes.Subject];
+      var documentKind = entity.ResultValues[Constants.KeyAttributes.DocumentKind];
       return string.Format("{0} \"{1}\"", documentKind, subject);
     }
     new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

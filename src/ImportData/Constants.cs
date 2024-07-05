@@ -155,7 +155,8 @@ namespace ImportData
     {
       typeof(IContracts),
       typeof(IIncomingLetters),
-      typeof(ISupAgreements)
+      typeof(ISupAgreements),
+      typeof(IAddendums)
     };
   }
 
