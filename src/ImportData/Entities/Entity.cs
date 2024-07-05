@@ -49,7 +49,7 @@ namespace ImportData
     public virtual IEnumerable<Structures.ExceptionsStruct> Save(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
-      if (NeedRequiredDocumentBody(EntityType, out var exceptions))
+      if (CheckNeedRequiredDocumentBody(EntityType, out var exceptions))
       {
         if (exceptions.Count > 0)
         {
@@ -108,7 +108,6 @@ namespace ImportData
               propertiesForSearch = new Dictionary<string, string>();
             }
             propertiesForSearch.TryAdd(property.Name, entityName);
-            //TODO: Проверить, может параметр Name и вовсе не нужен, а работать с полями, которые отмечены при разметке сущностей
             if (!propertiesForSearch.TryAdd("Name", entityName)
               && !string.IsNullOrEmpty(entityName)
               && !propertiesForSearch.ContainsValue(entityName))
@@ -156,7 +155,7 @@ namespace ImportData
         {
           entity = (IEntityBase)MethodCall(EntityType, "FindEntity", propertiesForCreate, this, true, exceptionList, logger);
           var filePath = NamingParameters[Constants.CellNameFile];
-          if (!string.IsNullOrWhiteSpace(filePath))
+          if (!string.IsNullOrWhiteSpace(filePath) && entity != null)
             exceptionList.AddRange(BusinessLogic.ImportBody((IElectronicDocuments)entity, filePath, logger));
         }
       }
@@ -175,7 +174,7 @@ namespace ImportData
     /// </summary>
     /// <param name="entityType">Сущность RX для заполнения.</param>
     /// <returns>Результат проверки.</returns>
-    private bool NeedRequiredDocumentBody(Type entityType, out List<Structures.ExceptionsStruct> exceptionList)
+    private bool CheckNeedRequiredDocumentBody(Type entityType, out List<Structures.ExceptionsStruct> exceptionList)
     {
       exceptionList = new List<Structures.ExceptionsStruct>();
       if (Constants.RequiredDocumentBody.Contains(entityType))

@@ -23,6 +23,7 @@ namespace ImportData.IntegrationServicesClient.Models
     public string Subject { get; set; }
     [PropertyOptions("Примечание", RequiredType.NotRequired, PropertyType.Simple)]
     public string Note { get; set; }
+    [PropertyOptions("Дата договора", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public DateTimeOffset? DocumentDate
     {
       get { return documentDate; }
@@ -51,6 +52,21 @@ namespace ImportData.IntegrationServicesClient.Models
     {
       get { return placedToCaseFileDate; }
       set { placedToCaseFileDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
+    }
+
+    new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    {
+      var officialDocument = new IOfficialDocuments();
+      var regNumber = propertiesForSearch[Constants.KeyAttributes.LeadingDocument];
+      if (GetDate(propertiesForSearch[Constants.KeyAttributes.DocumentDate], out var documentDate))
+      {
+        officialDocument = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.RegistrationNumber != null &&
+          x.RegistrationNumber == regNumber &&
+          x.DocumentDate.Value.ToString("d") == documentDate.ToString("d"), exceptionList, logger, true);
+      }
+      if (officialDocument != null)
+        return BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.Id == officialDocument.Id, exceptionList, logger);
+      return null;
     }
 
     public static IOfficialDocuments GetDocumentByRegistrationDate(IEnumerable<IOfficialDocuments> documents, DateTimeOffset regDate, Logger logger, List<Structures.ExceptionsStruct> exceptionList)

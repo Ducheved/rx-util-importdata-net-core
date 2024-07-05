@@ -17,8 +17,8 @@ namespace ImportData.IntegrationServicesClient.Models
     }
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var subject = propertiesForSearch["Subject"];
-      var documentKindName = propertiesForSearch["DocumentKind"];
+      var subject = propertiesForSearch[Constants.KeyAttributes.Subject];
+      var documentKindName = propertiesForSearch[Constants.KeyAttributes.DocumentKind];
       var registrationNumber = propertiesForSearch[Constants.KeyAttributes.RegistrationNumber];
       var department = propertiesForSearch[Constants.KeyAttributes.Department];
       if (GetDate(propertiesForSearch[Constants.KeyAttributes.RegistrationDate], out var registrationDate))

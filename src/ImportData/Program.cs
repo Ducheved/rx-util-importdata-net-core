@@ -99,7 +99,7 @@ namespace ImportData
 
     public static void Main(string[] args)
     {
-      args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importoutgoingletters", "-f", $@"C:\Users\chirkov_ro\Desktop\Template\Templates\OutgoingLetters.xlsx" };
+      args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importsupagreements", "-f", $@"C:\Users\chirkov_ro\Desktop\Template\Templates\Supagreements.xlsx" };
       logger.Info("=========================== Process Start ===========================");
       var watch = System.Diagnostics.Stopwatch.StartNew();
 
