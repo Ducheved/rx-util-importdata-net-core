@@ -51,6 +51,11 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
+      if (propertiesForSearch.ContainsKey(Constants.KeyAttributes.OutgoingDocumentBase)
+        && int.TryParse(propertiesForSearch[Constants.KeyAttributes.OutgoingDocumentBase], out int OutgoingDocumentBaseId))
+      {
+        return BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.Id == OutgoingDocumentBaseId, exceptionList, logger);
+      }
       var incomingLetters = new IOutgoingLetters();
       var subject = propertiesForSearch[Constants.KeyAttributes.Subject];
       var docRegisterId = propertiesForSearch[Constants.KeyAttributes.DocumentRegister];

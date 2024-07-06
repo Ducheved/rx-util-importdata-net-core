@@ -43,6 +43,7 @@ namespace ImportData
       public const string Correspondent = "Correspondent";
       public const string LeadingDocument = "LeadingDocument";
       public const string DocumentDate = "DocumentDate";
+      public const string OutgoingDocumentBase = "OutgoingDocumentBase";
     }
 
     public class SheetNames

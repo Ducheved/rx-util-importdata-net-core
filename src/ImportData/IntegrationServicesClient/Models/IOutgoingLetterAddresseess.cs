@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImportData.Entities.Databooks;
+using System;
 using System.Collections.Generic;
 
 namespace ImportData.IntegrationServicesClient.Models
@@ -14,15 +15,28 @@ namespace ImportData.IntegrationServicesClient.Models
     public IContacts Addressee { get; set; }
     [PropertyOptions("Способ доставки", RequiredType.NotRequired, PropertyType.Entity)]
     public IMailDeliveryMethods DeliveryMethod { get; set; }
-    new public static IOutgoingLetterAddresseess CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       return null;
     }
-    new public static IEntityBase FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      if (int.TryParse(propertiesForSearch["name"], out int outgoingDocumentId))
-        return BusinessLogic.GetEntityWithFilter<IOutgoingLetterAddresseess>(x => x.OutgoingDocumentBase.Id == outgoingDocumentId, exceptionList, logger);
-      return null;
+      entity.ResultValues["IsManyAddressees"] = true;
+      return false;
+    }
+    new public static void CreateOrUpdate(IEntityBase entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    {
+      var outgoingLetterAddresseess = (IOutgoingLetterAddresseess)entity;
+      var outgoingLetter = outgoingLetterAddresseess.OutgoingDocumentBase;
+      var addressee = new IOutgoingLetterAddresseess
+      {
+        Addressee = outgoingLetterAddresseess.Addressee,
+        OutgoingDocumentBase = outgoingLetter,
+        DeliveryMethod = outgoingLetterAddresseess.DeliveryMethod,
+        Correspondent = outgoingLetterAddresseess.Correspondent,
+      };
+      outgoingLetter.CreateAddressee(addressee, logger);
+
     }
   }
 }
