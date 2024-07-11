@@ -62,7 +62,7 @@ namespace ImportData.IntegrationServicesClient.Models
     new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (entity.ResultValues[Constants.KeyAttributes.HeadCompany] != null
-        && ((IBusinessUnits)entity.ResultValues[Constants.KeyAttributes.HeadCompany]).Name == (string)entity.ResultValues[Constants.KeyAttributes.Name])
+        && ((IEntity)entity.ResultValues[Constants.KeyAttributes.HeadCompany]).Name == (string)entity.ResultValues[Constants.KeyAttributes.Name])
         entity.ResultValues[Constants.KeyAttributes.HeadCompany] = null;
       entity.ResultValues["Nonresident"] = BusinessLogic.GetPropertyResident((string)entity.ResultValues["Nonresident"]);
       entity.ResultValues["Status"] = "Active";

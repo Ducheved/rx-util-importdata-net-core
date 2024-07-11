@@ -11,16 +11,21 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IJobTitles CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch["Name"];
-      return BusinessLogic.CreateEntity<IJobTitles>(
-        new IJobTitles()
-        {
-          Name = name,
-          Status = "Active"
-        },
-        exceptionList,
-        logger
-        );
+      var name = propertiesForSearch[Constants.KeyAttributes.Name];
+      if (string.IsNullOrWhiteSpace(name))
+        return null;
+      var jobTitle = BusinessLogic.GetEntityWithFilter<IJobTitles>(x => x.Name == name, exceptionList, logger);
+      if (jobTitle == null)
+        return BusinessLogic.CreateEntity<IJobTitles>(
+          new IJobTitles()
+          {
+            Name = name,
+            Status = "Active"
+          },
+          exceptionList,
+          logger
+          );
+      return jobTitle;
     }
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

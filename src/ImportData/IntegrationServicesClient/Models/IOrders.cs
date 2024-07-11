@@ -75,7 +75,11 @@ namespace ImportData.IntegrationServicesClient.Models
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((IOrders)entity, exceptionList, logger);
+      {
+        var lifeCycleState = ((IOrders)entity).LifeCycleState;
+        entity = BusinessLogic.CreateEntity((IOrders)entity, exceptionList, logger);
+        ((IOrders)entity)?.UpdateLifeCycleState(lifeCycleState);
+      }
       else
         BusinessLogic.UpdateEntity((IOrders)entity, exceptionList, logger);
     }

@@ -52,6 +52,10 @@ namespace ImportData.IntegrationServicesClient.Models
     new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       entity.ResultValues["Status"] = "Active";
+      if ((DateTimeOffset)entity.ResultValues["StartDate"] == DateTimeOffset.MinValue)
+        entity.ResultValues["StartDate"] = null;
+      if ((DateTimeOffset)entity.ResultValues["EndDate"] == DateTimeOffset.MinValue)
+        entity.ResultValues["EndDate"] = null;
       return false;
     }
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
