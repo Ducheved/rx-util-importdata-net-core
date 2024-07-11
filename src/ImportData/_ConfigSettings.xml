@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <settings>
-  <var name="INTEGRATION_SERVICE_URL" value="http://localhost/integration/odata" />
+  <!--var name="INTEGRATION_SERVICE_URL" value="http://localhost/integration/odata" /-->
+  <var name="INTEGRATION_SERVICE_URL" value="http://rxbase.dev.comp.npo/integration/odata" />
   <var name="INTEGRATION_SERVICE_REQUEST_TIMEOUT" value="600" />
+  <var name="INTEGRATION_SERVICE_MAX_REQUESTS_PER_BATCH" value="100" />
 </settings>

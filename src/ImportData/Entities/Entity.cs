@@ -1,5 +1,7 @@
 ﻿using ImportData.Dto;
 using ImportData.Entities;
+using NLog;
+using Simple.OData.Client;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,6 +16,8 @@ namespace ImportData
         public string[] Parameters;
         public static Dictionary<string, string> ExtraParameters;
         public int PropertiesCount = 0;
+
+        public IDtoEntity DtoEntity { get; set; }
 
         /// <summary>
         /// Получить наименование число запрашиваемых параметров.
@@ -30,24 +34,34 @@ namespace ImportData
         /// <param name="logger">Логировщик.</param>
         /// <param name="shift">Сдвиг по горизонтали в XLSX документе. Необходим для обработки документов, составленных из элементов разных сущностей.</param>
         /// <returns>Список ошибок.</returns>
-        public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
+        public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
         {
             return null;
         }
 
-        //public virtual IEnumerable<Structures.ExceptionsStruct> Validate(NLog.Logger logger, int shift = 0)
-        //{
-        //    return new List<Structures.ExceptionsStruct>();
-        //}
-
-        public virtual IDtoEntity Validate(List<Structures.ExceptionsStruct> exceptionList, uint rowNumber, NLog.Logger logger, int shift = 0)
+        public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX_OLD(Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
         {
             return null;
         }
 
-        public static async Task SaveToRX(List<IDtoEntity> dtoEntities, List<Structures.ExceptionsStruct> exceptions, NLog.Logger logger)
+        public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX_OLD(uint rowNumber, bool supplementEntity, string ignoreDuplicates, Logger logger, int shift = 0)
         {
-            await Task.Run(() => Console.WriteLine());
+            return null;
+        }
+
+        public virtual void SaveToRX(IDtoEntity dtoEntity, List<Structures.ExceptionsStruct> exceptions, Logger logger)
+        {
+
+        }
+
+        public virtual void SaveToRXBatch(IDtoEntity dtoEntity, List<Structures.ExceptionsStruct> exceptions, Logger logger)
+        {
+
+        }
+
+        public virtual IDtoEntity Validate(List<Structures.ExceptionsStruct> exceptionList, uint rowNumber, Logger logger, int shift = 0)
+        {
+            return null;
         }
 
         /// <summary>

@@ -58,15 +58,29 @@ namespace ImportData.IntegrationServicesClient.Models
           return document;
         }
 
-        public static (IOfficialDocuments leadingDocument, string errorMessage) GetLeadingDocument(Logger logger, string registrationNumber, DateTimeOffset regDate, int counterpartyId = -1)
+        public static IOfficialDocuments GetDocumentByRegistrationDate(IEnumerable<IOfficialDocuments> documents, DateTimeOffset regDate, uint rowNumber, List<Structures.ExceptionsStruct> exceptions, Logger logger)
         {
-            var leadingDocuments = BusinessLogic.GetEntitiesWithFilter<IContracts>(d => d.RegistrationNumber == registrationNumber &&
-                    d.RegistrationDate.Value.ToString("d") == regDate.ToString("d") &&
-                    (counterpartyId == -1 || d.Counterparty.Id == counterpartyId), 
-                    new List<Structures.ExceptionsStruct>(), logger, true);
             // Условие по дате регистрации не срабатывает через OData из-за ToString,
             // передача в формате даты не работает в 4.8.
-            leadingDocuments = leadingDocuments.Where(d => d.RegistrationDate.Value.ToString("d") == regDate.ToString("d"));
+            documents = documents.Where(d => d.RegistrationDate.Value.ToString("d") == regDate.ToString("d"));
+            var document = documents.FirstOrDefault();
+            if (documents.Count() > 1)
+            {
+                var message = string.Format("Найдено несколько документов с именем \"{0}\". Проверьте, что выбрана верная запись.", document.ToString());
+                exceptions.Add(new Structures.ExceptionsStruct { RowNumber = rowNumber, ExceptionType = ExceptionType.Warn, Message = message });
+                logger.Warn(message);
+            }
+
+            return document;
+        }
+
+        public static (IOfficialDocuments leadingDocument, string errorMessage) GetLeadingDocument(Logger logger, string registrationNumber, DateTimeOffset regDate, int counterpartyId = -1)
+        {
+            // Условие по дате регистрации не срабатывает через OData из-за ToString,
+            // передача в формате даты не работает в 4.8.
+            var leadingDocuments = BusinessLogic.GetEntitiesWithFilter<IContracts>(d => d.RegistrationNumber == registrationNumber && (counterpartyId == -1 || d.Counterparty.Id == counterpartyId), 
+                    new List<Structures.ExceptionsStruct>(), logger, true);
+            leadingDocuments = leadingDocuments.Where(d => d.RegistrationDate.Value.Date.Equals(regDate.Date));
 
             var message = string.Empty;
             if (!leadingDocuments.Any())

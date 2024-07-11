@@ -17,8 +17,7 @@ namespace ImportData
             public uint RowNumber;
             public string ErrorType;
             public string Message;
-
-            public ExceptionType exceptionType;
+            public ExceptionType ExceptionType;
         }
     }
 }

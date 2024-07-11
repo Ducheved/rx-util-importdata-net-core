@@ -7,12 +7,15 @@ using System.Threading.Tasks;
 using NLog;
 using System.Diagnostics;
 using ImportData.Dto;
+using Simple.OData.Client;
+using ImportData.Entities;
+using ImportData.IntegrationServicesClient;
 
 namespace ImportData
 {   
     public class EntityProcessor
     {
-        public static void ProcessOLD(Type type, string xlsxPath, string sheetName, Dictionary<string, string> extraParameters, string searchDoubles, Logger logger)
+        public static void ProcessOLD(Type type, string xlsxPath, string sheetName, Dictionary<string, string> extraParameters, string searchDoubles, bool isBatch, Logger logger)
         {
             if (type.Equals(typeof(Entity)))
             {
@@ -177,7 +180,7 @@ namespace ImportData
             logger.Info($"Времени затрачено на запись результатов в файл: {elapsedMs} мс");
         }
 
-        public static void Process(Type type, string xlsxPath, string sheetName, Dictionary<string, string> extraParameters, string searchDoubles, Logger logger)
+        public static void Process(Type type, string xlsxPath, string sheetName, Dictionary<string, string> extraParameters, string searchDoubles, bool isBatch, int maxRequestsPerBatch, Logger logger)
         {
             if (type.Equals(typeof(Entity)))
             {
@@ -196,21 +199,21 @@ namespace ImportData
 
             var watch = Stopwatch.StartNew();
 
-            logger.Info("===================Чтение строк из файла===================");
             var rowsList = GetRows(importData, logger);
             watch.Stop();
             logger.Info($"Времени затрачено на чтение строк из файла: {watch.ElapsedMilliseconds} мс");
 
-            logger.Info("======================Валидация сущностей=====================");
             var exceptions = new List<Structures.ExceptionsStruct>();
             var dtoEntities = GetValidEntities(rowsList, rowsCount, propertiesCount, extraParameters, type, logger, watch, exceptions, searchDoubles);
 
-            logger.Info("======================Импорт сущностей=====================");
-            Import(type, dtoEntities, exceptions, logger);
+            logger.Info("\r\n======================Импорт сущностей=====================");
+            if (isBatch)
+                ImportBatch(dtoEntities, maxRequestsPerBatch, exceptions, logger);
+            else
+                Import(dtoEntities, exceptions, logger);
 
-            logger.Info("=============Запись результатов импорта в файл=============");
             watch.Restart();
-            Write(excelProcessor, exceptions, propertiesCount, rowsCount);
+            WriteLog(excelProcessor, exceptions, propertiesCount, rowsCount, logger);
             watch.Stop();
             logger.Info($"Времени затрачено на запись результатов в файл: {watch.ElapsedMilliseconds} мс");
         }
@@ -218,6 +221,8 @@ namespace ImportData
         #region GetRows
         public static List<string[]> GetRows(IEnumerable<List<string>> importData, Logger logger)
         {
+            logger.Info("===================Чтение строк из файла===================");
+
             uint row = 2;
             var rowsCount = importData.Count() - 1;
             var arrayItems = new ArrayList();
@@ -226,12 +231,12 @@ namespace ImportData
             // Пропускаем 1 строку, т.к. в ней заголовки таблицы.
             foreach (var importItem in importData.Skip(1))
             {
-                int countItem = importItem.Count();
+                var countItem = importItem.Count();
                 foreach (var data in importItem.Take(countItem - 3))
                     arrayItems.Add(data);
 
                 rowsList.Add((string[])arrayItems.ToArray(typeof(string)));
-                var percent = (double)(row - 1) / (double)rowsCount * 100.00;
+                var percent = (double)(row - 1) / rowsCount * 100.00;
                 logger.Info($"\rОбработано {row - 1} строк из {rowsCount} ({percent:F2}%)");
                 arrayItems.Clear();
                 row++;
@@ -241,85 +246,11 @@ namespace ImportData
         }
         #endregion
 
-        #region Import
-        public static List<List<Structures.ExceptionsStruct>> ImportOLD(List<string[]> rowsList, int rowsCount, int propertiesCount, Dictionary<string, string> extraParameters, Type type, Logger logger, Stopwatch watch, string searchDoubles)
+        #region Validate
+        public static List<Entity> GetValidEntities(List<string[]> rowsList, int rowsCount, int propertiesCount, Dictionary<string, string> extraParameters, Type type, Logger logger, Stopwatch watch, List<Structures.ExceptionsStruct> exceptions, string searchDoubles)
         {
-            uint row = 2;
-            uint rowImported = 1;
-            Type genericType = typeof(EntityWrapper<>);
-            Type[] typeArgs = { Type.GetType(type.ToString()) };
-            Type wrapperType = genericType.MakeGenericType(typeArgs);
-            var getEntity = wrapperType.GetMethod("GetEntity");
-            object processor = Activator.CreateInstance(wrapperType);
-            var supplementEntityList = new List<string>();
-            var exceptionList = new List<Structures.ExceptionsStruct>();
-            var exceptionsResult = new List<List<Structures.ExceptionsStruct>>();
-            var errorMessage = string.Empty;
-            bool supplementEntity;
+            logger.Info("======================Валидация сущностей=====================");
 
-            foreach (var importItem in rowsList)
-            {
-                supplementEntity = false;
-
-                var entity = (Entity)getEntity.Invoke(processor, new object[] { importItem.ToArray(), extraParameters });
-
-                if (!supplementEntityList.Contains(importItem[2]))
-                    supplementEntityList.Add(importItem[2]);
-
-                if (supplementEntityList.Contains(importItem[0]))
-                    supplementEntity = true;
-
-                if (entity != null)
-                {
-                    if (propertiesCount >= entity.GetPropertiesCount())
-                    {
-                        logger.Info($"Обработка сущности {row - 1}");
-                        watch.Restart();
-
-                        exceptionList = entity.SaveToRX(logger, supplementEntity, searchDoubles).ToList();
-
-                        watch.Stop();
-
-                        if (exceptionList.Any(x => x.ErrorType == Constants.ErrorTypes.Error))
-                        {
-                            logger.Info($"Сущность {row - 1} не импортирована");
-                        }
-                        else
-                        {
-                            logger.Info($"Сущность {row - 1} импортирована");
-                            logger.Info($"Времени затрачено на импорт сущности: {watch.ElapsedMilliseconds} мс");
-                            rowImported++;
-                        }
-                    }
-                    else
-                    {
-                        errorMessage = string.Format("Количества входных параметров для сущности {0} недостаточно. " +
-                            "Количество ожидаемых параметров {1}. Количество переданных параметров {2}.", row - 1, entity.GetPropertiesCount(), propertiesCount);
-                    }
-                }
-                else
-                    errorMessage = string.Format("Сущность {0} не определена.", row - 1);
-
-                if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = errorMessage });
-                    logger.Error(errorMessage);
-                }
-
-                exceptionsResult.Add(exceptionList);
-
-                row++;
-            }
-
-            var percent1 = (double)(rowImported - 1) / (double)rowsCount * 100.00;
-            logger.Info($"\rИмпортировано {rowImported - 1} сущностей из {rowsCount} ({percent1:F2}%)");
-
-            return exceptionsResult;
-        }
-        #endregion
-
-        public static List<IDtoEntity> GetValidEntities(List<string[]> rowsList, int rowsCount, int propertiesCount, Dictionary<string, string> extraParameters, Type type, Logger logger, Stopwatch watch, List<Structures.ExceptionsStruct> exceptions, string searchDoubles)
-        {
             uint currentRow = 2;
             uint validRows = 0;
             Type genericType = typeof(EntityWrapper<>);
@@ -329,7 +260,7 @@ namespace ImportData
             object processor = Activator.CreateInstance(wrapperType);
             var message = string.Empty;
 
-            var dtoEntities = new List<IDtoEntity>();
+            var entities = new List<Entity>();
 
             foreach (var importItem in rowsList)
             {
@@ -345,17 +276,24 @@ namespace ImportData
                         var dtoEntity = entity.Validate(exceptions, currentRow, logger);
 
                         if (dtoEntity != null)
-                            dtoEntities.Add(dtoEntity); 
+                        {
+                            entity.DtoEntity = dtoEntity;
+                            entities.Add(entity);
+                        }
 
                         watch.Stop();
 
-                        if (exceptions.Any(e => e.RowNumber == currentRow && e.ErrorType == Constants.ErrorTypes.Error))
+                        if (exceptions.Any(e => e.RowNumber == currentRow && e.ExceptionType == ExceptionType.Error))
                         {
-                            logger.Info($"Строка {currentRow}. Сущность не валидна.");
+                            logger.Error($"Строка {currentRow}. Сущность не прошла валидацию.");
                         }
                         else
                         {
-                            logger.Info($"Строка {currentRow}. Сущность прошла валидацию.");
+                            if (exceptions.Any(e => e.RowNumber == currentRow && e.ExceptionType == ExceptionType.Warn))
+                                logger.Warn($"Строка {currentRow}. Сущность частично прошла валидацию.");
+                            else
+                                logger.Info($"Строка {currentRow}. Сущность прошла валидацию.");
+
                             logger.Info($"Времени затрачено на валидацию сущности: {watch.ElapsedMilliseconds} мс");
                             validRows++;
                         }
@@ -371,30 +309,75 @@ namespace ImportData
 
                 if (!string.IsNullOrEmpty(message))
                 {
-                    exceptions.Add(new Structures.ExceptionsStruct { RowNumber = currentRow, ErrorType = Constants.ErrorTypes.Error, Message = message });
+                    exceptions.Add(new Structures.ExceptionsStruct { RowNumber = currentRow, ExceptionType = ExceptionType.Error, Message = message });
                     logger.Error(message);
                 }
 
                 currentRow++;
             }
 
-            var percent1 = validRows / rowsCount * 100.00;
+            var percent1 = (double)validRows / rowsCount * 100.00;
             logger.Info($"\rВалидацию прошло {validRows} сущностей из {rowsCount} ({percent1:F2}%)");
 
-            return dtoEntities;
+            return entities;
+        }
+        #endregion
+
+        #region Import
+        public static void Import(List<Entity> entities, List<Structures.ExceptionsStruct> exceptions, Logger logger)
+        {
+            foreach (var entity in entities)
+            {
+                var rowNumber = entity.DtoEntity.RowNumber;
+
+                try
+                {
+                    logger.Info($"Строка {rowNumber}. Импорт сущности.");
+
+                    entity.SaveToRX(entity.DtoEntity, exceptions, logger);
+                }
+                catch (Exception ex)
+                {
+                    logger.Info($"Строка {rowNumber}. Сущность не импортирована.");
+                    BusinessLogic.LogException(exceptions, rowNumber, ExceptionType.Error, ex.Message, logger);
+                }
+            }
         }
 
-        public async static Task Import(Type type, List<IDtoEntity> dtoEntities, List<Structures.ExceptionsStruct>  exceptions, Logger logger)
+        public static void ImportBatch(List<Entity> entities, int maxRequestsPerBatch, List<Structures.ExceptionsStruct> exceptions, Logger logger)
         {
-            //type.GetMethod(nameof(Entity.SaveToRX)).Invoke(new object [] { dtoEntities, exceptions, logger });
+            int entryCount = 0;
+            var entitiesCount = entities.Count();
 
-            await Contract.SaveToRX(dtoEntities, exceptions, logger);
+            foreach (var entity in entities)
+            {
+                entryCount++;
+                var rowNumber = entity.DtoEntity.RowNumber;
+
+                try
+                {
+                    logger.Info($"Строка {rowNumber}. Импорт сущности.");
+
+                    entity.SaveToRXBatch(entity.DtoEntity, exceptions, logger);
+
+                    if ((entryCount % maxRequestsPerBatch == 0) || entryCount == entitiesCount)
+                        BusinessLogic.SaveBatch(logger);
+                }
+                catch (Exception ex)
+                {
+                    logger.Info($"Строка {rowNumber}. Сущность не импортирована.");
+                    BusinessLogic.LogException(exceptions, rowNumber, ExceptionType.Error, ex.Message, logger);
+                }
+            }
         }
+        #endregion
 
-        #region Write
-        public static void Write(ExcelProcessor excelProcessor, List<Structures.ExceptionsStruct> exceptions, int propertiesCount, int rowsCount)
+        #region WriteLog
+        public static void WriteLog(ExcelProcessor excelProcessor, List<Structures.ExceptionsStruct> exceptions, int propertiesCount, int rowsCount, Logger logger)
         {
-            uint currentRow = 2;
+            logger.Info("=============Запись результатов импорта в файл=============");
+
+            string info;
             var currentDate = DateTime.Now.ToString("d");
             var listArrayParams = new List<ArrayList>();
 
@@ -406,27 +389,26 @@ namespace ImportData
                 listArrayParams.Add(arrayParams);
             }
 
-            var error = "Загружен";
-            var exceptionsDict = exceptions.GroupBy(e => new { e.RowNumber, e.ErrorType }).ToDictionary(g => g.Key, g => string.Join("; ", g.Select(m => m.Message)));
+            var exceptionsDict = exceptions.GroupBy(e => new { e.RowNumber, e.ExceptionType }).ToDictionary(g => g.Key, g => string.Join("; ", g.Select(m => m.Message)));
 
             foreach (var item in exceptionsDict)
             {
-                if (item.Key.ErrorType == Constants.ErrorTypes.Warn)
-                    error = "Загружен частично";
+                info = "Загружен";
 
-                if (item.Key.ErrorType == Constants.ErrorTypes.Error)
-                    error = "Не загружен";
+                if (item.Key.ExceptionType == ExceptionType.Warn)
+                    info = "Загружен частично";
+
+                if (item.Key.ExceptionType == ExceptionType.Error)
+                    info = "Не загружен";
 
                 text = null;
-                text = new string[] { error, currentDate, item.Value };
+                text = new string[] { info, currentDate, item.Value };
                 for (int i = 1; i <= 3; i++)
                 {
                     var title = excelProcessor.GetExcelColumnName(propertiesCount + i);
-                    var arrayParams = new ArrayList { text[i - 1], title, currentRow };
+                    var arrayParams = new ArrayList { text[i - 1], title, item.Key.RowNumber };
                     listArrayParams.Add(arrayParams);
                 }
-
-                currentRow++;
             }
 
             excelProcessor.InsertText(listArrayParams, rowsCount);

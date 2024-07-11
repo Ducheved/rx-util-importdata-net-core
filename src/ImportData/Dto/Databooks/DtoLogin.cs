@@ -4,9 +4,9 @@ using System.Text;
 
 namespace ImportData.Dto.Databooks
 {
-    public class DtoLogin
+    public class DtoLogin : IDtoEntity
     {
-        public int Id { get; set; }
+        public uint RowNumber { get; set; }
         public bool? NeedChangePassword { get; set; }
         public string LoginName { get; set; }
         public string TypeAuthentication { get; set; }

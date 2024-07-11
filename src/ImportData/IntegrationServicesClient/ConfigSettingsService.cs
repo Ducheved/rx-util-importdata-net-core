@@ -77,7 +77,7 @@ namespace ImportData.IntegrationServicesClient
     public static void CheckConnectionToService(string login, NLog.Logger logger)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
-      var userLogin = BusinessLogic.GetEntityWithFilter<IntegrationServicesClient.Models.ILogins>(e => e.LoginName == login, exceptionList, logger);      
+      var userLogin = BusinessLogic.GetEntityWithFilter<Models.ILogins>(e => e.LoginName == login, exceptionList, logger);      
     }
   }
 }

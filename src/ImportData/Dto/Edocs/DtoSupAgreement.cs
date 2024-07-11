@@ -6,14 +6,13 @@ using ImportData.IntegrationServicesClient.Models;
 
 namespace ImportData.Dto.Edocs
 {
-    public class DtoContract : IDtoEntity
+    public class DtoSupAgreement : IDtoEntity
     {
         public uint RowNumber { get; set; }
         public string Name { get; set; }
         public DateTimeOffset? Created { get; set; }
         public ICounterparties Counterparty { get; set; }
         public IDocumentKinds DocumentKind { get; set; }
-        public IDocumentGroupBases DocumentGroup { get; set; }
         public string Subject { get; set; }
         public IBusinessUnits BusinessUnit { get; set; }
         public IDepartments Department { get; set; }
@@ -31,7 +30,8 @@ namespace ImportData.Dto.Edocs
         public ICaseFiles CaseFile { get; set; }
         public DateTimeOffset? PlacedToCaseFileDate { get; set; }
         public string LifeCycleState { get; set; }
-        public IContracts Contract { get; set; }
+        public IOfficialDocuments LeadingDocument { get; set; }
+        public ISupAgreements SupAgreement { get; set; }
         public IElectronicDocumentVersionss LastVersion { get; set; }
         public Attachment Attachment { get; set; }
     }

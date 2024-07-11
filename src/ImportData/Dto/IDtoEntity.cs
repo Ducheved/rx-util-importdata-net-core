@@ -7,6 +7,6 @@ namespace ImportData.Dto
     public interface IDtoEntity
     {
         public uint RowNumber { get; set; }
-        public int Id { get; set; }
+        //public int Id { get; set; }
     }
 }
