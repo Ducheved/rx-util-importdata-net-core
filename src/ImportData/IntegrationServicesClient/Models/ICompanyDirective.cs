@@ -28,21 +28,7 @@ namespace ImportData.IntegrationServicesClient.Models
       }
       return null;
     }
-    new public static string GetName(Entity entity)
-    {
-      var documentKind = entity.ResultValues["DocumentKind"];
-      var subject = entity.ResultValues["Subject"];
-      return string.Format("{0} \"{1}\"", documentKind, subject);
-    }
-
-    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      entity.ResultValues["Name"] = GetName(entity);
-      entity.ResultValues["Created"] = entity.ResultValues["RegistrationDate"];
-      entity.ResultValues["RegistrationState"] = BusinessLogic.GetRegistrationsState((string)entity.ResultValues["RegistrationState"]);
-      entity.ResultValues["LifeCycleState"] = BusinessLogic.GetPropertyLifeCycleState((string)entity.ResultValues["LifeCycleState"]);
-      return false;
-    }
+    
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)

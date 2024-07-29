@@ -37,28 +37,6 @@ namespace ImportData.IntegrationServicesClient.Models
     }
 
     /// <summary>
-    /// Получить имя сущности для заполнения (оно может составляться из нескольких столбцов шаблона).
-    /// </summary>
-    /// <param name="entity">Сущность со всеми параметрами загрузки. (Предполагается, что при заполнении имени все поля уже считаны.)</param>
-    /// <returns>Наименование.</returns>
-    public static string GetName(Entity entity)
-    {
-      return string.Empty;
-    }
-
-    /// <summary>
-    /// Специфичное заполнение / преобразование / проверка полей сущность, которую нельзя унифицировать.
-    /// </summary>
-    /// <param name="entity">Сущность со всеми параметрами загрузки. (Предполагается, что при заполнении все поля уже считаны.)</param>
-    /// <param name="exceptionList">Список ошибок.</param>
-    /// <param name="logger">Логировщик.</param>
-    /// <returns>True, если были ошибки заполнения свойств, иначе false.</returns>
-    public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      return false;
-    }
-
-    /// <summary>
     /// Создание / обновление сущности через OData.
     /// </summary>
     /// <param name="entity">Сущность.</param>

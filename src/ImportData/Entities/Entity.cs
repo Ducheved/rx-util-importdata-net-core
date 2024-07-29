@@ -18,35 +18,16 @@ namespace ImportData
 {
   public class Entity
   {
-    public string[] Parameters;
-    public Dictionary<string, string> ExtraParameters;
-    public int PropertiesCount = 0;
-
     public Dictionary<string, string> NamingParameters { get; set; }
     public Dictionary<string, object> ResultValues { get; set; }
     protected virtual Type EntityType { get; }
 
     /// <summary>
-    /// Получить наименование число запрашиваемых параметров.
+    /// Количество используемых параметров.
     /// </summary>
-    /// <returns>Число запрашиваемых параметров.</returns>
-    public virtual int GetPropertiesCount()
-    {
-      return PropertiesCount;
-    }
+    public virtual int PropertiesCount { get; }
 
-    /// <summary>
-    /// Сохранение сущности в RX.
-    /// </summary>
-    /// <param name="logger">Логировщик.</param>
-    /// <param name="shift">Сдвиг по горизонтали в XLSX документе. Необходим для обработки документов, составленных из элементов разных сущностей.</param>
-    /// <returns>Список ошибок.</returns>
-    public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
-    {
-      return new List<Structures.ExceptionsStruct>();
-    }
-
-    public virtual IEnumerable<Structures.ExceptionsStruct> Save(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates)
+    public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
       if (CheckNeedRequiredDocumentBody(EntityType, out var exceptions))
@@ -128,7 +109,7 @@ namespace ImportData
 
       // Специфичные преобразования / проверки полей, которые нет возможности унифицировать.
       // Если метод вернул true, значит при проверках была добавлена ошибка, сущность не может быть загружена.
-      var hasTransformationErrors = (bool)MethodCall(EntityType, "FillProperies", this, exceptionList, logger);
+      var hasTransformationErrors = FillProperies(exceptionList, logger);
       if (hasTransformationErrors)
         return exceptionList;
 
@@ -260,7 +241,7 @@ namespace ImportData
     /// <param name="exceptionList">Список ошибок.</param>
     /// <param name="logger">Логировщик.</param>
     /// <returns>Тип ошибки: ошибка, предупреждение или Debug, если ошибок нет.</returns>
-    string CheckPropertyNull(PropertyOptions options, object value, string message, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    protected string CheckPropertyNull(PropertyOptions options, object value, string message, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       string errorType = Constants.ErrorTypes.Debug;
       if (value == null || (value is string && string.IsNullOrEmpty((string)value)))
@@ -310,7 +291,7 @@ namespace ImportData
     /// Заполнение /обновление полей сущности.
     /// </summary>
     /// <param name="entity">Сущность RX для заполнения.</param>
-    private void UpdateProperties(IEntityBase entity)
+    protected void UpdateProperties(IEntityBase entity)
     {
       var entityProperties = EntityType.GetProperties();
       foreach (var property in entityProperties)
@@ -399,6 +380,27 @@ namespace ImportData
     {
       MethodInfo method = type.GetMethod(methodName);
       return method.Invoke(null, paramsForMethod);
+    }
+
+    /// <summary>
+    /// Получить имя сущности для заполнения (оно может составляться из нескольких столбцов шаблона).
+    /// </summary>
+    /// <param name="entity">Сущность со всеми параметрами загрузки. (Предполагается, что при заполнении имени все поля уже считаны.)</param>
+    /// <returns>Наименование.</returns>
+    public virtual string GetName()
+    {
+      return string.Empty;
+    }
+
+    /// <summary>
+    /// Специфичное заполнение / преобразование / проверка полей сущность, которую нельзя унифицировать.
+    /// </summary>
+    /// <param name="exceptionList">Список ошибок.</param>
+    /// <param name="logger">Логировщик.</param>
+    /// <returns>True, если были ошибки заполнения свойств, иначе false.</returns>
+    public virtual bool FillProperies(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    {
+      return false;
     }
   }
 }

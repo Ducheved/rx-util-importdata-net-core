@@ -38,25 +38,7 @@ namespace ImportData.IntegrationServicesClient.Models
     public IEmployees ResponsibleForReturnEmployee { get; set; }
     [PropertyOptions("Способ доставки", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     public IMailDeliveryMethods DeliveryMethod { get; set; }
-    new public static string GetName(Entity entity)
-    {
-      var subject = entity.ResultValues[Constants.KeyAttributes.Subject];
-      var documentKind = entity.ResultValues[Constants.KeyAttributes.DocumentKind];
-      var counterparty = entity.ResultValues[Constants.KeyAttributes.Correspondent];
-      var registrationNumber = entity.ResultValues[Constants.KeyAttributes.RegistrationNumber];
-      var registrationDate = (DateTimeOffset)entity.ResultValues[Constants.KeyAttributes.RegistrationDate];
-      return $"{documentKind} №{registrationNumber} от {registrationDate.ToString("dd.MM.yyyy")} с {counterparty} \"{subject}\"";
-    }
-
-    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      entity.ResultValues["Name"] = GetName(entity);
-      entity.ResultValues["Created"] = entity.ResultValues["RegistrationDate"];
-      entity.ResultValues["RegistrationState"] = BusinessLogic.GetRegistrationsState((string)entity.ResultValues["RegistrationState"]);
-      entity.ResultValues["LifeCycleState"] = "Active";
-      return false;
-    }
-
+    
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var incomingLetters = new IIncomingLetters();

@@ -19,11 +19,7 @@ namespace ImportData.IntegrationServicesClient.Models
     {
       return null;
     }
-    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      entity.ResultValues["IsManyAddressees"] = true;
-      return false;
-    }
+    
     new public static void CreateOrUpdate(IEntityBase entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var outgoingLetterAddresseess = (IOutgoingLetterAddresseess)entity;

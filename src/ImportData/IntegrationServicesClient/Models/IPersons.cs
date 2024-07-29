@@ -52,24 +52,6 @@ namespace ImportData.IntegrationServicesClient.Models
       return BusinessLogic.GetEntityWithFilter<IPersons>(x => x.FirstName == firstName && x.MiddleName == middleName && x.LastName == lastName, exceptionList, logger);
     }
 
-    new public static string GetName(Entity entity)
-    {
-      var firstName = entity.ResultValues["FirstName"];
-      var middleName = entity.ResultValues["MiddleName"];
-      var lastName = entity.ResultValues["LastName"];
-
-      return string.Format("{0} {1} {2}", lastName, firstName, middleName);
-    }
-
-    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      entity.ResultValues["Name"] = GetName(entity);
-      entity.ResultValues["Sex"] = BusinessLogic.GetPropertySex((string)entity.ResultValues["Sex"]);
-      entity.ResultValues["Status"] = "Active";
-
-      return false;
-    }
-
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)

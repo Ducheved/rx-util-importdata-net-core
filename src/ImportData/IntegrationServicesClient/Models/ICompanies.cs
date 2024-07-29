@@ -59,15 +59,7 @@ namespace ImportData.IntegrationServicesClient.Models
       var name = propertiesForSearch["Name"];
       return BusinessLogic.CreateEntity<ICompanies>(new ICompanies() { Name = name, Status = "Active" }, exceptionList, logger);
     }
-    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      if (entity.ResultValues[Constants.KeyAttributes.HeadCompany] != null
-        && ((IEntity)entity.ResultValues[Constants.KeyAttributes.HeadCompany]).Name == (string)entity.ResultValues[Constants.KeyAttributes.Name])
-        entity.ResultValues[Constants.KeyAttributes.HeadCompany] = null;
-      entity.ResultValues["Nonresident"] = BusinessLogic.GetPropertyResident((string)entity.ResultValues["Nonresident"]);
-      entity.ResultValues["Status"] = "Active";
-      return false;
-    }
+    
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)

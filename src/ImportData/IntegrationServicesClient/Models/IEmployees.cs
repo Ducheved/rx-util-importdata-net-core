@@ -51,19 +51,6 @@ namespace ImportData.IntegrationServicesClient.Models
       }
     }
 
-    new public static string GetName(Entity entity)
-    {
-      var person = (IPersons)entity.ResultValues["Person"];
-      return person.Name;
-    }
-
-    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      entity.ResultValues["Name"] = GetName(entity);
-      entity.ResultValues["Status"] = "Active";
-      return false;
-    }
-
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)

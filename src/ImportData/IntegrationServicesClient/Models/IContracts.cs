@@ -42,23 +42,7 @@ namespace ImportData.IntegrationServicesClient.Models
         return BusinessLogic.GetEntityWithFilter<IContracts>(x => x.Id == contracts.Id, exceptionList, logger);
       return null;
     }
-    new public static string GetName(Entity entity)
-    {
-      var subject = entity.ResultValues[Constants.KeyAttributes.Subject];
-      var documentKind = entity.ResultValues[Constants.KeyAttributes.DocumentKind];
-      var counterparty = entity.ResultValues[Constants.KeyAttributes.Counterparty];
-      var registrationNumber = entity.ResultValues[Constants.KeyAttributes.RegistrationNumber];
-      var registrationDate = (DateTimeOffset)entity.ResultValues[Constants.KeyAttributes.RegistrationDate];
-      return $"{documentKind} №{registrationNumber} от {registrationDate.ToString("dd.MM.yyyy")} с {counterparty} \"{subject}\"";
-    }
-    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      entity.ResultValues["Name"] = GetName(entity);
-      entity.ResultValues["Created"] = entity.ResultValues["RegistrationDate"];
-      entity.ResultValues["RegistrationState"] = BusinessLogic.GetRegistrationsState((string)entity.ResultValues["RegistrationState"]);
-      entity.ResultValues["LifeCycleState"] = BusinessLogic.GetPropertyLifeCycleState((string)entity.ResultValues["LifeCycleState"]);
-      return false;
-    }
+    
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)

@@ -34,24 +34,10 @@ namespace ImportData.IntegrationServicesClient.Models
 		[PropertyOptions("Персона", RequiredType.NotRequired, PropertyType.EntityWithCreate, AdditionalCharacters.CreateFromOtherProperties)]
         public IPersons Person { get; set; }
 
-        new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-        {
-            var name = propertiesForSearch[Constants.KeyAttributes.Name];
-            return BusinessLogic.GetEntityWithFilter<IContacts>(x => x.Name == name, exceptionList, logger);
-        }
-
-		new public static string GetName(Entity entity)
+		new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
 		{
-			var person = (IPersons)entity.ResultValues["Person"];
-			return person.Name;
-		}
-
-		new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-		{
-			entity.ResultValues["Name"] = GetName(entity);
-			entity.ResultValues["Status"] = "Active";
-
-			return false;
+			var name = propertiesForSearch[Constants.KeyAttributes.Name];
+			return BusinessLogic.GetEntityWithFilter<IContacts>(x => x.Name == name, exceptionList, logger);
 		}
 
 		new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

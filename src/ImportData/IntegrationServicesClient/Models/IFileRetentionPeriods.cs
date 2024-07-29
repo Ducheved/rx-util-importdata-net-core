@@ -20,12 +20,6 @@ namespace ImportData.IntegrationServicesClient.Models
       return BusinessLogic.CreateEntity(new IFileRetentionPeriods() { Name = name, Status = "Active" }, exceptionList, logger);
     }
 
-    new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      var name = propertiesForSearch["Name"];
-      return BusinessLogic.GetEntityWithFilter<IFileRetentionPeriods>(x => x.Name == name, exceptionList, logger);
-    }
-
     new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       entity.ResultValues["Status"] = "Active";

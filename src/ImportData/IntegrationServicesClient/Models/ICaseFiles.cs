@@ -34,9 +34,12 @@ namespace ImportData.IntegrationServicesClient.Models
     public IFileRetentionPeriods RetentionPeriod { get; set; }
     public bool LongTerm { get; set; }
     public string Location { get; set; }
+    
     [PropertyOptions("Группа регистрации", RequiredType.NotRequired, PropertyType.Entity)]
     public IRegistrationGroups RegistrationGroup { get; set; }
+    
     public string Status { get; set; }
+    
     [PropertyOptions("НОР", RequiredType.NotRequired, PropertyType.Entity)]
     public IBusinessUnits BusinessUnit { get; set; }
     new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
@@ -64,29 +67,6 @@ namespace ImportData.IntegrationServicesClient.Models
       var title = propertiesForSearch["Title"];
       var index = propertiesForSearch["Index"];
       return BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Title == title && x.Index == index, exceptionList, logger);
-    }
-    new public static string GetName(Entity entity)
-    {
-      var title = entity.ResultValues["Title"];
-      var index = entity.ResultValues["Index"];
-      return string.Format("{0}. {1}", index, title);
-    }
-    new public static DateTimeOffset? GetDateTime(Entity entity, string name)
-    {
-      var date = (DateTimeOffset)entity.ResultValues[name];
-      if (date == DateTimeOffset.MinValue)
-        return null;
-      return date;
-    }
-
-    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      entity.ResultValues["Name"] = GetName(entity);
-      entity.ResultValues["StartDate"] = GetDateTime(entity, "StartDate");
-      entity.ResultValues["EndDate"] = GetDateTime(entity, "EndDate");
-      entity.ResultValues["LongTerm"] = false;
-      entity.ResultValues["Status"] = "Active";
-      return false;
     }
 
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
