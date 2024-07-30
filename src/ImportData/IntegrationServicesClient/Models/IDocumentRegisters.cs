@@ -17,10 +17,12 @@ namespace ImportData.IntegrationServicesClient.Models
     public string NumberingSection { get; set; }
     public string Status { get; set; }
     public IRegistrationGroups RegistrationGroup { get; set; }
+
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      if (int.TryParse(propertiesForSearch["DocumentRegister"], out int documentRegisterId))
+      if (int.TryParse(propertiesForSearch[Constants.KeyAttributes.DocumentRegister], out int documentRegisterId))
         return BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(x => x.Id == documentRegisterId, exceptionList, logger);
+
       return null;
     }
   }

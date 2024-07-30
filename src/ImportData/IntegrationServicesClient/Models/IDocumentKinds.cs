@@ -19,9 +19,11 @@ namespace ImportData.IntegrationServicesClient.Models
     public string NumberingType { get; set; }
     public string Status { get; set; }
     public IDocumentType DocumentType { get; set; }
+
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var kind = propertiesForSearch[Constants.KeyAttributes.DocumentKind];
+
       return BusinessLogic.GetEntityWithFilter<IDocumentKinds>(x => x.Name == kind, exceptionList, logger);
     }
   }

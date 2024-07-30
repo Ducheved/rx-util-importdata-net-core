@@ -65,6 +65,7 @@ namespace ImportData.IntegrationServicesClient.Models
     new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var name = propertiesForSearch[Constants.KeyAttributes.Name];
+
       return BusinessLogic.CreateEntity(new ICounterparties()
       {
         Name = name,
@@ -74,10 +75,10 @@ namespace ImportData.IntegrationServicesClient.Models
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Counterparty) ?
-                                          propertiesForSearch[Constants.KeyAttributes.Counterparty] :
-                                          propertiesForSearch.ContainsKey(Constants.KeyAttributes.Correspondent) ? 
-                                          propertiesForSearch[Constants.KeyAttributes.Correspondent] :
-                                          propertiesForSearch[Constants.KeyAttributes.Name];
+          propertiesForSearch[Constants.KeyAttributes.Counterparty] :
+          propertiesForSearch.ContainsKey(Constants.KeyAttributes.Correspondent) ?
+          propertiesForSearch[Constants.KeyAttributes.Correspondent] : propertiesForSearch[Constants.KeyAttributes.Name];
+
       return BusinessLogic.GetEntityWithFilter<ICounterparties>(x => x.Name == name, exceptionList, logger);
     }
   }

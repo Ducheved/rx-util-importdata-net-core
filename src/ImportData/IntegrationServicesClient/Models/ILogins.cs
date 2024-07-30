@@ -7,36 +7,33 @@ namespace ImportData.IntegrationServicesClient.Models
   public class ILogins : IEntityBase
   {
     public bool? NeedChangePassword { get; set; }
-    [PropertyOptions("Логин", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
 
+    [PropertyOptions("Логин", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string LoginName { get; set; }
+
     public string TypeAuthentication { get; set; }
     public string Status { get; set; }
 
     new public static IEntityBase CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var loginName = propertiesForSearch["LoginName"];
+      var loginName = propertiesForSearch[Constants.KeyAttributes.LoginName];
+
       return BusinessLogic.CreateEntity(new ILogins()
       {
         LoginName = loginName,
-        TypeAuthentication = "Windows",
+        TypeAuthentication = Constants.AttributeValue[Constants.KeyAttributes.TypeAuthentication],
         NeedChangePassword = false,
         Status = "Active",
       }, exceptionList, logger);
     }
+
     new public static ILogins FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var loginName = propertiesForSearch["LoginName"];
+      var loginName = propertiesForSearch[Constants.KeyAttributes.LoginName];
+
       return BusinessLogic.GetEntityWithFilter<ILogins>(x => x.LoginName == loginName, exceptionList, logger);
     }
 
-    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      entity.ResultValues["NeedChangePassword"] = false;
-      entity.ResultValues["TypeAuthentication"] = "Windows";
-      entity.ResultValues["Status"] = "Active";
-      return false;
-    }
     new public static void CreateOrUpdate(IEntityBase entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)

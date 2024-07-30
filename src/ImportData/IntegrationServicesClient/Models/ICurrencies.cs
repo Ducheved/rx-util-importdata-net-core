@@ -7,26 +7,29 @@ namespace ImportData.IntegrationServicesClient.Models
   {
     [PropertyOptions("Буквенный код", RequiredType.Required, PropertyType.Simple)]
     public string AlphaCode { get; set; }
+
     [PropertyOptions("Сокр. Наименование", RequiredType.Required, PropertyType.Simple)]
     public string ShortName { get; set; }
+
     [PropertyOptions("Дробная часть", RequiredType.Required, PropertyType.Simple)]
     public string FractionName { get; set; }
+
     [PropertyOptions("", RequiredType.NotRequired, PropertyType.Simple)]
     public bool IsDefault { get; set; }
+
     [PropertyOptions("Цифровой код", RequiredType.Required, PropertyType.Simple)]
     public string NumericCode { get; set; }
+
     [PropertyOptions("Состояние", RequiredType.Required, PropertyType.Simple)]
     public string Status { get; set; }
+
     new public static ICurrencies FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var name = propertiesForSearch[Constants.KeyAttributes.Name];
+
       return BusinessLogic.GetEntityWithFilter<ICurrencies>(x => x.Name == name, exceptionList, logger);
     }
 
-    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      return false;
-    }
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)

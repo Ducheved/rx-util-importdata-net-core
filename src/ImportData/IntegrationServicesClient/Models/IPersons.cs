@@ -34,40 +34,24 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var firstName = propertiesForSearch["FirstName"];
-      var middleName = propertiesForSearch["MiddleName"];
-      var lastName = propertiesForSearch["LastName"];
+      var firstName = propertiesForSearch[Constants.KeyAttributes.FirstName];
+      var middleName = propertiesForSearch[Constants.KeyAttributes.MiddleName];
+      var lastName = propertiesForSearch[Constants.KeyAttributes.LastName];
       var person = BusinessLogic.GetEntityWithFilter<IPersons>(x => x.FirstName == firstName && x.MiddleName == middleName && x.LastName == lastName, exceptionList, logger);
+      
       if (person != null)
         return person;
+
       return BusinessLogic.CreateEntity(new IPersons() { FirstName = firstName, MiddleName = middleName, LastName = lastName, Name = string.Format("{0} {1} {2}", lastName, firstName, middleName), Status = "Active" }, exceptionList, logger);
     }
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var firstName = propertiesForSearch["FirstName"];
-      var middleName = propertiesForSearch["MiddleName"];
-      var lastName = propertiesForSearch["LastName"];
+      var firstName = propertiesForSearch[Constants.KeyAttributes.FirstName];
+      var middleName = propertiesForSearch[Constants.KeyAttributes.MiddleName];
+      var lastName = propertiesForSearch[Constants.KeyAttributes.LastName];
 
       return BusinessLogic.GetEntityWithFilter<IPersons>(x => x.FirstName == firstName && x.MiddleName == middleName && x.LastName == lastName, exceptionList, logger);
-    }
-
-    new public static string GetName(Entity entity)
-    {
-      var firstName = entity.ResultValues["FirstName"];
-      var middleName = entity.ResultValues["MiddleName"];
-      var lastName = entity.ResultValues["LastName"];
-
-      return string.Format("{0} {1} {2}", lastName, firstName, middleName);
-    }
-
-    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      entity.ResultValues["Name"] = GetName(entity);
-      entity.ResultValues["Sex"] = BusinessLogic.GetPropertySex((string)entity.ResultValues["Sex"]);
-      entity.ResultValues["Status"] = "Active";
-
-      return false;
     }
 
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

@@ -8,7 +8,6 @@ namespace ImportData.IntegrationServicesClient.Models
   {
     public int Id { get; set; }
 
-
     /// <summary>
     /// Поиск сущности для обновления или установки значения свойства в связанную сущность.
     /// </summary>
@@ -34,28 +33,6 @@ namespace ImportData.IntegrationServicesClient.Models
     public static IEntityBase CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       return null;
-    }
-
-    /// <summary>
-    /// Получить имя сущности для заполнения (оно может составляться из нескольких столбцов шаблона).
-    /// </summary>
-    /// <param name="entity">Сущность со всеми параметрами загрузки. (Предполагается, что при заполнении имени все поля уже считаны.)</param>
-    /// <returns>Наименование.</returns>
-    public static string GetName(Entity entity)
-    {
-      return string.Empty;
-    }
-
-    /// <summary>
-    /// Специфичное заполнение / преобразование / проверка полей сущность, которую нельзя унифицировать.
-    /// </summary>
-    /// <param name="entity">Сущность со всеми параметрами загрузки. (Предполагается, что при заполнении все поля уже считаны.)</param>
-    /// <param name="exceptionList">Список ошибок.</param>
-    /// <param name="logger">Логировщик.</param>
-    /// <returns>True, если были ошибки заполнения свойств, иначе false.</returns>
-    public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      return false;
     }
 
     /// <summary>
@@ -85,6 +62,5 @@ namespace ImportData.IntegrationServicesClient.Models
       registrationDate = DateTimeOffset.MinValue;
       return false;
     }
-
   }
 }

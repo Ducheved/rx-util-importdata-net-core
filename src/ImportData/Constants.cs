@@ -24,6 +24,25 @@ namespace ImportData
     public class KeyAttributes
     {
       public const string Name = "Name";
+      public const string FirstName = "FirstName";
+      public const string MiddleName = "MiddleName";
+      public const string LastName = "LastName";
+      public const string LoginName = "LoginName";
+      public const string User = "User";
+      public const string Substitute = "Substitute";
+      public const string Person = "Person";
+      public const string Status = "Status";
+      public const string Code = "Code";
+      public const string Sex = "Sex";
+      public const string Title = "Title";
+      public const string Index = "Index";
+      public const string StartDate = "StartDate";
+      public const string EndDate = "EndDate";
+      public const string RetentionPeriod = "RetentionPeriod";
+      public const string LongTerm = "LongTerm";
+      public const string Nonresident = "Nonresident";
+      public const string NeedChangePassword = "NeedChangePassword";
+      public const string TypeAuthentication = "TypeAuthentication";
       public const string BusinessUnit = "BusinessUnit";
       public const string Counterparty = "Counterparty";
       public const string Department = "Department";
@@ -35,6 +54,7 @@ namespace ImportData
       public const string City = "City";
       public const string RegistrationNumber = "RegistrationNumber";
       public const string RegistrationDate = "RegistrationDate";
+      public const string RegistrationState = "RegistrationState";
       public const string DocumentGroup = "DocumentGroup";
       public const string DocumentKind = "DocumentKind";
       public const string Subject = "Subject";
@@ -44,7 +64,17 @@ namespace ImportData
       public const string LeadingDocument = "LeadingDocument";
       public const string DocumentDate = "DocumentDate";
       public const string OutgoingDocumentBase = "OutgoingDocumentBase";
+      public const string Created = "Created";
+      public const string LifeCycleState = "LifeCycleState";
+      public const string ManyAddresses = "IsManyAddressees";
+      public const string PreparedBy = "PreparedBy";
     }
+
+    public static Dictionary<string, string> AttributeValue = new Dictionary<string, string>
+      {
+        {KeyAttributes.Status, "Active"},
+        {KeyAttributes.TypeAuthentication, "Windows"},
+      };
 
     public class SheetNames
     {

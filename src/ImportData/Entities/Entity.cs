@@ -18,45 +18,18 @@ namespace ImportData
 {
   public class Entity
   {
-    public string[] Parameters;
-    public Dictionary<string, string> ExtraParameters;
-    public int PropertiesCount = 0;
-
     public Dictionary<string, string> NamingParameters { get; set; }
     public Dictionary<string, object> ResultValues { get; set; }
     protected virtual Type EntityType { get; }
 
     /// <summary>
-    /// Получить наименование число запрашиваемых параметров.
+    /// Количество используемых параметров.
     /// </summary>
-    /// <returns>Число запрашиваемых параметров.</returns>
-    public virtual int GetPropertiesCount()
-    {
-      return PropertiesCount;
-    }
+    public virtual int PropertiesCount { get; }
 
-    /// <summary>
-    /// Сохранение сущности в RX.
-    /// </summary>
-    /// <param name="logger">Логировщик.</param>
-    /// <param name="shift">Сдвиг по горизонтали в XLSX документе. Необходим для обработки документов, составленных из элементов разных сущностей.</param>
-    /// <returns>Список ошибок.</returns>
-    public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates, int shift = 0)
-    {
-      return new List<Structures.ExceptionsStruct>();
-    }
-
-    public virtual IEnumerable<Structures.ExceptionsStruct> Save(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates)
+    public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
-      if (CheckNeedRequiredDocumentBody(EntityType, out var exceptions))
-      {
-        if (exceptions.Count > 0)
-        {
-          exceptionList.AddRange(exceptions);
-          return exceptionList;
-        }
-      }
       ResultValues = new Dictionary<string, object>();
 
       var properties = EntityType.GetProperties();
@@ -128,7 +101,7 @@ namespace ImportData
 
       // Специфичные преобразования / проверки полей, которые нет возможности унифицировать.
       // Если метод вернул true, значит при проверках была добавлена ошибка, сущность не может быть загружена.
-      var hasTransformationErrors = (bool)MethodCall(EntityType, "FillProperies", this, exceptionList, logger);
+      var hasTransformationErrors = FillProperies(exceptionList, logger);
       if (hasTransformationErrors)
         return exceptionList;
 
@@ -151,13 +124,6 @@ namespace ImportData
 
         // Создание сущности.
         MethodCall(EntityType, "CreateOrUpdate", entity, isNewEntity, exceptionList, logger);
-        if (NamingParameters.ContainsKey(Constants.CellNameFile) && isNewEntity)
-        {
-          entity = (IEntityBase)MethodCall(EntityType, "FindEntity", propertiesForCreate, this, true, exceptionList, logger);
-          var filePath = NamingParameters[Constants.CellNameFile];
-          if (!string.IsNullOrWhiteSpace(filePath) && entity != null)
-            exceptionList.AddRange(BusinessLogic.ImportBody((IElectronicDocuments)entity, filePath, logger));
-        }
       }
       catch (Exception ex)
       {
@@ -174,7 +140,7 @@ namespace ImportData
     /// </summary>
     /// <param name="entityType">Сущность RX для заполнения.</param>
     /// <returns>Результат проверки.</returns>
-    private bool CheckNeedRequiredDocumentBody(Type entityType, out List<Structures.ExceptionsStruct> exceptionList)
+    protected bool CheckNeedRequiredDocumentBody(Type entityType, out List<Structures.ExceptionsStruct> exceptionList)
     {
       exceptionList = new List<Structures.ExceptionsStruct>();
       if (Constants.RequiredDocumentBody.Contains(entityType))
@@ -220,7 +186,7 @@ namespace ImportData
     /// Метод собирает все свойства по иерархии, помеченные ForSearch  и их значения, 
     /// логика их использования и "отбрасывания" ненужных лежит в частном методе сущности.
     /// У сущности может не быть свойств, соответствующих полю шаблона (например, ФИО для Персоны контакта, нет у Контакта), их значения нужно куда-то сохранить.
-    Dictionary<string, string> GetPropertiesForSearch(Type type, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    protected Dictionary<string, string> GetPropertiesForSearch(Type type, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var properties = type.GetProperties();
       var propertiesForSearch = new Dictionary<string, string>();
@@ -260,7 +226,7 @@ namespace ImportData
     /// <param name="exceptionList">Список ошибок.</param>
     /// <param name="logger">Логировщик.</param>
     /// <returns>Тип ошибки: ошибка, предупреждение или Debug, если ошибок нет.</returns>
-    string CheckPropertyNull(PropertyOptions options, object value, string message, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    private string CheckPropertyNull(PropertyOptions options, object value, string message, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       string errorType = Constants.ErrorTypes.Debug;
       if (value == null || (value is string && string.IsNullOrEmpty((string)value)))
@@ -282,7 +248,7 @@ namespace ImportData
     /// <param name="message">Текст сообщения при ошибке.</param>
     /// <param name="propertyName">Значения для подстановки в текст сообщения об ошибке.</param>
     /// <returns>Тип ошибки Error/</returns>
-    public string GetErrorResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
+    private string GetErrorResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
     {
       message = string.Format(message, propertyName);
       exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
@@ -298,7 +264,7 @@ namespace ImportData
     /// <param name="message">Текст предупреждения.</param>
     /// <param name="propertyName">Значения для подстановки в текст предупреждения.</param>
     /// <returns>Тип ошибки Warn/</returns>
-    public string GetWarnResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
+    private string GetWarnResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
     {
       message = string.Format(message, propertyName);
       exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
@@ -331,7 +297,7 @@ namespace ImportData
     /// <param name="culture">Культура.</param>
     /// <returns>Преобразованная дата.</returns>
     /// <exception cref="FormatException" />
-    public DateTimeOffset ParseDate(string value, NumberStyles style, CultureInfo culture)
+    private DateTimeOffset ParseDate(string value, NumberStyles style, CultureInfo culture)
     {
       if (!string.IsNullOrEmpty(value))
       {
@@ -357,7 +323,7 @@ namespace ImportData
     /// <param name="exceptionList">Список ошибок.</param>
     /// <param name="logger">Логировщик.</param>
     /// <returns>Преобразованная дата.</returns>
-    public DateTimeOffset? TransformDateTime(string value, PropertyOptions options, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    protected DateTimeOffset? TransformDateTime(string value, PropertyOptions options, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var style = NumberStyles.Number | NumberStyles.AllowCurrencySymbol;
       var culture = CultureInfo.CreateSpecificCulture("en-GB");
@@ -379,26 +345,37 @@ namespace ImportData
     }
 
     /// <summary>
-    /// Получить начало дня.
-    /// </summary>
-    /// <param name="dateTimeOffset">Дата-время.</param>
-    /// <returns>Начало дня.</returns>
-    public DateTimeOffset BeginningOfDay(DateTimeOffset dateTimeOffset)
-    {
-      return new DateTimeOffset(dateTimeOffset.Year, dateTimeOffset.Month, dateTimeOffset.Day, 0, 0, 0, dateTimeOffset.Offset);
-    }
-
-    /// <summary>
     /// Вызов метода для заданного типа сущности.
     /// </summary>
     /// <param name="type">Тип сущности.</param>
     /// <param name="methodName">Имя вызываемого метода.</param>
     /// <param name="paramsForMethod">Параметры вызываемого метода.</param>
     /// <returns>Результат выполнения метода.</returns>
-    public object MethodCall(Type type, string methodName, params object[] paramsForMethod)
+    protected object MethodCall(Type type, string methodName, params object[] paramsForMethod)
     {
       MethodInfo method = type.GetMethod(methodName);
       return method.Invoke(null, paramsForMethod);
+    }
+
+    /// <summary>
+    /// Получить имя сущности для заполнения (оно может составляться из нескольких столбцов шаблона).
+    /// </summary>
+    /// <param name="entity">Сущность со всеми параметрами загрузки. (Предполагается, что при заполнении имени все поля уже считаны.)</param>
+    /// <returns>Наименование.</returns>
+    protected virtual string GetName()
+    {
+      return string.Empty;
+    }
+
+    /// <summary>
+    /// Специфичное заполнение / преобразование / проверка полей сущность, которую нельзя унифицировать.
+    /// </summary>
+    /// <param name="exceptionList">Список ошибок.</param>
+    /// <param name="logger">Логировщик.</param>
+    /// <returns>True, если были ошибки заполнения свойств, иначе false.</returns>
+    protected virtual bool FillProperies(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    {
+      return false;
     }
   }
 }

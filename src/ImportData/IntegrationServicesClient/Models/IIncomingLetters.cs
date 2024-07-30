@@ -9,60 +9,51 @@ namespace ImportData.IntegrationServicesClient.Models
   {
     private DateTimeOffset? dated;
     private DateTimeOffset? registrationDate;
+
     [PropertyOptions("№", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     new public string RegistrationNumber { get; set; }
+
     [PropertyOptions("Дата регистрации", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     new public DateTimeOffset? RegistrationDate
     {
       get { return registrationDate; }
       set { registrationDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
     }
+
     [PropertyOptions("Письмо от", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public DateTimeOffset? Dated
     {
       get { return dated; }
       set { dated = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
     }
+
     [PropertyOptions("Номер входящий", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string InNumber { get; set; }
+
     public bool IsManyAddressees { get; set; }
     public string ManyAddresseesPlaceholder { get; set; }
     public string ManyAddresseesLabel { get; set; }
+
     [PropertyOptions("Адресат", RequiredType.NotRequired, PropertyType.Entity)]
     public IEmployees Addressee { get; set; }
-    public IEmployees Assignee { get; set; }
 
+    public IEmployees Assignee { get; set; }
     public IBusinessUnits BusinessUnit { get; set; }
+
     [PropertyOptions("Корреспондент", RequiredType.Required, PropertyType.EntityWithCreate, AdditionalCharacters.ForSearch)]
     public ICounterparties Correspondent { get; set; }
+
     public IEmployees ResponsibleForReturnEmployee { get; set; }
+
     [PropertyOptions("Способ доставки", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     public IMailDeliveryMethods DeliveryMethod { get; set; }
-    new public static string GetName(Entity entity)
-    {
-      var subject = entity.ResultValues[Constants.KeyAttributes.Subject];
-      var documentKind = entity.ResultValues[Constants.KeyAttributes.DocumentKind];
-      var counterparty = entity.ResultValues[Constants.KeyAttributes.Correspondent];
-      var registrationNumber = entity.ResultValues[Constants.KeyAttributes.RegistrationNumber];
-      var registrationDate = (DateTimeOffset)entity.ResultValues[Constants.KeyAttributes.RegistrationDate];
-      return $"{documentKind} №{registrationNumber} от {registrationDate.ToString("dd.MM.yyyy")} с {counterparty} \"{subject}\"";
-    }
-
-    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      entity.ResultValues["Name"] = GetName(entity);
-      entity.ResultValues["Created"] = entity.ResultValues["RegistrationDate"];
-      entity.ResultValues["RegistrationState"] = BusinessLogic.GetRegistrationsState((string)entity.ResultValues["RegistrationState"]);
-      entity.ResultValues["LifeCycleState"] = "Active";
-      return false;
-    }
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var incomingLetters = new IIncomingLetters();
-      var subject = propertiesForSearch[Constants.KeyAttributes.Subject];
+      IIncomingLetters incomingLetters = null;
       var docRegisterId = propertiesForSearch[Constants.KeyAttributes.DocumentRegister];
       var regNumber = propertiesForSearch[Constants.KeyAttributes.RegistrationNumber];
+
       if (GetDate(propertiesForSearch[Constants.KeyAttributes.RegistrationDate], out var registrationDate) &&
           int.TryParse(docRegisterId, out int documentRegisterId))
       {
@@ -71,8 +62,10 @@ namespace ImportData.IntegrationServicesClient.Models
           x.DocumentRegister.Id == documentRegisterId,
         exceptionList, logger, true);
       }
+
       if (incomingLetters != null)
         return BusinessLogic.GetEntityWithFilter<IIncomingLetters>(x => x.Id == incomingLetters.Id, exceptionList, logger);
+
       return null;
     }
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

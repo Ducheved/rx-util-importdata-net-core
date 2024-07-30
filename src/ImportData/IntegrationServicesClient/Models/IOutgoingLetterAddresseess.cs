@@ -9,21 +9,21 @@ namespace ImportData.IntegrationServicesClient.Models
   {
     [PropertyOptions("Id исходящего письма в DirectumRX", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     public IOutgoingLetters OutgoingDocumentBase { get; set; }
+
     [PropertyOptions("Корреспондент", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     public ICounterparties Correspondent { get; set; }
+
     [PropertyOptions("Адресат", RequiredType.NotRequired, PropertyType.Entity)]
     public IContacts Addressee { get; set; }
+
     [PropertyOptions("Способ доставки", RequiredType.NotRequired, PropertyType.Entity)]
     public IMailDeliveryMethods DeliveryMethod { get; set; }
+
     new public static IEntityBase FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       return null;
     }
-    new public static bool FillProperies(Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
-    {
-      entity.ResultValues["IsManyAddressees"] = true;
-      return false;
-    }
+
     new public static void CreateOrUpdate(IEntityBase entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var outgoingLetterAddresseess = (IOutgoingLetterAddresseess)entity;
@@ -36,7 +36,6 @@ namespace ImportData.IntegrationServicesClient.Models
         Correspondent = outgoingLetterAddresseess.Correspondent,
       };
       outgoingLetter.CreateAddressee(addressee, logger);
-
     }
   }
 }
