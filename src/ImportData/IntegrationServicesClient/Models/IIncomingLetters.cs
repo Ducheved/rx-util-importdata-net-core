@@ -68,12 +68,13 @@ namespace ImportData.IntegrationServicesClient.Models
 
       return null;
     }
+
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
       {
         entity = BusinessLogic.CreateEntity((IIncomingLetters)entity, exceptionList, logger);
-        ((IIncomingLetters)entity)?.UpdateLifeCycleState("Active");
+        ((IIncomingLetters)entity)?.UpdateLifeCycleState(Constants.AttributeValue[Constants.KeyAttributes.Status]);
       }
       else
         BusinessLogic.UpdateEntity((IIncomingLetters)entity, exceptionList, logger);

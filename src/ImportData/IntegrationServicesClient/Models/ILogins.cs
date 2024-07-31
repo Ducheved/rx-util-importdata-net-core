@@ -23,7 +23,7 @@ namespace ImportData.IntegrationServicesClient.Models
         LoginName = loginName,
         TypeAuthentication = Constants.AttributeValue[Constants.KeyAttributes.TypeAuthentication],
         NeedChangePassword = false,
-        Status = "Active",
+        Status = Constants.AttributeValue[Constants.KeyAttributes.Status],
       }, exceptionList, logger);
     }
 

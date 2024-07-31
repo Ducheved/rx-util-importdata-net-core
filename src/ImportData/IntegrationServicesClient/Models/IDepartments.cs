@@ -34,15 +34,20 @@ namespace ImportData.IntegrationServicesClient.Models
       var businessUnit = BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == businessUnitName, exceptionList, logger);
 
       if (businessUnit == null)
-        businessUnit = BusinessLogic.CreateEntity<IBusinessUnits>(new IBusinessUnits() { Name = businessUnitName, Status = "Active" }, exceptionList, logger);
-      
-      return BusinessLogic.CreateEntity<IDepartments>(new IDepartments()
+      {
+        businessUnit = BusinessLogic.CreateEntity<IBusinessUnits>(new IBusinessUnits()
         {
-          Name = name,
-          BusinessUnit = businessUnit,
-          Status = "Active"
-        }, 
-        exceptionList, logger);
+          Name = businessUnitName,
+          Status = Constants.AttributeValue[Constants.KeyAttributes.Status]
+        }, exceptionList, logger);
+      }
+
+      return BusinessLogic.CreateEntity<IDepartments>(new IDepartments()
+      {
+        Name = name,
+        BusinessUnit = businessUnit,
+        Status = Constants.AttributeValue[Constants.KeyAttributes.Status]
+      }, exceptionList, logger);
     }
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

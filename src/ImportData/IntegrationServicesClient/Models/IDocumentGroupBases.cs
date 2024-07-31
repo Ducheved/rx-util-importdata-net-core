@@ -11,10 +11,11 @@ namespace ImportData.IntegrationServicesClient.Models
     new public static IDocumentGroupBases CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var name = propertiesForSearch[Constants.KeyAttributes.DocumentGroup];
+
       return BusinessLogic.CreateEntity<IDocumentGroupBases>(new IDocumentGroupBases()
       {
         Name = name,
-        Status = "Active"
+        Status = Constants.AttributeValue[Constants.KeyAttributes.Status]
       }, exceptionList, logger);
     }
 

@@ -18,17 +18,15 @@ namespace ImportData.IntegrationServicesClient.Models
         return null;
 
       var jobTitle = BusinessLogic.GetEntityWithFilter<IJobTitles>(x => x.Name == name, exceptionList, logger);
-      
+
       if (jobTitle == null)
-        return BusinessLogic.CreateEntity<IJobTitles>(
-          new IJobTitles()
-          {
-            Name = name,
-            Status = "Active"
-          },
-          exceptionList,
-          logger
-          );
+      {
+        return BusinessLogic.CreateEntity<IJobTitles>(new IJobTitles()
+        {
+          Name = name,
+          Status = Constants.AttributeValue[Constants.KeyAttributes.Status]
+        }, exceptionList, logger);
+      }
 
       return jobTitle;
     }
@@ -42,7 +40,7 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      ((IJobTitles)entity).Status = "Active";
+      ((IJobTitles)entity).Status = Constants.AttributeValue[Constants.KeyAttributes.Status];
       if (isNewEntity)
         BusinessLogic.CreateEntity((IJobTitles)entity, exceptionList, logger);
       else

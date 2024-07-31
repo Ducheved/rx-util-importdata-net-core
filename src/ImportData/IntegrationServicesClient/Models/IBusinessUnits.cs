@@ -72,7 +72,12 @@ namespace ImportData.IntegrationServicesClient.Models
       var manager = propertiesForSearch[Constants.KeyAttributes.CEO];
       var CEO = BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == manager, exceptionList, logger);
 
-      return BusinessLogic.CreateEntity<IBusinessUnits>(new IBusinessUnits() { Name = name, CEO = CEO, Status = "Active" }, exceptionList, logger);
+      return BusinessLogic.CreateEntity<IBusinessUnits>(new IBusinessUnits()
+      {
+        Name = name,
+        CEO = CEO,
+        Status = Constants.AttributeValue[Constants.KeyAttributes.Status]
+      }, exceptionList, logger);
     }
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

@@ -44,7 +44,7 @@ namespace ImportData.IntegrationServicesClient.Models
             Name = name,
             Person = (IPersons)person,
             Department = (IDepartments)department,
-            Status = "Active"
+            Status = Constants.AttributeValue[Constants.KeyAttributes.Status]
           },
           exceptionList,
           logger

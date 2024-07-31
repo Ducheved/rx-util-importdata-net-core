@@ -52,6 +52,7 @@ namespace ImportData.IntegrationServicesClient.Models
         var leadingDocument = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.RegistrationNumber != null &&
           x.RegistrationNumber == leadingDocumentNumber &&
           x.DocumentDate.Value.ToString("d") == leadingDocumentDate.ToString("d"), exceptionList, logger, true);
+
         addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.LeadingDocument.Id == leadingDocument.Id &&
           x.DocumentKind.Id == documentKind.Id &&
           x.Subject == subject, exceptionList, logger, true);

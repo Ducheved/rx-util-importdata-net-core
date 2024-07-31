@@ -76,6 +76,13 @@ namespace ImportData
         {KeyAttributes.TypeAuthentication, "Windows"},
       };
 
+    public class EntityActions
+    {
+      public const string CreateEntity = "CreateEntity";
+      public const string FindEntity = "FindEntity";
+      public const string CreateOrUpdate = "CreateOrUpdate";
+    }
+
     public class SheetNames
     {
       public const string BusinessUnits = "НашиОрганизации";

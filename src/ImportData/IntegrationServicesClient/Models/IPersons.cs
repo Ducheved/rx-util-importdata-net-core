@@ -38,11 +38,18 @@ namespace ImportData.IntegrationServicesClient.Models
       var middleName = propertiesForSearch[Constants.KeyAttributes.MiddleName];
       var lastName = propertiesForSearch[Constants.KeyAttributes.LastName];
       var person = BusinessLogic.GetEntityWithFilter<IPersons>(x => x.FirstName == firstName && x.MiddleName == middleName && x.LastName == lastName, exceptionList, logger);
-      
+
       if (person != null)
         return person;
 
-      return BusinessLogic.CreateEntity(new IPersons() { FirstName = firstName, MiddleName = middleName, LastName = lastName, Name = string.Format("{0} {1} {2}", lastName, firstName, middleName), Status = "Active" }, exceptionList, logger);
+      return BusinessLogic.CreateEntity(new IPersons()
+      {
+        FirstName = firstName,
+        MiddleName = middleName,
+        LastName = lastName,
+        Name = string.Format("{0} {1} {2}", lastName, firstName, middleName),
+        Status = Constants.AttributeValue[Constants.KeyAttributes.Status]
+      }, exceptionList, logger);
     }
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

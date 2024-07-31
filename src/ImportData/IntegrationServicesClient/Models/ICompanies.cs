@@ -13,6 +13,9 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("Юрид. наименование", RequiredType.NotRequired, PropertyType.Simple)]
     public string LegalName { get; set; }
 
+    [PropertyOptions("Юридический адрес", RequiredType.NotRequired, PropertyType.Simple)]
+    new public string LegalAddress { get; set; }
+
     [PropertyOptions("Головная орг.", RequiredType.NotRequired, PropertyType.EntityWithCreate)]
     public ICompanies HeadCompany { get; set; }
 
@@ -27,7 +30,11 @@ namespace ImportData.IntegrationServicesClient.Models
     {
       var name = propertiesForSearch[Constants.KeyAttributes.Name];
 
-      return BusinessLogic.CreateEntity<ICompanies>(new ICompanies() { Name = name, Status = "Active" }, exceptionList, logger);
+      return BusinessLogic.CreateEntity<ICompanies>(new ICompanies()
+      {
+        Name = name,
+        Status = Constants.AttributeValue[Constants.KeyAttributes.Status]
+      }, exceptionList, logger);
     }
 
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

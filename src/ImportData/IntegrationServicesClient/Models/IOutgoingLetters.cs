@@ -67,7 +67,7 @@ namespace ImportData.IntegrationServicesClient.Models
       if (isNewEntity)
       {
         entity = BusinessLogic.CreateEntity((IOutgoingLetters)entity, exceptionList, logger);
-        ((IOutgoingLetters)entity)?.UpdateLifeCycleState("Active");
+        ((IOutgoingLetters)entity)?.UpdateLifeCycleState(Constants.AttributeValue[Constants.KeyAttributes.Status]);
       }
       else
         BusinessLogic.UpdateEntity((IOutgoingLetters)entity, exceptionList, logger);

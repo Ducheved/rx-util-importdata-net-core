@@ -20,7 +20,11 @@ namespace ImportData.IntegrationServicesClient.Models
     {
       var name = propertiesForSearch[Constants.KeyAttributes.Name];
 
-      return BusinessLogic.CreateEntity(new IFileRetentionPeriods() { Name = name, Status = "Active" }, exceptionList, logger);
+      return BusinessLogic.CreateEntity(new IFileRetentionPeriods()
+      {
+        Name = name,
+        Status = Constants.AttributeValue[Constants.KeyAttributes.Status]
+      }, exceptionList, logger);
     }
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
@@ -32,7 +36,7 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      ((IFileRetentionPeriods)entity).Status = "Active";
+      ((IFileRetentionPeriods)entity).Status = Constants.AttributeValue[Constants.KeyAttributes.Status];
       if (isNewEntity)
         BusinessLogic.CreateEntity((IFileRetentionPeriods)entity, exceptionList, logger);
       else

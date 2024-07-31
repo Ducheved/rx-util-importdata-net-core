@@ -43,9 +43,8 @@ namespace ImportData.IntegrationServicesClient.Models
       {
         Name = string.Format("{0} - {1}", substituteName, userName),
         DelegateStrictRights = false,
-        Status = "Active"
-      },
-      exceptionList, logger);
+        Status = Constants.AttributeValue[Constants.KeyAttributes.Status]
+      }, exceptionList, logger);
     }
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

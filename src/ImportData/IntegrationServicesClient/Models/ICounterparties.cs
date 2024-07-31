@@ -8,7 +8,6 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("ИНН", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string TIN { get; set; }
 
-    // ВАЖНО: в организациях зовется по-другому
     [PropertyOptions("Адрес регистрации", RequiredType.NotRequired, PropertyType.Simple)]
     public string LegalAddress { get; set; }
 
@@ -69,7 +68,7 @@ namespace ImportData.IntegrationServicesClient.Models
       return BusinessLogic.CreateEntity(new ICounterparties()
       {
         Name = name,
-        Status = "Active",
+        Status = Constants.AttributeValue[Constants.KeyAttributes.Status],
       }, exceptionList, logger);
     }
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

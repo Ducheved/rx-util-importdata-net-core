@@ -25,7 +25,7 @@ namespace ImportData.IntegrationServicesClient.Models
       var department = BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == departmentName, exceptionList, logger);
       var preparedBy = BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == preparedByName, exceptionList, logger);
 
-      if (GetDate(propertiesForSearch["RegistrationDate"], out var registrationDate) &&
+      if (GetDate(propertiesForSearch[Constants.KeyAttributes.RegistrationDate], out var registrationDate) &&
         documentKind != null && businessUnit != null && department != null && preparedBy != null)
       {
         return BusinessLogic.CreateEntity<IOrders>(new IOrders()

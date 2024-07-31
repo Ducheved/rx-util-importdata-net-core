@@ -44,8 +44,9 @@ namespace ImportData
         if (options.Characters == AdditionalCharacters.CreateFromOtherProperties)
         {
           var propertiesForSearch = GetPropertiesForSearch(property.PropertyType, exceptionList, logger);
-          // Важно: скорее всего тут не только создание, а еще поиск
-          variableForParameters = MethodCall(property.PropertyType, "CreateEntity", propertiesForSearch, this, exceptionList, logger);
+          // При обработке сущности сначала выполняется поиск сущности для тех сущностей
+          // создание дублей которых избыточно и не требуется. Если сущность найдена - возвращается сущность, иначе создается новая.
+          variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, logger);
         }
         else
         {
@@ -76,20 +77,23 @@ namespace ImportData
             //var propertiesForSearch = new Dictionary<string, string>();
             var propertiesForSearch = GetPropertiesForSearch(property.PropertyType, exceptionList, logger);
             var entityName = (string)variableForParameters;
+
             if (propertiesForSearch == null)
-            {
               propertiesForSearch = new Dictionary<string, string>();
-            }
+
             propertiesForSearch.TryAdd(property.Name, entityName);
-            if (!propertiesForSearch.TryAdd("Name", entityName)
-              && !string.IsNullOrEmpty(entityName)
-              && !propertiesForSearch.ContainsValue(entityName))
+
+            if (!propertiesForSearch.TryAdd(Constants.KeyAttributes.Name, entityName) &&
+              !string.IsNullOrEmpty(entityName) &&
+              !propertiesForSearch.ContainsValue(entityName))
             {
-              propertiesForSearch["Name"] = entityName;
+              propertiesForSearch[Constants.KeyAttributes.Name] = entityName;
             }
-            variableForParameters = MethodCall(property.PropertyType, "FindEntity", propertiesForSearch, this, false, exceptionList, logger);
+
+            variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);
+            
             if (options.Type == PropertyType.EntityWithCreate && variableForParameters == null && !string.IsNullOrEmpty(entityName))
-              variableForParameters = MethodCall(property.PropertyType, "CreateEntity", propertiesForSearch, this, exceptionList, logger);
+              variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, logger);
 
             if (CheckPropertyNull(options, variableForParameters, Constants.Resources.EmptyProperty, exceptionList, logger) == Constants.ErrorTypes.Error)
               return exceptionList;
@@ -112,7 +116,7 @@ namespace ImportData
         var propertiesForCreate = GetPropertiesForSearch(EntityType, exceptionList, logger);
         var isNewEntity = false;
         if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
-          entity = (IEntityBase)MethodCall(EntityType, "FindEntity", propertiesForCreate, this, true, exceptionList, logger);
+          entity = (IEntityBase)MethodCall(EntityType, Constants.EntityActions.FindEntity, propertiesForCreate, this, true, exceptionList, logger);
         if (entity == null)
         {
           isNewEntity = true;
@@ -123,7 +127,7 @@ namespace ImportData
         UpdateProperties(entity);
 
         // Создание сущности.
-        MethodCall(EntityType, "CreateOrUpdate", entity, isNewEntity, exceptionList, logger);
+        MethodCall(EntityType, Constants.EntityActions.CreateOrUpdate, entity, isNewEntity, exceptionList, logger);
       }
       catch (Exception ex)
       {
@@ -134,47 +138,6 @@ namespace ImportData
 
       return new List<Structures.ExceptionsStruct>();
     }
-
-    /// <summary>
-    /// Проверка требования наличия пути к телу документа и самого документа по пути
-    /// </summary>
-    /// <param name="entityType">Сущность RX для заполнения.</param>
-    /// <returns>Результат проверки.</returns>
-    protected bool CheckNeedRequiredDocumentBody(Type entityType, out List<Structures.ExceptionsStruct> exceptionList)
-    {
-      exceptionList = new List<Structures.ExceptionsStruct>();
-      if (Constants.RequiredDocumentBody.Contains(entityType))
-      {
-        if (NamingParameters.ContainsKey(Constants.CellNameFile))
-        {
-          var pathToBody = NamingParameters[Constants.CellNameFile];
-          if (string.IsNullOrWhiteSpace(pathToBody))
-          {
-            exceptionList.Add(new Structures.ExceptionsStruct
-            {
-              ErrorType = Constants.ErrorTypes.Error,
-              Message = string.Format(Constants.Resources.EmptyColumn, Constants.CellNameFile)
-            });
-          }
-          if (!System.IO.File.Exists(pathToBody))
-            exceptionList.Add(new Structures.ExceptionsStruct
-            {
-              ErrorType = Constants.ErrorTypes.Error,
-              Message = string.Format(Constants.Resources.FileNotExist, pathToBody)
-            });
-        }
-        else
-          exceptionList.Add(new Structures.ExceptionsStruct
-          {
-            ErrorType = Constants.ErrorTypes.Error,
-            Message = string.Format(Constants.Resources.NeedRequiredDocumentBody, Constants.CellNameFile)
-          });
-        return true;
-      }
-      else
-        return false;
-    }
-
 
     /// <summary>
     /// Получить значения полей шаблона для создания свойства-сущности.

@@ -67,9 +67,8 @@ namespace ImportData.IntegrationServicesClient.Models
         StartDate = startDate,
         RetentionPeriod = retentionPeriod,
         Name = name,
-        Status = "Active"
-      }, 
-      exceptionList, logger);
+        Status = Constants.AttributeValue[Constants.KeyAttributes.Status],
+      }, exceptionList, logger);
     }
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

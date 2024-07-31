@@ -6,7 +6,7 @@ using ImportData.Entities.EDocs;
 
 namespace ImportData
 {
-  class OutgoingLetterAddressees : DocumentEntity
+  class OutgoingLetterAddressees : Entity
   {
     public override int PropertiesCount { get { return 4; } }
     protected override Type EntityType { get { return typeof(IOutgoingLetterAddresseess); } }
