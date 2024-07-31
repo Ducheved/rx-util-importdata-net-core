@@ -44,7 +44,7 @@ namespace ImportData.IntegrationServicesClient.Models
         return BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.Id == OutgoingDocumentBaseId, exceptionList, logger);
       }
 
-      IOutgoingLetters incomingLetters = null;
+      IOutgoingLetters outgoingLetters = null;
       var docRegisterId = propertiesForSearch[Constants.KeyAttributes.DocumentRegister];
       var regNumber = propertiesForSearch[Constants.KeyAttributes.RegistrationNumber];
 
@@ -52,17 +52,17 @@ namespace ImportData.IntegrationServicesClient.Models
         int.TryParse(docRegisterId, out int documentRegisterId))
       {
         //HACK: если искать без расширенных свойств, то сущность можеть быть не найдена.
-        incomingLetters = BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.RegistrationNumber == regNumber &&
+        outgoingLetters = BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.RegistrationNumber == regNumber &&
           x.RegistrationDate.Value.ToString("d") == registrationDate.ToString("d") &&
           x.DocumentRegister.Id == documentRegisterId,
         exceptionList, logger, true);
       }
 
       //HACK: Сервис интеграции при расширенном размере свойств сущности может свалиться ошибку.
-      if (incomingLetters != null)
-        return BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.Id == incomingLetters.Id, exceptionList, logger);
+      if (outgoingLetters != null)
+        outgoingLetters = BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.Id == outgoingLetters.Id, exceptionList, logger);
 
-      return incomingLetters;
+      return outgoingLetters;
     }
     new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {

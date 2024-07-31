@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using System.Collections.Generic;
 
 namespace ImportData.IntegrationServicesClient.Models
 {
@@ -21,7 +22,9 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static ICompanies FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch[Constants.KeyAttributes.Name];
+
+      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Company) ?
+       propertiesForSearch[Constants.KeyAttributes.Company] : propertiesForSearch[Constants.KeyAttributes.Name];
 
       return BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name, exceptionList, logger);
     }

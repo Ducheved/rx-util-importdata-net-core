@@ -25,7 +25,8 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static ICurrencies FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch[Constants.KeyAttributes.Name];
+      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Currency) ?
+        propertiesForSearch[Constants.KeyAttributes.Currency] : propertiesForSearch[Constants.KeyAttributes.Name];
 
       return BusinessLogic.GetEntityWithFilter<ICurrencies>(x => x.Name == name, exceptionList, logger);
     }

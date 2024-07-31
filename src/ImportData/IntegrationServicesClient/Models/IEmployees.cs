@@ -24,16 +24,29 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch[Constants.KeyAttributes.Name];
+      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Responsible) ?
+       propertiesForSearch[Constants.KeyAttributes.Responsible] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.Manager) ?
+       propertiesForSearch[Constants.KeyAttributes.Manager] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.CEO) ?
+       propertiesForSearch[Constants.KeyAttributes.CEO] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.ResponsibleEmployee) ?
+       propertiesForSearch[Constants.KeyAttributes.ResponsibleEmployee] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.OurSignatory) ?
+       propertiesForSearch[Constants.KeyAttributes.OurSignatory] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.Addressee) ?
+       propertiesForSearch[Constants.KeyAttributes.Addressee] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.PreparedBy) ?
+       propertiesForSearch[Constants.KeyAttributes.PreparedBy] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.Assignee) ?
+       propertiesForSearch[Constants.KeyAttributes.Assignee] : propertiesForSearch[Constants.KeyAttributes.Name];
 
       return BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == name, exceptionList, logger);
     }
 
     new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Manager) ?
-        propertiesForSearch[Constants.KeyAttributes.Manager] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.CEO) ?
-        propertiesForSearch[Constants.KeyAttributes.CEO] : propertiesForSearch[Constants.KeyAttributes.Name];
+      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Responsible) ?
+       propertiesForSearch[Constants.KeyAttributes.Responsible] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.Manager) ?
+       propertiesForSearch[Constants.KeyAttributes.Manager] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.CEO) ?
+       propertiesForSearch[Constants.KeyAttributes.CEO] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.ResponsibleEmployee) ?
+       propertiesForSearch[Constants.KeyAttributes.ResponsibleEmployee] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.OurSignatory) ?
+       propertiesForSearch[Constants.KeyAttributes.OurSignatory] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.Addressee) ?
+       propertiesForSearch[Constants.KeyAttributes.Addressee] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.PreparedBy) ?
+       propertiesForSearch[Constants.KeyAttributes.PreparedBy] : propertiesForSearch[Constants.KeyAttributes.Name];
 
       if (entity.ResultValues.TryGetValue(Constants.KeyAttributes.Person, out var person) &&
         entity.ResultValues.TryGetValue(Constants.KeyAttributes.Department, out var department))

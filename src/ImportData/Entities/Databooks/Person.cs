@@ -26,6 +26,9 @@ namespace ImportData
       ResultValues[Constants.KeyAttributes.Name] = GetName();
       ResultValues[Constants.KeyAttributes.Sex] = BusinessLogic.GetPropertySex((string)ResultValues[Constants.KeyAttributes.Sex]);
       ResultValues[Constants.KeyAttributes.Status] = Constants.AttributeValue[Constants.KeyAttributes.Status];
+      
+      if ((DateTimeOffset)ResultValues[Constants.KeyAttributes.DateOfBirth] == DateTimeOffset.MinValue)
+        ResultValues[Constants.KeyAttributes.DateOfBirth] = null;
 
       return false;
     }

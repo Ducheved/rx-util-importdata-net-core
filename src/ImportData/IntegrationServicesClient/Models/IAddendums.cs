@@ -52,7 +52,7 @@ namespace ImportData.IntegrationServicesClient.Models
         var leadingDocument = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.RegistrationNumber != null &&
           x.RegistrationNumber == leadingDocumentNumber &&
           x.DocumentDate.Value.ToString("d") == leadingDocumentDate.ToString("d"), exceptionList, logger, true);
-        
+
         //HACK: если искать без расширенных свойств, то сущность можеть быть не найдена.
         addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.LeadingDocument.Id == leadingDocument.Id &&
           x.DocumentKind.Id == documentKind.Id &&
@@ -60,7 +60,9 @@ namespace ImportData.IntegrationServicesClient.Models
       }
 
       //HACK: Сервис интеграции при расширенном объёме свойств сущности может свалиться ошибку.
-      return BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.Id == addendum.Id, exceptionList, logger);
+      if (addendum != null)
+        addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.Id == addendum.Id, exceptionList, logger);
+      return addendum;
     }
 
     new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
@@ -74,7 +76,7 @@ namespace ImportData.IntegrationServicesClient.Models
       else
       {
         return BusinessLogic.UpdateEntity((IAddendums)entity, exceptionList, logger);
-        
+
       }
     }
   }

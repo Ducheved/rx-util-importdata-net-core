@@ -21,7 +21,7 @@ namespace ImportData
     public Dictionary<string, string> NamingParameters { get; set; }
     public Dictionary<string, object> ResultValues { get; set; }
     protected virtual Type EntityType { get; }
-    protected IEntityBase entity { get; set; }
+    protected IEntityBase entity { get; set; } 
     protected bool isNewEntity = false;
 
     /// <summary>
@@ -29,7 +29,13 @@ namespace ImportData
     /// </summary>
     public virtual int PropertiesCount { get; }
 
-    public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="logger">логировщик</param>
+    /// <param name="ignoreDuplicates">игнорирование дублей.</param>
+    /// <returns></returns>
+    public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
       ResultValues = new Dictionary<string, object>();
@@ -73,27 +79,19 @@ namespace ImportData
           // Работа с полями-сущностями.
           if (options.Type == PropertyType.Entity || options.Type == PropertyType.EntityWithCreate)
           {
-            // ВАЖНО: есть сущности, которые ищутся не по имени, для них подумать, как доработать GetPropertiesForSearch,
-            // он должен в зависимости от сущности брать все поля по иерархии или только поля сущности
-            // пока так
-            //var propertiesForSearch = new Dictionary<string, string>();
+            // Добавляем поля и значения для поиска или создания сущностей.
             var propertiesForSearch = GetPropertiesForSearch(property.PropertyType, exceptionList, logger);
             var entityName = (string)variableForParameters;
 
             if (propertiesForSearch == null)
               propertiesForSearch = new Dictionary<string, string>();
 
+            // Добавляем активное поле и его значение.
             propertiesForSearch.TryAdd(property.Name, entityName);
-
-            if (!propertiesForSearch.TryAdd(Constants.KeyAttributes.Name, entityName) &&
-              !string.IsNullOrEmpty(entityName) &&
-              !propertiesForSearch.ContainsValue(entityName))
-            {
-              propertiesForSearch[Constants.KeyAttributes.Name] = entityName;
-            }
-
+            //Пробуем найти сущность в системе.
             variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);
-            
+
+            //Созбаем сущность, есои не удалось найти.
             if (options.Type == PropertyType.EntityWithCreate && variableForParameters == null && !string.IsNullOrEmpty(entityName))
               variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, logger);
 

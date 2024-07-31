@@ -63,7 +63,9 @@ namespace ImportData.IntegrationServicesClient.Models
     public IEmployees Responsible { get; set; }
     new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch[Constants.KeyAttributes.Name];
+      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Counterparty) ?
+          propertiesForSearch[Constants.KeyAttributes.Counterparty] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.Correspondent) ?
+          propertiesForSearch[Constants.KeyAttributes.Correspondent] : propertiesForSearch[Constants.KeyAttributes.Name];
 
       return BusinessLogic.CreateEntity(new ICounterparties()
       {

@@ -77,15 +77,16 @@ namespace ImportData.IntegrationServicesClient.Models
 
       if (GetDate(propertiesForSearch[Constants.KeyAttributes.DocumentDate], out var documentDate))
       {
+        //HACK: если искать без расширенных свойств, то сущность можеть быть не найдена.
         officialDocument = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.RegistrationNumber != null &&
           x.RegistrationNumber == regNumber &&
           x.DocumentDate.Value.ToString("d") == documentDate.ToString("d"), exceptionList, logger, true);
       }
-
+      //HACK: Сервис интеграции при расширенном объёме свойств сущности может свалиться ошибку.
       if (officialDocument != null)
-        return BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.Id == officialDocument.Id, exceptionList, logger);
+        officialDocument = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.Id == officialDocument.Id, exceptionList, logger);
 
-      return null;
+      return officialDocument;
     }
 
     public static IOfficialDocuments GetDocumentByRegistrationDate(IEnumerable<IOfficialDocuments> documents, DateTimeOffset regDate, Logger logger, List<Structures.ExceptionsStruct> exceptionList)

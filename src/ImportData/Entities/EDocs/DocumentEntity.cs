@@ -7,7 +7,7 @@ namespace ImportData.Entities.EDocs
 {
   public class DocumentEntity : Entity
   {
-    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, bool supplementEntity, string ignoreDuplicates)
+    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
 
@@ -23,13 +23,13 @@ namespace ImportData.Entities.EDocs
         }
       }
 
-      exceptionList.AddRange(base.SaveToRX(logger, supplementEntity, ignoreDuplicates));
+      exceptionList.AddRange(base.SaveToRX(logger, ignoreDuplicates));
 
       //Импорт тела документа в систему.
       if (NamingParameters.ContainsKey(Constants.CellNameFile) && isNewEntity)
       {
-
         var filePath = NamingParameters[Constants.CellNameFile];
+
         if (!string.IsNullOrWhiteSpace(filePath) && entity != null)
           exceptionList.AddRange(BusinessLogic.ImportBody((IElectronicDocuments)entity, filePath, logger));
       }
