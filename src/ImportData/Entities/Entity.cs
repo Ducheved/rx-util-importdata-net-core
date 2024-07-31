@@ -21,6 +21,8 @@ namespace ImportData
     public Dictionary<string, string> NamingParameters { get; set; }
     public Dictionary<string, object> ResultValues { get; set; }
     protected virtual Type EntityType { get; }
+    protected IEntityBase entity { get; set; }
+    protected bool isNewEntity = false;
 
     /// <summary>
     /// Количество используемых параметров.
@@ -112,9 +114,7 @@ namespace ImportData
       // Обновление сущности.
       try
       {
-        IEntityBase entity = null;
         var propertiesForCreate = GetPropertiesForSearch(EntityType, exceptionList, logger);
-        var isNewEntity = false;
         if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
           entity = (IEntityBase)MethodCall(EntityType, Constants.EntityActions.FindEntity, propertiesForCreate, this, true, exceptionList, logger);
         if (entity == null)
@@ -127,7 +127,7 @@ namespace ImportData
         UpdateProperties(entity);
 
         // Создание сущности.
-        MethodCall(EntityType, Constants.EntityActions.CreateOrUpdate, entity, isNewEntity, exceptionList, logger);
+        entity = (IEntityBase)MethodCall(EntityType, Constants.EntityActions.CreateOrUpdate, entity, isNewEntity, exceptionList, logger);
       }
       catch (Exception ex)
       {

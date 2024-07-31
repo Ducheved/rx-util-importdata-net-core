@@ -51,26 +51,28 @@ namespace ImportData.IntegrationServicesClient.Models
       if (GetDate(propertiesForSearch[Constants.KeyAttributes.RegistrationDate], out var registrationDate) &&
         int.TryParse(docRegisterId, out int documentRegisterId))
       {
+        //HACK: если искать без расширенных свойств, то сущность можеть быть не найдена.
         incomingLetters = BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.RegistrationNumber == regNumber &&
           x.RegistrationDate.Value.ToString("d") == registrationDate.ToString("d") &&
           x.DocumentRegister.Id == documentRegisterId,
         exceptionList, logger, true);
       }
 
+      //HACK: Сервис интеграции при расширенном размере свойств сущности может свалиться ошибку.
       if (incomingLetters != null)
         return BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.Id == incomingLetters.Id, exceptionList, logger);
 
-      return null;
+      return incomingLetters;
     }
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
       {
         entity = BusinessLogic.CreateEntity((IOutgoingLetters)entity, exceptionList, logger);
-        ((IOutgoingLetters)entity)?.UpdateLifeCycleState(Constants.AttributeValue[Constants.KeyAttributes.Status]);
+        return((IOutgoingLetters)entity)?.UpdateLifeCycleState(Constants.AttributeValue[Constants.KeyAttributes.Status]);
       }
       else
-        BusinessLogic.UpdateEntity((IOutgoingLetters)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((IOutgoingLetters)entity, exceptionList, logger);
     }
 
     public void CreateAddressee(IOutgoingLetterAddresseess addressee, Logger logger)

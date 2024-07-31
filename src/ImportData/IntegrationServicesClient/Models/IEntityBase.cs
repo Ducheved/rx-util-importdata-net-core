@@ -42,9 +42,9 @@ namespace ImportData.IntegrationServicesClient.Models
     /// <param name="isNewEntity">True, если сущность создается, false, если обновляется.</param>
     /// <param name="exceptionList">Список ошибок.</param>
     /// <param name="logger">Логировщик.</param>
-    public static void CreateOrUpdate(IEntityBase entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    public static IEntityBase CreateOrUpdate(IEntityBase entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      // Будет переопределен в дочерних классах.
+      return null;
     }
 
     /// <summary>

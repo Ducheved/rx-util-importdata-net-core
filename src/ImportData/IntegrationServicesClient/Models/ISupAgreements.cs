@@ -81,17 +81,17 @@ namespace ImportData.IntegrationServicesClient.Models
       return null;
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
       {
         var lifeCycleState = ((ISupAgreements)entity).LifeCycleState;
         entity = BusinessLogic.CreateEntity((ISupAgreements)entity, exceptionList, logger);
-        ((ISupAgreements)entity)?.UpdateLifeCycleState(lifeCycleState);
+        return ((ISupAgreements)entity)?.UpdateLifeCycleState(lifeCycleState);
       }
       else
       {
-        BusinessLogic.UpdateEntity((ISupAgreements)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((ISupAgreements)entity, exceptionList, logger);
       }
     }
   }

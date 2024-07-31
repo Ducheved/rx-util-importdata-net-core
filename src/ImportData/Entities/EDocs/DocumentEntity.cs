@@ -11,8 +11,8 @@ namespace ImportData.Entities.EDocs
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
 
-      //Перед обработкой сущности проверим, что в шаблоне есть обязательное поле "файл" и указанный по пути файл существует,
-      //при не обрабатываем сущность. При добавлении новых сущностей, предполагающих обязательную загрузку файла, в константу RequiredDocumentBody
+      //Перед обработкой сущности проверим, что в шаблоне есть обязательное поле "файл" и указанный по пути файл существует.
+      //При добавлении новых сущностей, предполагающих обязательную загрузку тела документа, в константу RequiredDocumentBody
       //необходимо добавить новый тип сущности.
       if (CheckNeedRequiredDocumentBody(EntityType, out var exceptions))
       {
@@ -25,12 +25,10 @@ namespace ImportData.Entities.EDocs
 
       exceptionList.AddRange(base.SaveToRX(logger, supplementEntity, ignoreDuplicates));
 
-      //Загрузка тела сущности в систему 
-      if (NamingParameters.ContainsKey(Constants.CellNameFile))
+      //Импорт тела документа в систему.
+      if (NamingParameters.ContainsKey(Constants.CellNameFile) && isNewEntity)
       {
-        IEntityBase entity = null;
-        var propertiesForCreate = GetPropertiesForSearch(EntityType, exceptionList, logger);
-        entity = (IEntityBase)MethodCall(EntityType, Constants.EntityActions.FindEntity, propertiesForCreate, this, true, exceptionList, logger);
+
         var filePath = NamingParameters[Constants.CellNameFile];
         if (!string.IsNullOrWhiteSpace(filePath) && entity != null)
           exceptionList.AddRange(BusinessLogic.ImportBody((IElectronicDocuments)entity, filePath, logger));
@@ -52,7 +50,7 @@ namespace ImportData.Entities.EDocs
       ResultValues[Constants.KeyAttributes.Name] = GetName();
       ResultValues[Constants.KeyAttributes.Created] = ResultValues[Constants.KeyAttributes.RegistrationDate];
       ResultValues[Constants.KeyAttributes.RegistrationState] = BusinessLogic.GetRegistrationsState((string)ResultValues[Constants.KeyAttributes.RegistrationState]);
-      ResultValues[Constants.KeyAttributes.LifeCycleState] = BusinessLogic.GetPropertyLifeCycleState((string)ResultValues[Constants.KeyAttributes.LifeCycleState]);
+      ResultValues[Constants.KeyAttributes.LifeCycleState] = BusinessLogic.GetPropertyLifeCycleState(Constants.AttributeValue[Constants.KeyAttributes.Status]);
 
       return false;
     }

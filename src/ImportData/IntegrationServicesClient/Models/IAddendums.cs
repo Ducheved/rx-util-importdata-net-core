@@ -52,29 +52,29 @@ namespace ImportData.IntegrationServicesClient.Models
         var leadingDocument = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.RegistrationNumber != null &&
           x.RegistrationNumber == leadingDocumentNumber &&
           x.DocumentDate.Value.ToString("d") == leadingDocumentDate.ToString("d"), exceptionList, logger, true);
-
+        
+        //HACK: если искать без расширенных свойств, то сущность можеть быть не найдена.
         addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.LeadingDocument.Id == leadingDocument.Id &&
           x.DocumentKind.Id == documentKind.Id &&
           x.Subject == subject, exceptionList, logger, true);
       }
 
-      if (addendum != null)
-        return BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.Id == addendum.Id, exceptionList, logger);
-
-      return null;
+      //HACK: Сервис интеграции при расширенном объёме свойств сущности может свалиться ошибку.
+      return BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.Id == addendum.Id, exceptionList, logger);
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
       {
         var lifeCycleState = ((IAddendums)entity).LifeCycleState;
         entity = BusinessLogic.CreateEntity((IAddendums)entity, exceptionList, logger);
-        ((IAddendums)entity)?.UpdateLifeCycleState(lifeCycleState);
+        return ((IAddendums)entity)?.UpdateLifeCycleState(lifeCycleState);
       }
       else
       {
-        BusinessLogic.UpdateEntity((IAddendums)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((IAddendums)entity, exceptionList, logger);
+        
       }
     }
   }

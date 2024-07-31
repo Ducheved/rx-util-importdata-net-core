@@ -59,16 +59,16 @@ namespace ImportData.IntegrationServicesClient.Models
       return null;
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
       {
         var lifeCycleState = ((IOrders)entity).LifeCycleState;
         entity = BusinessLogic.CreateEntity((IOrders)entity, exceptionList, logger);
-        ((IOrders)entity)?.UpdateLifeCycleState(lifeCycleState);
+        return ((IOrders)entity)?.UpdateLifeCycleState(lifeCycleState);
       }
       else
-        BusinessLogic.UpdateEntity((IOrders)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((IOrders)entity, exceptionList, logger);
     }
   }
 }
