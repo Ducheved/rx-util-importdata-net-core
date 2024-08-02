@@ -34,12 +34,12 @@ namespace ImportData.IntegrationServicesClient.Models
       return BusinessLogic.GetEntityWithFilter<ILogins>(x => x.LoginName == loginName, exceptionList, logger);
     }
 
-    new public static void CreateOrUpdate(IEntityBase entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntityBase entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((ILogins)entity, exceptionList, logger);
+        return BusinessLogic.CreateEntity((ILogins)entity, exceptionList, logger);
       else
-        BusinessLogic.UpdateEntity((ILogins)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((ILogins)entity, exceptionList, logger);
     }
   }
 }

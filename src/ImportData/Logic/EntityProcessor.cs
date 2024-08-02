@@ -22,8 +22,6 @@ namespace ImportData
       Type wrapperType = genericType.MakeGenericType(typeArgs);
       object processor = Activator.CreateInstance(wrapperType);
       var getEntity = wrapperType.GetMethod("GetEntity");
-      bool supplementEntity = false;
-      var supplementEntityList = new List<string>();
 
       uint row = 2;
       uint rowImported = 1;
@@ -39,7 +37,7 @@ namespace ImportData
       logger.Info("===================Чтение строк из файла===================");
       var watch = System.Diagnostics.Stopwatch.StartNew();
 
-	  // Пропускаем 1 строку, т.к. в ней заголовки таблицы.
+      // Пропускаем 1 строку, т.к. в ней заголовки таблицы.
       foreach (var importItem in importData.Skip(1))
       {
         int countItem = importItem.Count();
@@ -53,8 +51,8 @@ namespace ImportData
         row++;
       }
 
-	  var titles = importData.First();
-	  titles = titles.Take(titles.Count() - 3).ToList();
+      var titles = importData.First();
+      titles = titles.Take(titles.Count() - 3).ToList();
       watch.Stop();
       var elapsedMs = watch.ElapsedMilliseconds;
       logger.Info($"Времени затрачено на чтение строк из файла: {elapsedMs} мс");
@@ -64,10 +62,10 @@ namespace ImportData
       foreach (var importItem in listImportItems)
       {
         var entity = (Entity)getEntity.Invoke(processor, new object[] { importItem.ToArray(), extraParameters });
-        entity.NamingParameters = titles.Where(x=>x != string.Empty)
+        entity.NamingParameters = titles.Where(x => x != string.Empty)
           .Select((k, i) => (k, i))
           .ToDictionary(x => x.k, x => importItem[x.i]);
-        
+
         if (entity != null)
         {
           if (importItemCount >= entity.PropertiesCount)
@@ -99,7 +97,14 @@ namespace ImportData
           listResult.Add(exceptionList);
         }
         if (paramCount == 0)
-          paramCount = entity.PropertiesCount;
+        {
+          //HACK: при загрузке оргструктуры сначала грузятся персоны со страницы сотрудников,
+          //количество столбцов различается для персон и сотрудников, поэтому затираются данные, добавим недостоющие столбцы.
+          if (entity.GetType().Equals(typeof(Person)) && sheetName.Equals(Constants.SheetNames.Employees))
+            paramCount = entity.PropertiesCount + 3;
+          else
+            paramCount = entity.PropertiesCount;
+        }
       }
       var percent1 = (double)(rowImported - 1) / (double)parametersListCount * 100.00;
       logger.Info($"\rИмпортировано {rowImported - 1} сущностей из {parametersListCount} ({percent1:F2}%)");

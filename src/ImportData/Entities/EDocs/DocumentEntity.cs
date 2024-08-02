@@ -60,7 +60,7 @@ namespace ImportData.Entities.EDocs
     /// </summary>
     /// <param name="entityType">Сущность RX для заполнения.</param>
     /// <returns>Результат проверки.</returns>
-    protected bool CheckNeedRequiredDocumentBody(Type entityType, out List<Structures.ExceptionsStruct> exceptionList)
+    private bool CheckNeedRequiredDocumentBody(Type entityType, out List<Structures.ExceptionsStruct> exceptionList)
     {
       exceptionList = new List<Structures.ExceptionsStruct>();
       if (Constants.RequiredDocumentBody.Contains(entityType))

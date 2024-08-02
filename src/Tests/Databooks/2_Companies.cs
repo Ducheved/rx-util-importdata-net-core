@@ -51,7 +51,7 @@ namespace Tests.Databooks
                 Common.CheckParam(actualCompany.NCEO, parameters[shift + 6], "NCEO"),
                 Common.CheckParam(actualCompany.NCEA, parameters[shift + 7], "NCEA"),
                 Common.CheckParam(actualCompany.TRRC, parameters[shift + 8], "TRRC"),
-                Common.CheckParam(actualCompany.City, parameters[shift + 9], "City"),
+                Common.CheckParam(actualCompany.City != null ? actualCompany.City.Name : string.Empty, parameters[shift + 9], "City"),
                 //Регион подставляется прикладной по городу, не проверяем.
                 //Common.CheckParam(actualCompany.Region, parameters[shift + 10], "Region"),
                 Common.CheckParam(actualCompany.LegalAddress, parameters[shift + 11], "LegalAddress"),

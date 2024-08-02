@@ -6,7 +6,7 @@ namespace ImportData.IntegrationServicesClient.Models
   [EntityName("Сотрудник")]
   public class IEmployees : IUsers
   {
-    [PropertyOptions("Телефон", RequiredType.NotRequired, PropertyType.Simple)]
+    [PropertyOptions("Рабочий телефон", RequiredType.NotRequired, PropertyType.Simple)]
     public string Phone { get; set; }
 
     [PropertyOptions("Примечание", RequiredType.NotRequired, PropertyType.Simple)]

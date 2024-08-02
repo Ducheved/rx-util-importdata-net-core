@@ -28,6 +28,9 @@ namespace ImportData
       switch (action)
       {
         case "importcompany":
+          logger.Info("Импорт персон");
+          logger.Info("-------------");
+          EntityProcessor.Process(typeof(Person), xlsxPath, Constants.SheetNames.Employees, extraParameters, ignoreDuplicates, logger);
           logger.Info("Импорт сотрудников");
           logger.Info("-------------");
           EntityProcessor.Process(typeof(Employee), xlsxPath, Constants.SheetNames.Employees, extraParameters, ignoreDuplicates, logger);
@@ -99,7 +102,7 @@ namespace ImportData
 
     public static void Main(string[] args)
     {
-      args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importcurrencies", "-f", $@"C:\Users\chirkov_ro\Desktop\Template\Example\Валюты.xlsx" };
+      //args = new[] { "-n", "Administrator", "-p", "11111", "-a", "importcompany", "-f", $@"C:\Template\Templates\Company.xlsx" };
       logger.Info("=========================== Process Start ===========================");
       var watch = System.Diagnostics.Stopwatch.StartNew();
 

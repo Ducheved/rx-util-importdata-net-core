@@ -1,4 +1,5 @@
-﻿using ImportData.IntegrationServicesClient.Models;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using ImportData.IntegrationServicesClient.Models;
 using Microsoft.Data.Edm.Library;
 using System;
 using System.Collections.Generic;
@@ -44,10 +45,12 @@ namespace ImportData
       public const string DocumentRegister = "DocumentRegister";
       public const string EndDate = "EndDate";
       public const string FirstName = "FirstName";
+      public const string FirstNameRu = "Имя";
       public const string HeadCompany = "HeadCompany";
       public const string HeadOffice = "HeadOffice";
       public const string Index = "Index";
       public const string LastName = "LastName";
+      public const string LastNameRu = "Фамилия";
       public const string LeadingDocument = "LeadingDocument";
       public const string LifeCycleState = "LifeCycleState";
       public const string LoginName = "LoginName";
@@ -55,6 +58,7 @@ namespace ImportData
       public const string Manager = "Manager";
       public const string ManyAddresses = "IsManyAddressees";
       public const string MiddleName = "MiddleName";
+      public const string MiddleNameRu = "Отчество";
       public const string Name = "Name";
       public const string NeedChangePassword = "NeedChangePassword";
       public const string Nonresident = "Nonresident";
@@ -183,8 +187,9 @@ namespace ImportData
       public const string IncorrecNceoLength = "ОКПО должен содержать 8 или 10 цифр";
       public const string EmptyColumn = "Не заполнено поле {0}.";
       public const string EmptyProperty = "Не найдено значение для свойства {0}.";
+      public const string ErrorFindEmployee = "Не удалось найти в системе соответствующего сотрудника \"{0}\".";
       public const string FileNotExist = "Не найден файл по пути {0}.";
-      public const string NeedRequiredDocumentBody = "Импортирумая сущность должна содержать тело документа, столбец с наименованием {0}.";
+      public const string NeedRequiredDocumentBody = "Импортирумая сущность должна содержать ссылку на тело документа, столбец с наименованием {0}.";
     }
 
     public class ConfigServices
