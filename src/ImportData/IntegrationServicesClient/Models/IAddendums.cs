@@ -53,13 +53,13 @@ namespace ImportData.IntegrationServicesClient.Models
           x.RegistrationNumber == leadingDocumentNumber &&
           x.DocumentDate.Value.ToString("d") == leadingDocumentDate.ToString("d"), exceptionList, logger, true);
 
-        //HACK: если искать без расширенных свойств, то сущность можеть быть не найдена.
+        // HACK: если искать без расширенных свойств, то сущность можеть быть не найдена.
         addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.LeadingDocument.Id == leadingDocument.Id &&
           x.DocumentKind.Id == documentKind.Id &&
           x.Subject == subject, exceptionList, logger, true);
       }
 
-      //HACK: Сервис интеграции при расширенном объёме свойств сущности может свалиться ошибку.
+      // HACK: Сервис интеграции при расширенном объёме свойств сущности может свалиться ошибку.
       if (addendum != null)
         addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.Id == addendum.Id, exceptionList, logger);
       return addendum;

@@ -88,10 +88,10 @@ namespace ImportData
 
             // Добавляем активное поле и его значение.
             propertiesForSearch.TryAdd(property.Name, entityName);
-            //Пробуем найти сущность в системе.
+            // Пробуем найти сущность в системе.
             variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);
 
-            //Созбаем сущность, есои не удалось найти.
+            // Создаем сущность, если не удалось найти.
             if (options.Type == PropertyType.EntityWithCreate && variableForParameters == null && !string.IsNullOrEmpty(entityName))
               variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, logger);
 

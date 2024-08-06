@@ -11,9 +11,9 @@ namespace ImportData.Entities.EDocs
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
 
-      //Перед обработкой сущности проверим, что в шаблоне есть обязательное поле "файл" и указанный по пути файл существует.
-      //При добавлении новых сущностей, предполагающих обязательную загрузку тела документа, в константу RequiredDocumentBody
-      //необходимо добавить новый тип сущности.
+      // Перед обработкой сущности проверим, что в шаблоне есть обязательное поле "файл" и указанный по пути файл существует.
+      // При добавлении новых сущностей, предполагающих обязательную загрузку тела документа, в константу RequiredDocumentBody
+      // необходимо добавить новый тип сущности.
       if (CheckNeedRequiredDocumentBody(EntityType, out var exceptions))
       {
         if (exceptions.Count > 0)
@@ -25,7 +25,7 @@ namespace ImportData.Entities.EDocs
 
       exceptionList.AddRange(base.SaveToRX(logger, ignoreDuplicates));
 
-      //Импорт тела документа в систему.
+      // Импорт тела документа в систему.
       if (NamingParameters.ContainsKey(Constants.CellNameFile) && isNewEntity)
       {
         var filePath = NamingParameters[Constants.CellNameFile];
