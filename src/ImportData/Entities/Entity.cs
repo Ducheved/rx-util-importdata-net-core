@@ -21,7 +21,7 @@ namespace ImportData
     public Dictionary<string, string> NamingParameters { get; set; }
     public Dictionary<string, object> ResultValues { get; set; }
     protected virtual Type EntityType { get; }
-    protected IEntityBase entity { get; set; } 
+    protected IEntityBase entity = null;
     protected bool isNewEntity = false;
 
     /// <summary>
