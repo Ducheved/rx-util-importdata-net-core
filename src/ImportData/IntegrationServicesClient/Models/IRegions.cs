@@ -16,7 +16,7 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IRegions FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch[Constants.KeyAttributes.Region];
+      var name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
 
       return BusinessLogic.GetEntityWithFilter<IRegions>(x => x.Name == name, exceptionList, logger);
     }

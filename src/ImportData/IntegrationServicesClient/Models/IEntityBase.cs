@@ -57,6 +57,7 @@ namespace ImportData.IntegrationServicesClient.Models
       if (double.TryParse(regDate, out var date))
       {
         registrationDate = new DateTimeOffset(DateTime.FromOADate(date), TimeSpan.Zero);
+        registrationDate = DateTimeOffset.Parse(registrationDate.ToString("yyyy-MM-dd"));
         return true;
       }
       registrationDate = DateTimeOffset.MinValue;

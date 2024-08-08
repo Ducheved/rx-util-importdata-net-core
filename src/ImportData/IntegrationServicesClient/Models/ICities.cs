@@ -12,7 +12,7 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch[Constants.KeyAttributes.City];
+      var name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
 
       return BusinessLogic.GetEntityWithFilter<ICities>(x => x.Name == name, exceptionList, logger);
     }

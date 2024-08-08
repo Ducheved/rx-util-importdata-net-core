@@ -57,16 +57,11 @@ namespace ImportData.IntegrationServicesClient.Models
       if (GetDate(propertiesForSearch[Constants.KeyAttributes.RegistrationDate], out var registrationDate) &&
           int.TryParse(docRegisterId, out int documentRegisterId))
       {
-        //HACK: если искать без расширенных свойств, то сущность можеть быть не найдена.
         incomingLetters = BusinessLogic.GetEntityWithFilter<IIncomingLetters>(x => x.RegistrationNumber == regNumber &&
-          x.RegistrationDate.Value.ToString("d") == registrationDate.ToString("d") &&
+          x.RegistrationDate == registrationDate &&
           x.DocumentRegister.Id == documentRegisterId,
-        exceptionList, logger, true);
+        exceptionList, logger);
       }
-
-      //HACK: Сервис интеграции при расширенном размере свойств сущности может свалиться ошибку.
-      if (incomingLetters != null)
-        incomingLetters = BusinessLogic.GetEntityWithFilter<IIncomingLetters>(x => x.Id == incomingLetters.Id, exceptionList, logger);
 
       return incomingLetters;
     }

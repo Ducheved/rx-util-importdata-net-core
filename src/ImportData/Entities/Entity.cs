@@ -87,7 +87,7 @@ namespace ImportData
               propertiesForSearch = new Dictionary<string, string>();
 
             // Добавляем активное поле и его значение.
-            propertiesForSearch.TryAdd(property.Name, entityName);
+            propertiesForSearch.TryAdd(Constants.KeyAttributes.CustomFieldName, entityName);
             // Пробуем найти сущность в системе.
             variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);
 

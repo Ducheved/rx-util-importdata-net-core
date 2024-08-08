@@ -38,8 +38,8 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      if (propertiesForSearch.ContainsKey(Constants.KeyAttributes.OutgoingDocumentBase) &&
-        int.TryParse(propertiesForSearch[Constants.KeyAttributes.OutgoingDocumentBase], out int OutgoingDocumentBaseId))
+      if (propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) &&
+        int.TryParse(propertiesForSearch[Constants.KeyAttributes.CustomFieldName], out int OutgoingDocumentBaseId))
       {
         return BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.Id == OutgoingDocumentBaseId, exceptionList, logger);
       }
@@ -51,16 +51,11 @@ namespace ImportData.IntegrationServicesClient.Models
       if (GetDate(propertiesForSearch[Constants.KeyAttributes.RegistrationDate], out var registrationDate) &&
         int.TryParse(docRegisterId, out int documentRegisterId))
       {
-        //HACK: если искать без расширенных свойств, то сущность можеть быть не найдена.
         outgoingLetters = BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.RegistrationNumber == regNumber &&
-          x.RegistrationDate.Value.ToString("d") == registrationDate.ToString("d") &&
+          x.RegistrationDate == registrationDate &&
           x.DocumentRegister.Id == documentRegisterId,
-        exceptionList, logger, true);
+        exceptionList, logger);
       }
-
-      //HACK: Сервис интеграции при расширенном размере свойств сущности может свалиться ошибку.
-      if (outgoingLetters != null)
-        outgoingLetters = BusinessLogic.GetEntityWithFilter<IOutgoingLetters>(x => x.Id == outgoingLetters.Id, exceptionList, logger);
 
       return outgoingLetters;
     }

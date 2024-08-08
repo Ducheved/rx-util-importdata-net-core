@@ -20,7 +20,7 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      if (int.TryParse(propertiesForSearch[Constants.KeyAttributes.DocumentRegister], out int documentRegisterId))
+      if (int.TryParse(propertiesForSearch[Constants.KeyAttributes.CustomFieldName], out int documentRegisterId))
         return BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(x => x.Id == documentRegisterId, exceptionList, logger);
 
       return null;

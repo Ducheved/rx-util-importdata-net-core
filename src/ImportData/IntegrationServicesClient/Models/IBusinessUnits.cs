@@ -67,8 +67,8 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IBusinessUnits CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.BusinessUnit) ?
-        propertiesForSearch[Constants.KeyAttributes.BusinessUnit] : propertiesForSearch[Constants.KeyAttributes.Name];
+      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
+        propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
       var manager = propertiesForSearch[Constants.KeyAttributes.CEO];
       var CEO = BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == manager, exceptionList, logger);
 
@@ -82,9 +82,12 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      string name = string.Empty;
+      string name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
+        propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
 
-      if (propertiesForSearch.TryGetValue(Constants.KeyAttributes.HeadCompany, out name) && !string.IsNullOrEmpty(name))
+
+      /*
+       * if (propertiesForSearch.TryGetValue(Constants.KeyAttributes.HeadCompany, out name) && !string.IsNullOrEmpty(name))
       {
         return BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name, exceptionList, logger);
       }
@@ -98,7 +101,7 @@ namespace ImportData.IntegrationServicesClient.Models
       {
         return BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name, exceptionList, logger);
       }
-
+      */
       return BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name, exceptionList, logger);
     }
 

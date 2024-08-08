@@ -1,4 +1,6 @@
-﻿using ImportData.IntegrationServicesClient.Models;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using ImportData.IntegrationServicesClient.Models;
+using Microsoft.OData.UriParser;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,13 +9,16 @@ namespace ImportData.Entities.EDocs
 {
   public class DocumentEntity : Entity
   {
+
+    /// <summary>
+    /// Признак сущностей, для которых требуется тело документа..
+    /// </summary>
+    protected virtual bool RequiredDocumentBody { get { return false; } }
     public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
 
       // Перед обработкой сущности проверим, что в шаблоне есть обязательное поле "файл" и указанный по пути файл существует.
-      // При добавлении новых сущностей, предполагающих обязательную загрузку тела документа, в константу RequiredDocumentBody
-      // необходимо добавить новый тип сущности.
       if (CheckNeedRequiredDocumentBody(EntityType, out var exceptions))
       {
         if (exceptions.Count > 0)
@@ -63,7 +68,7 @@ namespace ImportData.Entities.EDocs
     private bool CheckNeedRequiredDocumentBody(Type entityType, out List<Structures.ExceptionsStruct> exceptionList)
     {
       exceptionList = new List<Structures.ExceptionsStruct>();
-      if (Constants.RequiredDocumentBody.Contains(entityType))
+      if (RequiredDocumentBody)
       {
         if (NamingParameters.ContainsKey(Constants.CellNameFile))
         {

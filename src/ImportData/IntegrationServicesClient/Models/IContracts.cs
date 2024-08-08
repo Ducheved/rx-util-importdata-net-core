@@ -38,15 +38,12 @@ namespace ImportData.IntegrationServicesClient.Models
         var documentRegister = BusinessLogic.GetEntityWithFilter<IDocumentRegisters>(x => x.Id == documentRegisterId, exceptionList, logger);
         contracts = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null &&
           x.RegistrationNumber == regNumber &&
-          x.RegistrationDate.Value.ToString("d") == registrationDate.ToString("d") &&
+          x.RegistrationDate == registrationDate &&
           x.Counterparty.Id == counterparty.Id &&
-          x.DocumentRegister.Id == documentRegister.Id, exceptionList, logger, true);
+          x.DocumentRegister.Id == documentRegister.Id, exceptionList, logger);
       }
 
-      if (contracts != null)
-        return BusinessLogic.GetEntityWithFilter<IContracts>(x => x.Id == contracts.Id, exceptionList, logger);
-
-      return null;
+      return contracts;
     }
 
     new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

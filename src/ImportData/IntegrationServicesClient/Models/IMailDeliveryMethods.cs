@@ -11,7 +11,7 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IMailDeliveryMethods FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch[Constants.KeyAttributes.DeliveryMethod];
+      var name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
 
       return BusinessLogic.GetEntityWithFilter<IMailDeliveryMethods>(x => x.Name == name, exceptionList, logger);
     }

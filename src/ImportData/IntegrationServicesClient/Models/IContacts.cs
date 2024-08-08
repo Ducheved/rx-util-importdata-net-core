@@ -37,8 +37,8 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {      
-      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Addressee) ?
-       propertiesForSearch[Constants.KeyAttributes.Addressee] : propertiesForSearch[Constants.KeyAttributes.Name];
+      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
+       propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
 
       return BusinessLogic.GetEntityWithFilter<IContacts>(x => x.Name == name, exceptionList, logger);
     }

@@ -10,6 +10,7 @@ namespace ImportData
 {
   class IncomingLetter : DocumentEntity
   {
+    protected override bool RequiredDocumentBody { get { return true; } }
     public override int PropertiesCount { get { return 14; } }
     protected override Type EntityType { get { return typeof(IIncomingLetters); } }
 

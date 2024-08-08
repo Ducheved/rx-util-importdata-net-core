@@ -24,6 +24,7 @@ namespace ImportData
 
     public class KeyAttributes
     {
+      public const string CustomFieldName = "CustomName";
       public const string Addressee = "Addressee";
       public const string Assignee = "Assignee";
       public const string Bank = "Bank";
@@ -204,13 +205,7 @@ namespace ImportData
     {
       { ignoreDuplicates, ignoreDuplicates}
     };
-    public static readonly List<Type> RequiredDocumentBody = new List<Type>
-    {
-      typeof(IContracts),
-      typeof(IIncomingLetters),
-      typeof(ISupAgreements),
-      typeof(IAddendums)
-    };
+
   }
 
   public enum RequiredType

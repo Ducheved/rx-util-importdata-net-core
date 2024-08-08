@@ -73,18 +73,14 @@ namespace ImportData.IntegrationServicesClient.Models
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       IOfficialDocuments officialDocument = null;
-      var regNumber = propertiesForSearch[Constants.KeyAttributes.LeadingDocument];
+      var regNumber = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
 
       if (GetDate(propertiesForSearch[Constants.KeyAttributes.DocumentDate], out var documentDate))
       {
-        // HACK: если искать без расширенных свойств, то сущность можеть быть не найдена.
         officialDocument = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.RegistrationNumber != null &&
           x.RegistrationNumber == regNumber &&
-          x.DocumentDate.Value.ToString("d") == documentDate.ToString("d"), exceptionList, logger, true);
+          x.DocumentDate == documentDate, exceptionList, logger);
       }
-      // HACK: Сервис интеграции при расширенном объёме свойств сущности может свалиться ошибку.
-      if (officialDocument != null)
-        officialDocument = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.Id == officialDocument.Id, exceptionList, logger);
 
       return officialDocument;
     }

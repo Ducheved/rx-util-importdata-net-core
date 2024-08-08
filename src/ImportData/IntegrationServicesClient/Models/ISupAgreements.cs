@@ -70,15 +70,11 @@ namespace ImportData.IntegrationServicesClient.Models
       {
         supAgreement = BusinessLogic.GetEntityWithFilter<ISupAgreements>(x => x.RegistrationNumber != null &&
           x.RegistrationNumber == regNumber && x.Counterparty.Id == counterparty.Id &&
-          x.RegistrationDate.Value.ToString("d") == registrationDate.ToString("d") &&
+          x.RegistrationDate == registrationDate &&
           x.DocumentRegister.Id == documentRegisterId, 
-          exceptionList, logger, true);
+          exceptionList, logger);
       }
-
-      if (supAgreement != null)
-        return BusinessLogic.GetEntityWithFilter<ISupAgreements>(x => x.Id == supAgreement.Id, exceptionList, logger);
-
-      return null;
+      return supAgreement;
     }
 
     new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

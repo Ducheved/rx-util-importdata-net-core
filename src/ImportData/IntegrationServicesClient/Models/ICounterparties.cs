@@ -64,9 +64,8 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Counterparty) ?
-          propertiesForSearch[Constants.KeyAttributes.Counterparty] : propertiesForSearch.ContainsKey(Constants.KeyAttributes.Correspondent) ?
-          propertiesForSearch[Constants.KeyAttributes.Correspondent] : propertiesForSearch[Constants.KeyAttributes.Name];
+      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
+          propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
 
       return BusinessLogic.CreateEntity(new ICounterparties()
       {
@@ -77,10 +76,8 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Counterparty) ?
-          propertiesForSearch[Constants.KeyAttributes.Counterparty] :
-          propertiesForSearch.ContainsKey(Constants.KeyAttributes.Correspondent) ?
-          propertiesForSearch[Constants.KeyAttributes.Correspondent] : propertiesForSearch[Constants.KeyAttributes.Name];
+      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
+          propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
 
       return BusinessLogic.GetEntityWithFilter<ICounterparties>(x => x.Name == name, exceptionList, logger);
     }

@@ -22,7 +22,7 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var kind = propertiesForSearch[Constants.KeyAttributes.DocumentKind];
+      var kind = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
 
       return BusinessLogic.GetEntityWithFilter<IDocumentKinds>(x => x.Name == kind, exceptionList, logger);
     }

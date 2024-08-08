@@ -13,6 +13,7 @@ namespace ImportData
 {
   public class Contract : DocumentEntity
   {
+    protected override bool RequiredDocumentBody { get { return true; } }
     public override int PropertiesCount { get { return 21; } }
     protected override Type EntityType { get { return typeof(IContracts); } }
 

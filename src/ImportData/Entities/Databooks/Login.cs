@@ -23,7 +23,11 @@ namespace ImportData.Entities.Databooks
           return exceptionList;
         }
       }
-
+      else
+      {
+        exceptionList.AddRange(exceptions);
+        return exceptionList;
+      }
       // Импорт логинов.
       exceptionList.AddRange(base.SaveToRX(logger, ignoreDuplicates));
       

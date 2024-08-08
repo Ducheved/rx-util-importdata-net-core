@@ -14,7 +14,7 @@ namespace ImportData.IntegrationServicesClient.Models
 
         new public static IBanks FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
         {
-            var name = propertiesForSearch[Constants.KeyAttributes.Bank];
+            var name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
 
             return BusinessLogic.GetEntityWithFilter<IBanks>(x => x.Name == name, exceptionList, logger);
         }
