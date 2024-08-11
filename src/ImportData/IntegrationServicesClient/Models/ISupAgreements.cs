@@ -24,7 +24,7 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("№ договора", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     new public IOfficialDocuments LeadingDocument { get; set; }
 
-    [PropertyOptions("Дата договора", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
+    [PropertyOptions("Дата договора", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.Default)]
     new public DateTimeOffset? DocumentDate
     {
       get { return documentDate; }

@@ -63,7 +63,10 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("Подготовил", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     public IEmployees PreparedBy { get; set; }
 
+    [PropertyOptions("Дело", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     public ICaseFiles CaseFile { get; set; }
+
+    [PropertyOptions("Дата помещения", RequiredType.Required, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public DateTimeOffset? PlacedToCaseFileDate
     {
       get { return placedToCaseFileDate; }
@@ -75,11 +78,16 @@ namespace ImportData.IntegrationServicesClient.Models
       IOfficialDocuments officialDocument = null;
       var regNumber = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
 
-      if (GetDate(propertiesForSearch[Constants.KeyAttributes.DocumentDate], out var documentDate))
+      if (propertiesForSearch.ContainsKey(Constants.KeyAttributes.DocumentDate) && GetDate(propertiesForSearch[Constants.KeyAttributes.DocumentDate], out var documentDate))
       {
         officialDocument = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.RegistrationNumber != null &&
           x.RegistrationNumber == regNumber &&
           x.DocumentDate == documentDate, exceptionList, logger);
+      }
+      else
+      {
+        officialDocument = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.RegistrationNumber != null &&
+            x.RegistrationNumber == regNumber, exceptionList, logger);
       }
 
       return officialDocument;

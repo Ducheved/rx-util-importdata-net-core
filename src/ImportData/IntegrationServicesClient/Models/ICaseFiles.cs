@@ -73,10 +73,9 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var title = propertiesForSearch[Constants.KeyAttributes.Title];
-      var index = propertiesForSearch[Constants.KeyAttributes.Index];
-
-      return BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Title == title && x.Index == index, exceptionList, logger);
+      var name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
+      
+      return BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Name == name, exceptionList, logger);
     }
 
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

@@ -1,53 +1,64 @@
 using ImportData;
+using Microsoft.VisualBasic;
 using Xunit.Extensions.Ordering;
 
 namespace Tests.EDocs
 {
-    public partial class Tests
+  public partial class Tests
+  {
+    [Fact, Order(30)]
+    public void T3_SupAgreementsImport()
     {
-        [Fact, Order(30)]
-        public void T3_SupAgreementsImport()
-        {
-            var xlsxPath = TestSettings.SupagreementsPathXlsx;
-            var action = ImportData.Constants.Actions.ImportSupAgreements;
-            var sheetName = ImportData.Constants.SheetNames.SupAgreements;
+      var xlsxPath = TestSettings.SupagreementsPathXlsx;
+      var action = ImportData.Constants.Actions.ImportSupAgreements;
+      var sheetName = ImportData.Constants.SheetNames.SupAgreements;
 
-            var items = Common.XlsxParse(xlsxPath, sheetName);
+      var items = Common.XlsxParse(xlsxPath, sheetName);
 
-            Program.Main(Common.GetArgs(action, xlsxPath));
+      Program.Main(Common.GetArgs(action, xlsxPath));
 
-            var errorList = new List<string>();
-            foreach (var expectedSupAgreement in items)
-            {
-                var error = EqualsSupAgreement(expectedSupAgreement);
+      var errorList = new List<string>();
+      foreach (var expectedSupAgreement in items)
+      {
+        var error = EqualsSupAgreement(expectedSupAgreement);
 
-                if (string.IsNullOrEmpty(error))
-                    continue;
+        if (string.IsNullOrEmpty(error))
+          continue;
 
-                errorList.Add(error);
-            }
-            if (errorList.Any())
-                Assert.Fail(string.Join(Environment.NewLine + Environment.NewLine, errorList));
-        }
+        errorList.Add(error);
+      }
+      if (errorList.Any())
+        Assert.Fail(string.Join(Environment.NewLine + Environment.NewLine, errorList));
+    }
 
-        public static string EqualsSupAgreement(List<string> parameters, int shift = 0)
-        {
-            var actualSupAgreement = Common.GetOfficialDocument<ISupAgreements>(parameters[shift + 0], parameters[shift + 1]);
-            var counterpartyName = parameters[shift + 4];
-            var counterparty = BusinessLogic.GetEntityWithFilter<ICounterparties>(c => c.Name == counterpartyName, new List<Structures.ExceptionsStruct>(), TestSettings.Logger);
-            var counterpartyId = counterparty?.Id ?? -1;
-			var leadDocSearchResult = IOfficialDocuments.GetLeadingDocument(TestSettings.Logger, parameters[shift + 2], Common.ParseDate(parameters[shift + 3]), counterpartyId);
-            var name = Common.GetDocumentName(parameters[shift + 5], parameters[shift + 0], parameters[shift + 1], parameters[shift + 6]);
+    public static string EqualsSupAgreement(List<string> parameters, int shift = 0)
+    {
+      var exceptionList = new List<Structures.ExceptionsStruct>();
+      var regNumber = parameters[shift + 0].Trim();
+      var docDate = IEntityBase.GetDate(parameters[shift + 1].Trim());
 
-            if (!string.IsNullOrEmpty(leadDocSearchResult.errorMessage))
-                return leadDocSearchResult.errorMessage;
+      var actualSupAgreement = BusinessLogic.GetEntityWithFilter<ISupAgreements>(x => x.RegistrationNumber != null &&
+          x.RegistrationNumber == regNumber &&
+          x.DocumentDate == docDate, exceptionList, TestSettings.Logger, true);
 
-            if (actualSupAgreement == null)
-                return $"Не найдено дополнительное соглашение: {name}";
+      var counterpartyName = parameters[shift + 4];
+      var counterparty = BusinessLogic.GetEntityWithFilter<ICounterparties>(c => c.Name == counterpartyName, new List<Structures.ExceptionsStruct>(), TestSettings.Logger);
+      var counterpartyId = counterparty?.Id ?? -1;
+      var leadDocSearchResult = IOfficialDocuments.GetLeadingDocument(TestSettings.Logger, parameters[shift + 2], Common.ParseDate(parameters[shift + 3]), counterpartyId);
 
-            var leadingDocument = leadDocSearchResult.leadingDocument;
+      var name = Common.GetDocumentName(parameters[shift + 5], parameters[shift + 0], parameters[shift + 1], parameters[shift + 6]);
 
-            var errorList = new List<string>
+      if (!string.IsNullOrEmpty(leadDocSearchResult.errorMessage))
+        return leadDocSearchResult.errorMessage;
+
+      if (actualSupAgreement == null)
+        return $"Не найдено дополнительное соглашение: {name}";
+
+      var leadingDocument = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null &&
+        x.RegistrationNumber == actualSupAgreement.LeadingDocument.RegistrationNumber &&
+        x.DocumentDate == docDate, exceptionList, TestSettings.Logger, true);
+
+      var errorList = new List<string>
             {
                 Common.CheckParam(actualSupAgreement.RegistrationNumber, parameters[shift + 0], "RegistrationNumber"),
                 Common.CheckParam(actualSupAgreement.RegistrationDate, parameters[shift + 1], "RegistrationDate"),
@@ -73,11 +84,11 @@ namespace Tests.EDocs
                 Common.CheckParam(actualSupAgreement.PlacedToCaseFileDate, parameters[shift + 21], "PlacedToCaseFileDate")
             };
 
-            errorList = errorList.Where(x => !string.IsNullOrEmpty(x)).ToList();
-            if (errorList.Any())
-                errorList.Insert(0, $"Ошибка в сущности: {name}");
+      errorList = errorList.Where(x => !string.IsNullOrEmpty(x)).ToList();
+      if (errorList.Any())
+        errorList.Insert(0, $"Ошибка в сущности: {name}");
 
-            return string.Join(Environment.NewLine, errorList);
-        }
+      return string.Join(Environment.NewLine, errorList);
     }
+  }
 }

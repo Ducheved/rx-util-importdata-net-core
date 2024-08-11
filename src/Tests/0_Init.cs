@@ -17,9 +17,9 @@ namespace Tests
     {
       //Костыль. Чтоб RX не жаловался, что не может создать документ с уже существующим рег номером.
       var newNumbers = ChangeRegNumber(TestSettings.ContractsPathXlsx, Constants.SheetNames.Contracts, 1);
-      newNumbers = ChangeRegNumber(TestSettings.AddendumsPathXlsx, Constants.SheetNames.Addendums, 1);
+      ChangeRegNumber(TestSettings.AddendumsPathXlsx, Constants.SheetNames.Addendums, 1);
       ChangeRegNumber(TestSettings.AddendumsPathXlsx, Constants.SheetNames.Addendums, 3, newNumbers);
-      newNumbers = ChangeRegNumber(TestSettings.SupagreementsPathXlsx, Constants.SheetNames.SupAgreements, 1);
+      ChangeRegNumber(TestSettings.SupagreementsPathXlsx, Constants.SheetNames.SupAgreements, 1);
       ChangeRegNumber(TestSettings.SupagreementsPathXlsx, Constants.SheetNames.SupAgreements, 3, newNumbers);
       ChangeRegNumber(TestSettings.IncomingLettersPathXlsx, Constants.SheetNames.IncomingLetters, 1);
       ChangeRegNumber(TestSettings.OutgoingLettersPathXlsx, Constants.SheetNames.OutgoingLetters, 1);
@@ -35,7 +35,14 @@ namespace Tests
       var items = Common.XlsxParse(xlsxPath, sheetName);
       var listArrayParams = new List<ArrayList>();
       var title = excelProcessor.GetExcelColumnName(columnNumber);
-      for (var i = 0; i < items.Count(); i++)
+      var maxIndex = 0;
+
+      if (newNumbers != null && items.Count() >= newNumbers.Count())
+        maxIndex = newNumbers.Count;
+      else
+        maxIndex = items.Count();
+
+      for (var i = 0; i < maxIndex; i++)
       {
         var arrayParams = new ArrayList { newNumbers == null ? newRegNumber.Next(DateTime.Now.Millisecond) : newNumbers[i][0], title, i + 2 };
         listArrayParams.Add(arrayParams);

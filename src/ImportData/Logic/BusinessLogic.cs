@@ -384,7 +384,7 @@ namespace ImportData
             {"Registered", "Registered"},
             {"Reserved", "Reserved"},
             {"Not registered", "NotRegistered" },
-            {"", null}
+            {"", "NotRegistered"}
         };
 
       try
@@ -416,7 +416,7 @@ namespace ImportData
             {"Obsolete", "Obsolete"},
             {"Terminated", "Terminated"},
             {"Closed", "Closed"},
-            {"", null}
+            {"", "Active"}
         };
 
       try
