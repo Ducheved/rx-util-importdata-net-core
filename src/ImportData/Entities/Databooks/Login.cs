@@ -2,6 +2,7 @@
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ImportData.Entities.Databooks
 {
@@ -30,10 +31,14 @@ namespace ImportData.Entities.Databooks
       }
       // Импорт логинов.
       exceptionList.AddRange(base.SaveToRX(logger, ignoreDuplicates));
-      
-      // Добавляем информацию по логину для сотрудника и обновляем данные в системе.
-      employee.Login = (ILogins)entity;
-      MethodCall(employee.GetType(), Constants.EntityActions.CreateOrUpdate, employee, false, exceptionList, logger);
+
+      // Проверим, что сущность была создана и нет ошибок.
+      if (entity != null && !exceptionList.Any())
+      {
+        // Добавляем информацию по логину для сотрудника и обновляем данные о сотруднике в системе.
+        employee.Login = (ILogins)entity;
+        MethodCall(employee.GetType(), Constants.EntityActions.CreateOrUpdate, employee, false, exceptionList, logger);
+      }
 
       return exceptionList;
     }
@@ -50,7 +55,10 @@ namespace ImportData.Entities.Databooks
     /// <summary>
     /// Проверка обязательных для заполнения параметров и поиск сущности.
     /// </summary>
-    /// <param name="entityType">Сущность RX для заполнения.</param>
+    /// <param name="entityType">Тип сущности.</param>
+    /// <param name="logger">Логировщик.</param>
+    /// <param name="exceptionList">Список ошибок.</param>
+    /// <param name="employee">Сотрудник в системе.</param>
     /// <returns>Результат проверки.</returns>
     private bool CheckEmployee(Type entityType, Logger logger, out List<Structures.ExceptionsStruct> exceptionList, out IEmployees employee)
     {

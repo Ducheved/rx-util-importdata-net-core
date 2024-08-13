@@ -83,6 +83,11 @@ namespace ImportData
       public const string Title = "Title";
       public const string TypeAuthentication = "TypeAuthentication";
       public const string User = "User";
+      public const string TIN = "TIN";
+      public const string TRRC = "TRRC";
+      public const string PSRN = "PSRN";
+      public const string NCEO = "NCEO";
+      public const string NCEA = "NCEA";
     }
 
     public static Dictionary<string, string> AttributeValue = new Dictionary<string, string>

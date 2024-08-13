@@ -24,9 +24,21 @@ namespace ImportData.IntegrationServicesClient.Models
     {
 
       var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
-       propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
+        propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
 
-      return BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name, exceptionList, logger);
+      if (propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName))
+        return BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name, exceptionList, logger);
+
+      var tin = (string)propertiesForSearch[Constants.KeyAttributes.TIN];
+      var trrc = (string)propertiesForSearch[Constants.KeyAttributes.TRRC];
+      var psrn = (string)propertiesForSearch[Constants.KeyAttributes.PSRN];
+      var nceo = (string)propertiesForSearch[Constants.KeyAttributes.NCEO];
+
+      return BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name ||
+        (tin != string.Empty && x.TIN == tin && trrc != string.Empty && x.TRRC == trrc) ||
+        (psrn != string.Empty && x.PSRN == psrn),
+        exceptionList, logger);
+
     }
 
     new public static ICompanies CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

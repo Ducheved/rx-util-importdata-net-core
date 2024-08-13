@@ -9,11 +9,11 @@ namespace ImportData.Entities.EDocs
 {
   public class DocumentEntity : Entity
   {
-
     /// <summary>
     /// Признак сущностей, для которых требуется тело документа..
     /// </summary>
     protected virtual bool RequiredDocumentBody { get { return false; } }
+
     public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();

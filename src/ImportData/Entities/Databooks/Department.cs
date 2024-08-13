@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DocumentFormat.OpenXml.EMMA;
 using ImportData.IntegrationServicesClient.Models;
 using NLog;
 
@@ -28,6 +29,18 @@ namespace ImportData
         ResultValues[Constants.KeyAttributes.HeadOffice] = null;
 
       ResultValues[Constants.KeyAttributes.Status] = Constants.AttributeValue[Constants.KeyAttributes.Status];
+
+      var code = (string)ResultValues[Constants.KeyAttributes.Code];
+      var resultCodeDepartment = BusinessLogic.CheckCodeDepartmentLength(code);
+
+      if (!string.IsNullOrEmpty(resultCodeDepartment))
+      {
+        var message = string.Format("Подразделение не может быть импортировано. Некорректный код подразделения. Наименование: \"{0}\", Код подразделения: {1}. {2}", ResultValues[Constants.KeyAttributes.Name], code, resultCodeDepartment);
+        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        logger.Error(message);
+
+        return true;
+      }
 
       return false;
     }

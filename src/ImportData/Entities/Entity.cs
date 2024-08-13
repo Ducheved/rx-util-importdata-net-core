@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Office2010.Word;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Vml.Office;
 using ImportData.IntegrationServicesClient;
@@ -30,11 +31,11 @@ namespace ImportData
     public virtual int PropertiesCount { get; }
 
     /// <summary>
-    /// 
+    /// Сохранение сущности в RX.
     /// </summary>
-    /// <param name="logger">логировщик</param>
-    /// <param name="ignoreDuplicates">игнорирование дублей.</param>
-    /// <returns></returns>
+    /// <param name="logger">Логировщик.</param>
+    /// <param name="ignoreDuplicates">Игнорирование дублей.</param>
+    /// <returns>Список ошибок.</returns>
     public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
@@ -52,9 +53,16 @@ namespace ImportData
         if (options.Characters == AdditionalCharacters.CreateFromOtherProperties)
         {
           var propertiesForSearch = GetPropertiesForSearch(property.PropertyType, exceptionList, logger);
+
+          if (propertiesForSearch == null)
+            return exceptionList;
+
           // При обработке сущности сначала выполняется поиск сущности для тех сущностей
           // создание дублей которых избыточно и не требуется. Если сущность найдена - возвращается сущность, иначе создается новая.
-          variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, logger);
+          variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);
+
+          if (variableForParameters == null)
+            variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, logger);
         }
         else
         {
@@ -86,7 +94,10 @@ namespace ImportData
             if (propertiesForSearch == null)
               propertiesForSearch = new Dictionary<string, string>();
 
-            // Добавляем активное поле и его значение.
+            // Добавляем поле под служебным наименованием и его значение для
+            // работы со связанными с импортируемой сущностью другими сущщностями в системе
+            // (поиск и создание, к примеру головная организация, регионы, пользователи), что бы явно можно было опредлелить
+            // их наиенование и не спутать с наименованием (полем NAME) обрабатываемой в импорте сущностьи
             propertiesForSearch.TryAdd(Constants.KeyAttributes.CustomFieldName, entityName);
             // Пробуем найти сущность в системе.
             variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);
@@ -337,6 +348,68 @@ namespace ImportData
     protected virtual bool FillProperies(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       return false;
+    }
+
+    /// <summary>
+    /// Проверка валидности реквизитов организации.
+    /// </summary>
+    /// <param name="nonresident">Признак компании-резидента.</param>
+    /// <param name="tin">ИНН.</param>
+    /// <param name="trrc">КПП.</param>
+    /// <param name="psrn">ОГРН.</param>
+    /// <param name="nceo">ОКПО.</param>
+    /// <param name="exceptionList">Список ошибок.</param>
+    /// <param name="logger">Логировщик.</param>
+    /// <returns>Результат проверки реквизитов на валидность.</returns>
+    protected virtual bool CheckCompanyRequsite(bool nonresident, string tin, string trrc, string psrn, string nceo, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    {
+      bool isExistNotValidProps = false;
+
+      // Проверка ИНН.
+      var resultTIN = BusinessLogic.CheckTin(tin, true, nonresident);
+
+      if (!string.IsNullOrEmpty(resultTIN))
+      {
+        var message = string.Format("Компания не может быть импортирована. Некорректный ИНН. Наименование: \"{0}\", ИНН: {1}. {2}", ResultValues[Constants.KeyAttributes.Name], tin, resultTIN);
+        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        logger.Error(message);
+        isExistNotValidProps = true;
+      }
+
+      // Проверка КПП.
+      var resultTRRC = BusinessLogic.CheckTrrcLength(trrc, nonresident);
+
+      if (!string.IsNullOrEmpty(resultTRRC))
+      {
+        var message = string.Format("Компания не может быть импортирована. Некорректный КПП. Наименование: \"{0}\", КПП: {1}. {2}", ResultValues[Constants.KeyAttributes.Name], trrc, resultTRRC);
+        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        logger.Error(message);
+        isExistNotValidProps = true;
+      }
+
+      // Проверка ОГРН.
+      var resultPSRN = BusinessLogic.CheckPsrnLength(psrn, nonresident);
+
+      if (!string.IsNullOrEmpty(resultPSRN))
+      {
+        var message = string.Format("Компания не может быть импортирована. Некорректный ОГРН. Наименование: \"{0}\", ОГРН: {1}. {2}", ResultValues[Constants.KeyAttributes.Name], psrn, resultPSRN);
+        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        logger.Error(message);
+        isExistNotValidProps = true;
+      }
+
+      // Проверка ОКПО.
+      var resultNCEO = BusinessLogic.CheckNceoLength(nceo, nonresident);
+
+      if (!string.IsNullOrEmpty(resultNCEO))
+      {
+        var message = string.Format("Компания не может быть импортирована. Некорректный ОКПО. Наименование: \"{0}\", ОКПО: {1}. {2}", ResultValues[Constants.KeyAttributes.Name], nceo, resultNCEO);
+        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        logger.Error(message);
+        isExistNotValidProps = true;
+      }
+
+      return isExistNotValidProps;
     }
   }
 }

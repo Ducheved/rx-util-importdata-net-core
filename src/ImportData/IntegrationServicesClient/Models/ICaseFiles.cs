@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
+﻿using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -37,7 +38,7 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("Подразделение", RequiredType.NotRequired, PropertyType.Entity)]
     public IDepartments Department { get; set; }
 
-    [PropertyOptions("Наименование срока хранения", RequiredType.Required, PropertyType.EntityWithCreate, AdditionalCharacters.ForSearch)]
+    [PropertyOptions("Наименование срока хранения", RequiredType.Required, PropertyType.EntityWithCreate, AdditionalCharacters.CreateFromOtherProperties)]
     public IFileRetentionPeriods RetentionPeriod { get; set; }
 
     public bool LongTerm { get; set; }
@@ -57,8 +58,10 @@ namespace ImportData.IntegrationServicesClient.Models
       var index = propertiesForSearch[Constants.KeyAttributes.Index];
       var name = string.Format("{0}. {1}", index, title);
       var startDate = DateTimeOffset.Parse(propertiesForSearch[Constants.KeyAttributes.StartDate]);
-      var period = propertiesForSearch[Constants.KeyAttributes.RetentionPeriod];
-      var retentionPeriod = BusinessLogic.GetEntityWithFilter<IFileRetentionPeriods>(x => x.Name == period, exceptionList, logger);
+      var retentionPeriodName = propertiesForSearch[Constants.KeyAttributes.RetentionPeriod];
+      var retentionPeriodTime = int.Parse(propertiesForSearch[Constants.KeyAttributes.RetentionPeriod]);
+      var retentionPeriod = BusinessLogic.GetEntityWithFilter<IFileRetentionPeriods>(x => x.Name == retentionPeriodName && 
+        x.RetentionPeriod == retentionPeriodTime, exceptionList, logger);
 
       return BusinessLogic.CreateEntity(new ICaseFiles()
       {
