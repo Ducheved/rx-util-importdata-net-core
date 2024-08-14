@@ -82,15 +82,17 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      string name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
-        propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
+      var name = string.Empty;
 
-      // Если используется кастомный реквизит, то поиск может выполняться только по имени, т.к. 
-      // при импорте организаций и подразделений головной организации и НОР соответственно
+      // Если используется кастомный реквизит, то поиск может выполняться только по имени, т.к. при импорте организаций и подразделений головной организации и НОР соответственно
       // прочих реквизитов (ИНН, КПП, ОГРН, ОКПО) в шаблоне нет. Иначе ищем в том числе по реквзитам.
       if (propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName))
+      {
+        name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
         return BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name, exceptionList, logger);
+      }
 
+      name = propertiesForSearch[Constants.KeyAttributes.Name];
       var tin = (string)propertiesForSearch[Constants.KeyAttributes.TIN];
       var trrc = (string)propertiesForSearch[Constants.KeyAttributes.TRRC];
       var psrn = (string)propertiesForSearch[Constants.KeyAttributes.PSRN];

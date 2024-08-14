@@ -45,6 +45,7 @@ namespace ImportData
       public const string DocumentKind = "DocumentKind";
       public const string DocumentRegister = "DocumentRegister";
       public const string EndDate = "EndDate";
+      public const string Email= "Email";
       public const string FirstName = "FirstName";
       public const string FirstNameRu = "Имя";
       public const string HeadCompany = "HeadCompany";

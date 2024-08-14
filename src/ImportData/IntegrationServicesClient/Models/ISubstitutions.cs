@@ -53,7 +53,7 @@ namespace ImportData.IntegrationServicesClient.Models
       var substituteName = propertiesForSearch[Constants.KeyAttributes.Substitute];
       var name = string.Format("{0} - {1}", substituteName, userName);
 
-      return BusinessLogic.GetEntityWithFilter<ISubstitutions>(x => x.Name == name, exceptionList, logger);
+      return BusinessLogic.GetEntityWithFilter<ISubstitutions>(x => x.User.Name == name && x.Substitute.Name == substituteName, exceptionList, logger);
     }
 
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

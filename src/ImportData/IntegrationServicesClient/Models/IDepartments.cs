@@ -54,6 +54,11 @@ namespace ImportData.IntegrationServicesClient.Models
     {
       var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
         propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
+      var businessUnitName = propertiesForSearch[Constants.KeyAttributes.BusinessUnit];
+      var businessUnit = BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == businessUnitName, exceptionList, logger);
+
+      if (businessUnit != null)
+        return BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == name && (x.BusinessUnit == null || x.BusinessUnit.Id == businessUnit.Id), exceptionList, logger);
 
       return BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == name, exceptionList, logger);
     }
