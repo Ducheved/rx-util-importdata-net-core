@@ -222,7 +222,7 @@ namespace ImportData
     /// <param name="message">Текст сообщения при ошибке.</param>
     /// <param name="propertyName">Значения для подстановки в текст сообщения об ошибке.</param>
     /// <returns>Тип ошибки Error/</returns>
-    private string GetErrorResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
+    protected string GetErrorResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
     {
       message = string.Format(message, propertyName);
       exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
@@ -238,7 +238,7 @@ namespace ImportData
     /// <param name="message">Текст предупреждения.</param>
     /// <param name="propertyName">Значения для подстановки в текст предупреждения.</param>
     /// <returns>Тип ошибки Warn/</returns>
-    private string GetWarnResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
+    protected string GetWarnResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
     {
       message = string.Format(message, propertyName);
       exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
