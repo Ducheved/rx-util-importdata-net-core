@@ -35,11 +35,8 @@ namespace ImportData
 
       if (!string.IsNullOrEmpty(resultCodeDepartment))
       {
-        var message = string.Format("Подразделение не может быть импортировано. Некорректный код подразделения. Наименование: \"{0}\", Код подразделения: {1}. {2}");
+        var message = "Подразделение не может быть импортировано. Некорректный код подразделения. Наименование: \"{0}\", Код подразделения: {1}. {2}";
         GetErrorResult(exceptionList, logger, message, (string)ResultValues[Constants.KeyAttributes.Name], code, resultCodeDepartment);
-        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-        logger.Error(message);
-
         return true;
       }
 

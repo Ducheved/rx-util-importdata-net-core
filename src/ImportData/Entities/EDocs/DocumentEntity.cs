@@ -11,7 +11,7 @@ namespace ImportData.Entities.EDocs
   public class DocumentEntity : Entity
   {
     /// <summary>
-    /// Признак сущностей, для которых требуется тело документа..
+    /// Признак сущностей, для которых требуется тело документа.
     /// </summary>
     protected virtual bool RequiredDocumentBody { get { return false; } }
 
@@ -19,7 +19,7 @@ namespace ImportData.Entities.EDocs
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
 
-      // Перед обработкой сущности проверим, что в шаблоне есть обязательное поле "файл" и указанный по пути файл существует.
+      // Перед обработкой сущности проверим, что в шаблоне есть обязательное поле "файл", и указанный по пути файл существует.
       if (CheckNeedRequiredDocumentBody(EntityType, out var exceptions))
       {
         if (exceptions.Count > 0)
@@ -63,9 +63,10 @@ namespace ImportData.Entities.EDocs
     }
 
     /// <summary>
-    /// Проверка требования наличия пути к телу документа и самого документа по пути
+    /// Проверка требования наличия пути к телу документа и самого документа по пути.
     /// </summary>
     /// <param name="entityType">Сущность RX для заполнения.</param>
+    /// <param name="exceptionList">Список исключений.</param>
     /// <returns>Результат проверки.</returns>
     private bool CheckNeedRequiredDocumentBody(Type entityType, out List<Structures.ExceptionsStruct> exceptionList)
     {
