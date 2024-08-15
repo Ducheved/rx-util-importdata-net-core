@@ -19,7 +19,7 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      string name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
+      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
         propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
       var period = int.Parse(propertiesForSearch[Constants.KeyAttributes.RetentionPeriod]);
 
@@ -33,7 +33,7 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      string name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
+      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
         propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
       var period = int.Parse(propertiesForSearch[Constants.KeyAttributes.RetentionPeriod]);
 

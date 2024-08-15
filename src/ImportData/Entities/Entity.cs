@@ -5,6 +5,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Vml.Office;
 using ImportData.IntegrationServicesClient;
 using ImportData.IntegrationServicesClient.Models;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -371,9 +372,8 @@ namespace ImportData
 
       if (!string.IsNullOrEmpty(resultTIN))
       {
-        var message = string.Format("Компания не может быть импортирована. Некорректный ИНН. Наименование: \"{0}\", ИНН: {1}. {2}", ResultValues[Constants.KeyAttributes.Name], tin, resultTIN);
-        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-        logger.Error(message);
+        var message = string.Format("Компания не может быть импортирована. Некорректный ИНН. Наименование: \"{0}\", ИНН: {1}. {2}");
+        GetErrorResult(exceptionList, logger, message, (string)ResultValues[Constants.KeyAttributes.Name], tin, resultTIN);
         isExistNotValidProps = true;
       }
 
@@ -382,9 +382,8 @@ namespace ImportData
 
       if (!string.IsNullOrEmpty(resultTRRC))
       {
-        var message = string.Format("Компания не может быть импортирована. Некорректный КПП. Наименование: \"{0}\", КПП: {1}. {2}", ResultValues[Constants.KeyAttributes.Name], trrc, resultTRRC);
-        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-        logger.Error(message);
+        var message = string.Format("Компания не может быть импортирована. Некорректный КПП. Наименование: \"{0}\", КПП: {1}. {2}");
+        GetErrorResult(exceptionList, logger, message, (string)ResultValues[Constants.KeyAttributes.Name], trrc, resultTRRC);
         isExistNotValidProps = true;
       }
 
@@ -393,9 +392,8 @@ namespace ImportData
 
       if (!string.IsNullOrEmpty(resultPSRN))
       {
-        var message = string.Format("Компания не может быть импортирована. Некорректный ОГРН. Наименование: \"{0}\", ОГРН: {1}. {2}", ResultValues[Constants.KeyAttributes.Name], psrn, resultPSRN);
-        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-        logger.Error(message);
+        var message = string.Format("Компания не может быть импортирована. Некорректный ОГРН. Наименование: \"{0}\", ОГРН: {1}. {2}");
+        GetErrorResult(exceptionList, logger, message, (string)ResultValues[Constants.KeyAttributes.Name], psrn, resultPSRN);
         isExistNotValidProps = true;
       }
 
@@ -404,9 +402,8 @@ namespace ImportData
 
       if (!string.IsNullOrEmpty(resultNCEO))
       {
-        var message = string.Format("Компания не может быть импортирована. Некорректный ОКПО. Наименование: \"{0}\", ОКПО: {1}. {2}", ResultValues[Constants.KeyAttributes.Name], nceo, resultNCEO);
-        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
-        logger.Error(message);
+        var message = string.Format("Компания не может быть импортирована. Некорректный ОКПО. Наименование: \"{0}\", ОКПО: {1}. {2}");
+        GetErrorResult(exceptionList, logger, message, (string)ResultValues[Constants.KeyAttributes.Name], nceo, resultNCEO);
         isExistNotValidProps = true;
       }
 
