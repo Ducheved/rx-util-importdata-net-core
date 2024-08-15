@@ -20,6 +20,7 @@ namespace ImportData
   public class Entity
   {
     public Dictionary<string, string> NamingParameters { get; set; }
+    public Dictionary<string, string> ExtraParameters { get; set; }
     public Dictionary<string, object> ResultValues { get; set; }
     protected virtual Type EntityType { get; }
     protected IEntityBase entity = null;

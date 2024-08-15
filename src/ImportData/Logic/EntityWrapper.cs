@@ -16,6 +16,7 @@ namespace ImportData
     public T GetEntity(string[] parameters, Dictionary<string, string> extraParameters)
     {
       var entity = (T)Activator.CreateInstance(typeof(T));
+      entity.ExtraParameters = extraParameters;
       return entity;
     }
   }

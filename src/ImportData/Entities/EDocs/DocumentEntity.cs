@@ -35,9 +35,10 @@ namespace ImportData.Entities.EDocs
       if (NamingParameters.ContainsKey(Constants.CellNameFile) && isNewEntity)
       {
         var filePath = NamingParameters[Constants.CellNameFile];
+        var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
 
         if (!string.IsNullOrWhiteSpace(filePath) && entity != null)
-          exceptionList.AddRange(BusinessLogic.ImportBody((IElectronicDocuments)entity, filePath, logger));
+          exceptionList.AddRange(BusinessLogic.ImportBody((IElectronicDocuments)entity, filePath, logger, update_body));
       }
 
       return exceptionList;
