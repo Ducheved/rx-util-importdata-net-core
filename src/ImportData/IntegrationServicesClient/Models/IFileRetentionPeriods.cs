@@ -21,8 +21,7 @@ namespace ImportData.IntegrationServicesClient.Models
     {
       string name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
         propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
-      int period = propertiesForSearch.ContainsKey(Constants.KeyAttributes.RetentionPeriod) ?
-        int.Parse(propertiesForSearch[Constants.KeyAttributes.RetentionPeriod]) : int.MinValue;
+      var period = int.Parse(propertiesForSearch[Constants.KeyAttributes.RetentionPeriod]);
 
       return BusinessLogic.CreateEntity(new IFileRetentionPeriods()
       {
@@ -36,7 +35,7 @@ namespace ImportData.IntegrationServicesClient.Models
     {
       string name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
         propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
-      int period = int.Parse(propertiesForSearch[Constants.KeyAttributes.RetentionPeriod]);
+      var period = int.Parse(propertiesForSearch[Constants.KeyAttributes.RetentionPeriod]);
 
       return BusinessLogic.GetEntityWithFilter<IFileRetentionPeriods>(x => x.Name == name &&
         x.RetentionPeriod == period, exceptionList, logger);

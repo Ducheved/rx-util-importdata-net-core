@@ -27,10 +27,12 @@ namespace ImportData.IntegrationServicesClient.Models
     {
       var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
        propertiesForSearch[Constants.KeyAttributes.CustomFieldName] :propertiesForSearch[Constants.KeyAttributes.Name];
-      var email = propertiesForSearch[Constants.KeyAttributes.Email];
+      var email = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Email) ?
+        propertiesForSearch[Constants.KeyAttributes.Email] : string.Empty;
 
       return BusinessLogic.GetEntityWithFilter<IEmployees>(x => (email == "" && x.Name == name) || (email != "" && x.Email.ToLower().Trim() == name), exceptionList, logger);
     }
+
     new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?

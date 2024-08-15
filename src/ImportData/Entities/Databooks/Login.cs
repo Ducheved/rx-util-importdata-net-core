@@ -16,15 +16,7 @@ namespace ImportData.Entities.Databooks
       var exceptionList = new List<Structures.ExceptionsStruct>();
 
       // Проверим наличие полей в таблице, получим сотрудника в системе, чтобы после импорта логина добавить логин к сотруднику.
-      if (CheckEmployee(EntityType, logger, out var exceptions, out var employee))
-      {
-        if (exceptions.Count > 0)
-        {
-          exceptionList.AddRange(exceptions);
-          return exceptionList;
-        }
-      }
-      else
+      if (!CheckEmployee(EntityType, logger, out var exceptions, out var employee))
       {
         exceptionList.AddRange(exceptions);
         return exceptionList;
@@ -32,8 +24,8 @@ namespace ImportData.Entities.Databooks
       // Импорт логинов.
       exceptionList.AddRange(base.SaveToRX(logger, ignoreDuplicates));
 
-      // Проверим, что сущность была создана и нет ошибок.
-      if (entity != null && !exceptionList.Any())
+      // Проверим, что сущность была создана.
+      if (entity != null)
       {
         // Добавляем информацию по логину для сотрудника и обновляем данные о сотруднике в системе.
         employee.Login = (ILogins)entity;

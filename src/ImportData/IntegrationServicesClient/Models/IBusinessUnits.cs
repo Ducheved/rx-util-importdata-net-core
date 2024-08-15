@@ -85,7 +85,7 @@ namespace ImportData.IntegrationServicesClient.Models
       var name = string.Empty;
 
       // Если используется кастомный реквизит, то поиск может выполняться только по имени, т.к. при импорте организаций и подразделений головной организации и НОР соответственно
-      // прочих реквизитов (ИНН, КПП, ОГРН, ОКПО) в шаблоне нет. Иначе ищем в том числе по реквзитам.
+      // прочих реквизитов (ИНН, КПП, ОГРН, ОКПО) в шаблоне нет. Иначе ищем в том числе по реквмзитам.
       if (propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName))
       {
         name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];

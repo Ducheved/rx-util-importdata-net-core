@@ -63,6 +63,9 @@ namespace ImportData
       public const string MiddleNameRu = "Отчество";
       public const string Name = "Name";
       public const string NeedChangePassword = "NeedChangePassword";
+      public const string NeedNotifyExpiredAssignments = "NeedNotifyExpiredAssignments";
+      public const string NeedNotifyNewAssignments = "NeedNotifyNewAssignments";
+      public const string NeedNotifyAssignmentsSummary = "NeedNotifyAssignmentsSummary";
       public const string Nonresident = "Nonresident";
       public const string OurSignatory = "OurSignatory";
       public const string OutgoingDocumentBase = "OutgoingDocumentBase";

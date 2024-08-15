@@ -3,6 +3,7 @@ using ImportData.IntegrationServicesClient.Models;
 using Microsoft.OData.UriParser;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace ImportData.Entities.EDocs

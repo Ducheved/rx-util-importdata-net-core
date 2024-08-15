@@ -5,7 +5,7 @@ using NLog;
 
 namespace ImportData
 {
-  class Employee : Person
+  class Employee : Entity
   {
     public override int PropertiesCount { get { return 20; } }
     protected override Type EntityType { get { return typeof(IEmployees); } }
@@ -20,6 +20,9 @@ namespace ImportData
     protected override bool FillProperies(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       ResultValues[Constants.KeyAttributes.Name] = GetName();
+      ResultValues[Constants.KeyAttributes.NeedNotifyExpiredAssignments] = !string.IsNullOrEmpty((string)ResultValues[Constants.KeyAttributes.Email]);
+      ResultValues[Constants.KeyAttributes.NeedNotifyNewAssignments] = !string.IsNullOrEmpty((string)ResultValues[Constants.KeyAttributes.Email]);
+      ResultValues[Constants.KeyAttributes.NeedNotifyAssignmentsSummary] = !string.IsNullOrEmpty((string)ResultValues[Constants.KeyAttributes.Email]);
       ResultValues[Constants.KeyAttributes.Status] = Constants.AttributeValue[Constants.KeyAttributes.Status];
 
       return false;

@@ -95,9 +95,9 @@ namespace ImportData
               propertiesForSearch = new Dictionary<string, string>();
 
             // Добавляем поле под служебным наименованием и его значение для
-            // работы со связанными с импортируемой сущностью другими сущщностями в системе
-            // (поиск и создание, к примеру головная организация, регионы, пользователи), что бы явно можно было опредлелить
-            // их наиенование и не спутать с наименованием (полем NAME) обрабатываемой в импорте сущностьи
+            // работы со связанными с импортируемой сущностью другими сущностями в системе
+            // (поиск и создание, к примеру, головная организация, регионы, пользователи), чтобы явно можно было определить
+            // их наименование и не спутать с наименованием (полем NAME) обрабатываемой в импорте сущности.
             propertiesForSearch.TryAdd(Constants.KeyAttributes.CustomFieldName, entityName);
             // Пробуем найти сущность в системе.
             variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);

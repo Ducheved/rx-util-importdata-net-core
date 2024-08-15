@@ -46,27 +46,17 @@ namespace ImportData.IntegrationServicesClient.Models
       var documentKindName = propertiesForSearch[Constants.KeyAttributes.DocumentKind];
       var documentKind = BusinessLogic.GetEntityWithFilter<IDocumentKinds>(x => x.Name == documentKindName, exceptionList, logger);
       var leadingDocumentNumber = propertiesForSearch[Constants.KeyAttributes.LeadingDocument];
-      
+
       if (GetDate(propertiesForSearch[Constants.KeyAttributes.DocumentDate], out var leadingDocumentDate))
       {
         var leadingDocument = BusinessLogic.GetEntityWithFilter<IOfficialDocuments>(x => x.RegistrationNumber != null &&
           x.RegistrationNumber == leadingDocumentNumber &&
           x.DocumentDate == leadingDocumentDate, exceptionList, logger);
 
-        if (propertiesForSearch.ContainsKey(Constants.KeyAttributes.DocumentRegister))
-        {
-          var documentRegisterId = int.Parse(propertiesForSearch[Constants.KeyAttributes.DocumentRegister]);
-          addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.LeadingDocument.Id == leadingDocument.Id &&
-            x.DocumentKind.Id == documentKind.Id &&
-            x.Subject == subject &&
-            x.DocumentRegister.Id == documentRegisterId, exceptionList, logger);
-        }
-        else
-        {
-          addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.LeadingDocument.Id == leadingDocument.Id &&
-            x.DocumentKind.Id == documentKind.Id &&
-            x.Subject == subject, exceptionList, logger);
-        }
+
+        addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.LeadingDocument.Id == leadingDocument.Id &&
+          x.DocumentKind.Id == documentKind.Id &&
+          x.Subject == subject, exceptionList, logger);
       }
 
       return addendum;
@@ -78,6 +68,7 @@ namespace ImportData.IntegrationServicesClient.Models
       {
         var lifeCycleState = ((IAddendums)entity).LifeCycleState;
         entity = BusinessLogic.CreateEntity((IAddendums)entity, exceptionList, logger);
+
         return ((IAddendums)entity)?.UpdateLifeCycleState(lifeCycleState);
       }
       else
