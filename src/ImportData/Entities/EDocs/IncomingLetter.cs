@@ -20,9 +20,9 @@ namespace ImportData
       var documentKind = ResultValues[Constants.KeyAttributes.DocumentKind];
       var counterparty = ResultValues[Constants.KeyAttributes.Correspondent];
       var registrationNumber = ResultValues[Constants.KeyAttributes.RegistrationNumber];
-      var registrationDate = (DateTimeOffset)ResultValues[Constants.KeyAttributes.RegistrationDate];
+      var registrationDate = (DateTimeOffset?)ResultValues[Constants.KeyAttributes.RegistrationDate];
 
-      return $"{documentKind} №{registrationNumber} от {registrationDate.ToString("dd.MM.yyyy")} с {counterparty} \"{subject}\"";
+      return $"{documentKind} №{registrationNumber} от {registrationDate?.ToString("dd.MM.yyyy")} с {counterparty} \"{subject}\"";
     }
   }
 }

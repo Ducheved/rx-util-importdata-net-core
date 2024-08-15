@@ -55,7 +55,7 @@ namespace ImportData.Entities.EDocs
     protected override bool FillProperies(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       ResultValues[Constants.KeyAttributes.Name] = GetName();
-      ResultValues[Constants.KeyAttributes.Created] = ResultValues[Constants.KeyAttributes.RegistrationDate];
+      ResultValues[Constants.KeyAttributes.Created] = (DateTimeOffset?)ResultValues[Constants.KeyAttributes.RegistrationDate];
       ResultValues[Constants.KeyAttributes.RegistrationState] = BusinessLogic.GetRegistrationsState((string)ResultValues[Constants.KeyAttributes.RegistrationState]);
       ResultValues[Constants.KeyAttributes.LifeCycleState] = BusinessLogic.GetPropertyLifeCycleState(Constants.AttributeValue[Constants.KeyAttributes.Status]);
 

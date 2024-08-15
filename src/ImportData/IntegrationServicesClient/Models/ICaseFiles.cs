@@ -58,10 +58,7 @@ namespace ImportData.IntegrationServicesClient.Models
       var index = propertiesForSearch[Constants.KeyAttributes.Index];
       var name = string.Format("{0}. {1}", index, title);
       var startDate = DateTimeOffset.Parse(propertiesForSearch[Constants.KeyAttributes.StartDate]);
-      var retentionPeriodName = propertiesForSearch[Constants.KeyAttributes.RetentionPeriod];
-      var retentionPeriodTime = int.Parse(propertiesForSearch[Constants.KeyAttributes.RetentionPeriod]);
-      var retentionPeriod = BusinessLogic.GetEntityWithFilter<IFileRetentionPeriods>(x => x.Name == retentionPeriodName && 
-        x.RetentionPeriod == retentionPeriodTime, exceptionList, logger);
+      var retentionPeriod = (IFileRetentionPeriods)entity.ResultValues[Constants.KeyAttributes.RetentionPeriod];
 
       return BusinessLogic.CreateEntity(new ICaseFiles()
       {

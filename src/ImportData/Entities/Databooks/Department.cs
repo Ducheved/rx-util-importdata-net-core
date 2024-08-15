@@ -26,7 +26,9 @@ namespace ImportData
 
       if (ResultValues[Constants.KeyAttributes.HeadOffice] != null &&
          ((IDepartments)ResultValues[Constants.KeyAttributes.HeadOffice]).Name == (string)ResultValues[Constants.KeyAttributes.Name])
+      {
         ResultValues[Constants.KeyAttributes.HeadOffice] = null;
+      }
 
       ResultValues[Constants.KeyAttributes.Status] = Constants.AttributeValue[Constants.KeyAttributes.Status];
 
