@@ -22,11 +22,18 @@ namespace ImportData.Entities.Databooks
 
     private DateTimeOffset? GetDateTime(string name)
     {
-      var date = (DateTimeOffset)ResultValues[name];
-      if (date == DateTimeOffset.MinValue)
-        return null;
+      if (ResultValues[name] != null)
+      {
+        var date = (DateTimeOffset)ResultValues[name];
+        if (date == DateTimeOffset.MinValue)
+          return null;
 
-      return date;
+        return date;
+      }
+      else
+      {
+        return null;
+      }
     }
 
     protected override bool FillProperies(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

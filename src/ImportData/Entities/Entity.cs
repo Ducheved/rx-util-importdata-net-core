@@ -1,9 +1,11 @@
 ﻿using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Office2010.Word;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Vml.Office;
 using ImportData.IntegrationServicesClient;
 using ImportData.IntegrationServicesClient.Models;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -19,6 +21,7 @@ namespace ImportData
   public class Entity
   {
     public Dictionary<string, string> NamingParameters { get; set; }
+    public Dictionary<string, string> ExtraParameters { get; set; }
     public Dictionary<string, object> ResultValues { get; set; }
     protected virtual Type EntityType { get; }
     protected IEntityBase entity = null;
@@ -30,11 +33,11 @@ namespace ImportData
     public virtual int PropertiesCount { get; }
 
     /// <summary>
-    /// 
+    /// Сохранение сущности в RX.
     /// </summary>
-    /// <param name="logger">логировщик</param>
-    /// <param name="ignoreDuplicates">игнорирование дублей.</param>
-    /// <returns></returns>
+    /// <param name="logger">Логировщик.</param>
+    /// <param name="ignoreDuplicates">Игнорирование дублей.</param>
+    /// <returns>Список ошибок.</returns>
     public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
@@ -52,9 +55,16 @@ namespace ImportData
         if (options.Characters == AdditionalCharacters.CreateFromOtherProperties)
         {
           var propertiesForSearch = GetPropertiesForSearch(property.PropertyType, exceptionList, logger);
+
+          if (propertiesForSearch == null)
+            return exceptionList;
+
           // При обработке сущности сначала выполняется поиск сущности для тех сущностей
           // создание дублей которых избыточно и не требуется. Если сущность найдена - возвращается сущность, иначе создается новая.
-          variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, logger);
+          variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);
+
+          if (variableForParameters == null)
+            variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, logger);
         }
         else
         {
@@ -86,7 +96,10 @@ namespace ImportData
             if (propertiesForSearch == null)
               propertiesForSearch = new Dictionary<string, string>();
 
-            // Добавляем активное поле и его значение.
+            // Добавляем поле под служебным наименованием и его значение для
+            // работы со связанными с импортируемой сущностью другими сущностями в системе
+            // (поиск и создание, к примеру, головная организация, регионы, пользователи), чтобы явно можно было определить
+            // их наименование и не спутать с наименованием (полем NAME) обрабатываемой в импорте сущности.
             propertiesForSearch.TryAdd(Constants.KeyAttributes.CustomFieldName, entityName);
             // Пробуем найти сущность в системе.
             variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);
@@ -209,7 +222,7 @@ namespace ImportData
     /// <param name="message">Текст сообщения при ошибке.</param>
     /// <param name="propertyName">Значения для подстановки в текст сообщения об ошибке.</param>
     /// <returns>Тип ошибки Error/</returns>
-    private string GetErrorResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
+    protected string GetErrorResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
     {
       message = string.Format(message, propertyName);
       exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
@@ -225,7 +238,7 @@ namespace ImportData
     /// <param name="message">Текст предупреждения.</param>
     /// <param name="propertyName">Значения для подстановки в текст предупреждения.</param>
     /// <returns>Тип ошибки Warn/</returns>
-    private string GetWarnResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
+    protected string GetWarnResult(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger, string message, params string[] propertyName)
     {
       message = string.Format(message, propertyName);
       exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Warn, Message = message });
@@ -337,6 +350,64 @@ namespace ImportData
     protected virtual bool FillProperies(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       return false;
+    }
+
+    /// <summary>
+    /// Проверка валидности реквизитов организации.
+    /// </summary>
+    /// <param name="nonresident">Признак компании-резидента.</param>
+    /// <param name="tin">ИНН.</param>
+    /// <param name="trrc">КПП.</param>
+    /// <param name="psrn">ОГРН.</param>
+    /// <param name="nceo">ОКПО.</param>
+    /// <param name="exceptionList">Список ошибок.</param>
+    /// <param name="logger">Логировщик.</param>
+    /// <returns>Результат проверки реквизитов на валидность.</returns>
+    protected virtual bool CheckCompanyRequsite(bool nonresident, string tin, string trrc, string psrn, string nceo, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    {
+      bool isExistNotValidProps = false;
+
+      // Проверка ИНН.
+      var resultTIN = BusinessLogic.CheckTin(tin, true, nonresident);
+
+      if (!string.IsNullOrEmpty(resultTIN))
+      {
+        var message = "Компания не может быть импортирована. Некорректный ИНН. Наименование: \"{0}\", ИНН: {1}. {2}";
+        GetErrorResult(exceptionList, logger, message, (string)ResultValues[Constants.KeyAttributes.Name], tin, resultTIN);
+        isExistNotValidProps = true;
+      }
+
+      // Проверка КПП.
+      var resultTRRC = BusinessLogic.CheckTrrcLength(trrc, nonresident);
+
+      if (!string.IsNullOrEmpty(resultTRRC))
+      {
+        var message = "Компания не может быть импортирована. Некорректный КПП. Наименование: \"{0}\", КПП: {1}. {2}";
+        GetErrorResult(exceptionList, logger, message, (string)ResultValues[Constants.KeyAttributes.Name], trrc, resultTRRC);
+        isExistNotValidProps = true;
+      }
+
+      // Проверка ОГРН.
+      var resultPSRN = BusinessLogic.CheckPsrnLength(psrn, nonresident);
+
+      if (!string.IsNullOrEmpty(resultPSRN))
+      {
+        var message = "Компания не может быть импортирована. Некорректный ОГРН. Наименование: \"{0}\", ОГРН: {1}. {2}";
+        GetErrorResult(exceptionList, logger, message, (string)ResultValues[Constants.KeyAttributes.Name], psrn, resultPSRN);
+        isExistNotValidProps = true;
+      }
+
+      // Проверка ОКПО.
+      var resultNCEO = BusinessLogic.CheckNceoLength(nceo, nonresident);
+
+      if (!string.IsNullOrEmpty(resultNCEO))
+      {
+        var message = "Компания не может быть импортирована. Некорректный ОКПО. Наименование: \"{0}\", ОКПО: {1}. {2}";
+        GetErrorResult(exceptionList, logger, message, (string)ResultValues[Constants.KeyAttributes.Name], nceo, resultNCEO);
+        isExistNotValidProps = true;
+      }
+
+      return isExistNotValidProps;
     }
   }
 }

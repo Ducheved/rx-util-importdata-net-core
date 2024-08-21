@@ -32,16 +32,16 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("Сайт", RequiredType.NotRequired, PropertyType.Simple)]
     public string Homepage { get; set; }
 
-    [PropertyOptions("", RequiredType.NotRequired, PropertyType.Simple)]
+    [PropertyOptions("Нерезидент", RequiredType.NotRequired, PropertyType.Simple)]
     public bool Nonresident { get; set; }
 
     [PropertyOptions("ОГРН", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string PSRN { get; set; }
 
-    [PropertyOptions("ОКПО", RequiredType.NotRequired, PropertyType.Simple)]
+    [PropertyOptions("ОКПО", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string NCEO { get; set; }
 
-    [PropertyOptions("ОКВЭД", RequiredType.NotRequired, PropertyType.Simple)]
+    [PropertyOptions("ОКВЭД", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string NCEA { get; set; }
 
     [PropertyOptions("Номер счета", RequiredType.NotRequired, PropertyType.Simple)]
@@ -82,27 +82,27 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      string name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
-        propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
+      var name = string.Empty;
 
-
-      /*
-       * if (propertiesForSearch.TryGetValue(Constants.KeyAttributes.HeadCompany, out name) && !string.IsNullOrEmpty(name))
+      // Если используется кастомный реквизит, то поиск может выполняться только по имени, т.к. при импорте организаций и подразделений головной организации и НОР соответственно
+      // прочих реквизитов (ИНН, КПП, ОГРН, ОКПО) в шаблоне нет. Иначе ищем в том числе по реквизитам.
+      if (propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName))
       {
+        name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
         return BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name, exceptionList, logger);
       }
 
-      if (propertiesForSearch.TryGetValue(Constants.KeyAttributes.BusinessUnit, out name) && !string.IsNullOrEmpty(name))
-      {
-        return BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name, exceptionList, logger);
-      }
+      name = propertiesForSearch[Constants.KeyAttributes.Name];
+      var tin = (string)propertiesForSearch[Constants.KeyAttributes.TIN];
+      var trrc = (string)propertiesForSearch[Constants.KeyAttributes.TRRC];
+      var psrn = (string)propertiesForSearch[Constants.KeyAttributes.PSRN];
+      var nceo = (string)propertiesForSearch[Constants.KeyAttributes.NCEO];
 
-      if (propertiesForSearch.TryGetValue(Constants.KeyAttributes.Name, out name) && !string.IsNullOrEmpty(name))
-      {
-        return BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name, exceptionList, logger);
-      }
-      */
-      return BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name, exceptionList, logger);
+      return BusinessLogic.GetEntityWithFilter<IBusinessUnits>(x => x.Name == name ||
+        (tin != string.Empty && x.TIN == tin && trrc != string.Empty && x.TRRC == trrc) ||
+        (psrn != string.Empty && x.PSRN == psrn), 
+        exceptionList, logger);
+
     }
 
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

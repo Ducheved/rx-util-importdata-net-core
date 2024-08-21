@@ -3,22 +3,23 @@ using ImportData.IntegrationServicesClient.Models;
 using Microsoft.OData.UriParser;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace ImportData.Entities.EDocs
 {
   public class DocumentEntity : Entity
   {
-
     /// <summary>
-    /// Признак сущностей, для которых требуется тело документа..
+    /// Признак сущностей, для которых требуется тело документа.
     /// </summary>
     protected virtual bool RequiredDocumentBody { get { return false; } }
+
     public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
 
-      // Перед обработкой сущности проверим, что в шаблоне есть обязательное поле "файл" и указанный по пути файл существует.
+      // Перед обработкой сущности проверим, что в шаблоне есть обязательное поле "файл", и указанный по пути файл существует.
       if (CheckNeedRequiredDocumentBody(EntityType, out var exceptions))
       {
         if (exceptions.Count > 0)
@@ -34,9 +35,10 @@ namespace ImportData.Entities.EDocs
       if (NamingParameters.ContainsKey(Constants.CellNameFile) && isNewEntity)
       {
         var filePath = NamingParameters[Constants.CellNameFile];
+        var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
 
         if (!string.IsNullOrWhiteSpace(filePath) && entity != null)
-          exceptionList.AddRange(BusinessLogic.ImportBody((IElectronicDocuments)entity, filePath, logger));
+          exceptionList.AddRange(BusinessLogic.ImportBody((IElectronicDocuments)entity, filePath, logger, update_body));
       }
 
       return exceptionList;
@@ -53,7 +55,7 @@ namespace ImportData.Entities.EDocs
     protected override bool FillProperies(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       ResultValues[Constants.KeyAttributes.Name] = GetName();
-      ResultValues[Constants.KeyAttributes.Created] = ResultValues[Constants.KeyAttributes.RegistrationDate];
+      ResultValues[Constants.KeyAttributes.Created] = (DateTimeOffset?)ResultValues[Constants.KeyAttributes.RegistrationDate];
       ResultValues[Constants.KeyAttributes.RegistrationState] = BusinessLogic.GetRegistrationsState((string)ResultValues[Constants.KeyAttributes.RegistrationState]);
       ResultValues[Constants.KeyAttributes.LifeCycleState] = BusinessLogic.GetPropertyLifeCycleState(Constants.AttributeValue[Constants.KeyAttributes.Status]);
 
@@ -61,9 +63,10 @@ namespace ImportData.Entities.EDocs
     }
 
     /// <summary>
-    /// Проверка требования наличия пути к телу документа и самого документа по пути
+    /// Проверка требования наличия пути к телу документа и самого документа по пути.
     /// </summary>
     /// <param name="entityType">Сущность RX для заполнения.</param>
+    /// <param name="exceptionList">Список исключений.</param>
     /// <returns>Результат проверки.</returns>
     private bool CheckNeedRequiredDocumentBody(Type entityType, out List<Structures.ExceptionsStruct> exceptionList)
     {

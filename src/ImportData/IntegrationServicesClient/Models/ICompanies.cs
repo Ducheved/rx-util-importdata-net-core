@@ -22,11 +22,27 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static ICompanies FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
+      var name = string.Empty;
 
-      var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
-       propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
+      // Если используется кастомный реквизит, то поиск может выполняться только по имени, т.к. при импорте организаций и подразделений головной организации и НОР соответственно
+      // прочих реквизитов (ИНН, КПП, ОГРН, ОКПО) в шаблоне нет. Иначе ищем в том числе по реквизитам.
+      if (propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName))
+      {
+        name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
+        return BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name, exceptionList, logger);
+      }
 
-      return BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name, exceptionList, logger);
+      name = propertiesForSearch[Constants.KeyAttributes.Name];
+      var tin = (string)propertiesForSearch[Constants.KeyAttributes.TIN];
+      var trrc = (string)propertiesForSearch[Constants.KeyAttributes.TRRC];
+      var psrn = (string)propertiesForSearch[Constants.KeyAttributes.PSRN];
+      var nceo = (string)propertiesForSearch[Constants.KeyAttributes.NCEO];
+
+      return BusinessLogic.GetEntityWithFilter<ICompanies>(x => x.Name == name ||
+        (tin != string.Empty && x.TIN == tin && trrc != string.Empty && x.TRRC == trrc) ||
+        (psrn != string.Empty && x.PSRN == psrn),
+        exceptionList, logger);
+
     }
 
     new public static ICompanies CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

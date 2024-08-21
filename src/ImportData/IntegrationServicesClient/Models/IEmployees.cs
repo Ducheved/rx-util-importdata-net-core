@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Spreadsheet;
 using System.Collections.Generic;
 
 namespace ImportData.IntegrationServicesClient.Models
@@ -12,7 +13,7 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("Примечание", RequiredType.NotRequired, PropertyType.Simple)]
     public string Note { get; set; }
 
-    [PropertyOptions("Эл.почта", RequiredType.NotRequired, PropertyType.Simple)]
+    [PropertyOptions("Эл.почта", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string Email { get; set; }
 
     public bool? NeedNotifyExpiredAssignments { get; set; }
@@ -26,8 +27,10 @@ namespace ImportData.IntegrationServicesClient.Models
     {
       var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
        propertiesForSearch[Constants.KeyAttributes.CustomFieldName] :propertiesForSearch[Constants.KeyAttributes.Name];
+      var email = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Email) ?
+        propertiesForSearch[Constants.KeyAttributes.Email] : string.Empty;
 
-      return BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == name, exceptionList, logger);
+      return BusinessLogic.GetEntityWithFilter<IEmployees>(x => (email == "" && x.Name == name) || (email != "" && x.Email.ToLower().Trim() == name), exceptionList, logger);
     }
 
     new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

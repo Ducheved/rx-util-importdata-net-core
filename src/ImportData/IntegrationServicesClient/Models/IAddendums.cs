@@ -53,6 +53,7 @@ namespace ImportData.IntegrationServicesClient.Models
           x.RegistrationNumber == leadingDocumentNumber &&
           x.DocumentDate == leadingDocumentDate, exceptionList, logger);
 
+
         addendum = BusinessLogic.GetEntityWithFilter<IAddendums>(x => x.LeadingDocument.Id == leadingDocument.Id &&
           x.DocumentKind.Id == documentKind.Id &&
           x.Subject == subject, exceptionList, logger);
@@ -67,6 +68,7 @@ namespace ImportData.IntegrationServicesClient.Models
       {
         var lifeCycleState = ((IAddendums)entity).LifeCycleState;
         entity = BusinessLogic.CreateEntity((IAddendums)entity, exceptionList, logger);
+
         return ((IAddendums)entity)?.UpdateLifeCycleState(lifeCycleState);
       }
       else

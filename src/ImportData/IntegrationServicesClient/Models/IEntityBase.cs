@@ -57,7 +57,7 @@ namespace ImportData.IntegrationServicesClient.Models
       if (double.TryParse(regDate, out var date))
       {
         registrationDate = new DateTimeOffset(DateTime.FromOADate(date), TimeSpan.Zero);
-        // HACK: СИ работает с учетом часового пояса, и документы хранит с учетом поправки на часовой пояс, приведем дату к часовому поясу рабочего места
+        // HACK: СИ работает с учетом часового пояса, и документы хранит с учетом поправки на часовой пояс, приведем дату к часовому поясу рабочего места.
         registrationDate = DateTimeOffset.Parse(registrationDate.ToString("yyyy-MM-dd"));
         return true;
       }

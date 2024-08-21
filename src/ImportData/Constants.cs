@@ -45,6 +45,7 @@ namespace ImportData
       public const string DocumentKind = "DocumentKind";
       public const string DocumentRegister = "DocumentRegister";
       public const string EndDate = "EndDate";
+      public const string Email= "Email";
       public const string FirstName = "FirstName";
       public const string FirstNameRu = "Имя";
       public const string HeadCompany = "HeadCompany";
@@ -62,6 +63,9 @@ namespace ImportData
       public const string MiddleNameRu = "Отчество";
       public const string Name = "Name";
       public const string NeedChangePassword = "NeedChangePassword";
+      public const string NeedNotifyExpiredAssignments = "NeedNotifyExpiredAssignments";
+      public const string NeedNotifyNewAssignments = "NeedNotifyNewAssignments";
+      public const string NeedNotifyAssignmentsSummary = "NeedNotifyAssignmentsSummary";
       public const string Nonresident = "Nonresident";
       public const string OurSignatory = "OurSignatory";
       public const string OutgoingDocumentBase = "OutgoingDocumentBase";
@@ -83,6 +87,11 @@ namespace ImportData
       public const string Title = "Title";
       public const string TypeAuthentication = "TypeAuthentication";
       public const string User = "User";
+      public const string TIN = "TIN";
+      public const string TRRC = "TRRC";
+      public const string PSRN = "PSRN";
+      public const string NCEO = "NCEO";
+      public const string NCEA = "NCEA";
     }
 
     public static Dictionary<string, string> AttributeValue = new Dictionary<string, string>

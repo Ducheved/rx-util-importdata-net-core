@@ -32,10 +32,10 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("ОГРН", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string PSRN { get; set; }
 
-    [PropertyOptions("ОКПО", RequiredType.NotRequired, PropertyType.Simple)]
+    [PropertyOptions("ОКПО", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string NCEO { get; set; }
 
-    [PropertyOptions("ОКВЭД", RequiredType.NotRequired, PropertyType.Simple)]
+    [PropertyOptions("ОКВЭД", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string NCEA { get; set; }
 
     [PropertyOptions("Номер счета", RequiredType.NotRequired, PropertyType.Simple)]
