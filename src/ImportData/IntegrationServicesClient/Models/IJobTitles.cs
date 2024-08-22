@@ -10,7 +10,7 @@ namespace ImportData.IntegrationServicesClient.Models
 
     public string Status { get; set; }
 
-    new public static IJobTitles CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IJobTitles CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
       var name = propertiesForSearch[Constants.KeyAttributes.Name];
 
@@ -38,13 +38,13 @@ namespace ImportData.IntegrationServicesClient.Models
       return BusinessLogic.GetEntityWithFilter<IJobTitles>(x => x.Name == name, exceptionList, logger);
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       ((IJobTitles)entity).Status = Constants.AttributeValue[Constants.KeyAttributes.Status];
       if (isNewEntity)
-        BusinessLogic.CreateEntity((IJobTitles)entity, exceptionList, logger);
+        return BusinessLogic.CreateEntity((IJobTitles)entity, exceptionList, logger);
       else
-        BusinessLogic.UpdateEntity((IJobTitles)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((IJobTitles)entity, exceptionList, logger);
     }
   }
 }

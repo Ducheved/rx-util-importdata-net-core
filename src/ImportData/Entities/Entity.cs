@@ -26,6 +26,7 @@ namespace ImportData
     protected virtual Type EntityType { get; }
     protected IEntityBase entity = null;
     protected bool isNewEntity = false;
+    public virtual int RequestsPerBatch { get; } = 0;
 
     /// <summary>
     /// Количество используемых параметров.
@@ -37,8 +38,9 @@ namespace ImportData
     /// </summary>
     /// <param name="logger">Логировщик.</param>
     /// <param name="ignoreDuplicates">Игнорирование дублей.</param>
+    /// <param name="isBatch">Пакетный импорт.</param>
     /// <returns>Список ошибок.</returns>
-    public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates)
+    public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates, bool isBatch = false)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
       ResultValues = new Dictionary<string, object>();
@@ -64,7 +66,7 @@ namespace ImportData
           variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);
 
           if (variableForParameters == null)
-            variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, logger);
+            variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, isBatch, logger);
         }
         else
         {
@@ -106,7 +108,7 @@ namespace ImportData
 
             // Создаем сущность, если не удалось найти.
             if (options.Type == PropertyType.EntityWithCreate && variableForParameters == null && !string.IsNullOrEmpty(entityName))
-              variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, logger);
+              variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, isBatch, logger);
 
             if (CheckPropertyNull(options, variableForParameters, Constants.Resources.EmptyProperty, exceptionList, logger) == Constants.ErrorTypes.Error)
               return exceptionList;
@@ -138,7 +140,7 @@ namespace ImportData
         UpdateProperties(entity);
 
         // Создание сущности.
-        entity = (IEntityBase)MethodCall(EntityType, Constants.EntityActions.CreateOrUpdate, entity, isNewEntity, exceptionList, logger);
+        entity = (IEntityBase)MethodCall(EntityType, Constants.EntityActions.CreateOrUpdate, entity, isNewEntity, isBatch, exceptionList, logger);
       }
       catch (Exception ex)
       {

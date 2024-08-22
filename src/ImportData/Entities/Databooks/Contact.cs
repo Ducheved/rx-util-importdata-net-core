@@ -18,8 +18,12 @@ namespace ImportData.Entities.Databooks
 
     protected override bool FillProperies(List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
+      var person = (IPersons)ResultValues[Constants.KeyAttributes.Person];
+
       ResultValues[Constants.KeyAttributes.Name] = GetName();
       ResultValues[Constants.KeyAttributes.Status] = Constants.AttributeValue[Constants.KeyAttributes.Status];
+      ResultValues[Constants.KeyAttributes.Email] = person.Email;
+      ResultValues[Constants.KeyAttributes.Phones] = person.Phones;
 
       return false;
     }

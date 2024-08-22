@@ -65,7 +65,7 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("Банк", RequiredType.NotRequired, PropertyType.EntityWithCreate)]
     public IBanks Bank { get; set; }
 
-    new public static IBusinessUnits CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IBusinessUnits CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
       var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
         propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
@@ -105,12 +105,12 @@ namespace ImportData.IntegrationServicesClient.Models
 
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((IBusinessUnits)entity, exceptionList, logger);
+        return BusinessLogic.CreateEntity((IBusinessUnits)entity, exceptionList, logger);
       else
-        BusinessLogic.UpdateEntity((IBusinessUnits)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((IBusinessUnits)entity, exceptionList, logger);
     }
   }
 }

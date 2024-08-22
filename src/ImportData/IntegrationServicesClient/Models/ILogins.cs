@@ -1,4 +1,5 @@
 ﻿using ImportData.Entities.Databooks;
+using System;
 using System.Collections.Generic;
 
 namespace ImportData.IntegrationServicesClient.Models
@@ -14,7 +15,10 @@ namespace ImportData.IntegrationServicesClient.Models
     public string TypeAuthentication { get; set; }
     public string Status { get; set; }
 
-    new public static IEntityBase CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    public DateTimeOffset? PasswordLastChangeDate { get; set; }
+    public DateTimeOffset? LockoutEndDate { get; set; }
+
+    new public static IEntityBase CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
       var loginName = propertiesForSearch[Constants.KeyAttributes.LoginName];
 
@@ -34,7 +38,7 @@ namespace ImportData.IntegrationServicesClient.Models
       return BusinessLogic.GetEntityWithFilter<ILogins>(x => x.LoginName == loginName, exceptionList, logger);
     }
 
-    new public static IEntityBase CreateOrUpdate(IEntityBase entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntityBase entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
         return BusinessLogic.CreateEntity((ILogins)entity, exceptionList, logger);

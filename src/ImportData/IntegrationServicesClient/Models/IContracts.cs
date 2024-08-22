@@ -46,13 +46,13 @@ namespace ImportData.IntegrationServicesClient.Models
       return contracts;
     }
 
-    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
       {
         var lifeCycleState = ((IContracts)entity).LifeCycleState;
-        entity = BusinessLogic.CreateEntity((IContracts)entity, exceptionList, logger);
-        return ((IContracts)entity)?.UpdateLifeCycleState(lifeCycleState);
+        entity = BusinessLogic.CreateEntity((IContracts)entity, exceptionList, logger, isBatch);
+        return ((IContracts)entity)?.UpdateLifeCycleState(lifeCycleState, isBatch);
       }
       else
       {

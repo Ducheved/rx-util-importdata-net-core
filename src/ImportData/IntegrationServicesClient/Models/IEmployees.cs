@@ -33,7 +33,7 @@ namespace ImportData.IntegrationServicesClient.Models
       return BusinessLogic.GetEntityWithFilter<IEmployees>(x => (email == "" && x.Name == name) || (email != "" && x.Email.ToLower().Trim() == name), exceptionList, logger);
     }
 
-    new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
       var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
        propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];
@@ -59,12 +59,12 @@ namespace ImportData.IntegrationServicesClient.Models
       }
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((IEmployees)entity, exceptionList, logger);
+        return BusinessLogic.CreateEntity((IEmployees)entity, exceptionList, logger);
       else
-        BusinessLogic.UpdateEntity((IEmployees)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((IEmployees)entity, exceptionList, logger);
     }
   }
 }

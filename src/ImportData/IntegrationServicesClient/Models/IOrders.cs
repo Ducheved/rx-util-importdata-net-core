@@ -11,7 +11,7 @@ namespace ImportData.IntegrationServicesClient.Models
   [EntityName("Приказ")]
   public class IOrders : IInternalDocumentBases
   {
-    new public static IOrders CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IOrders CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
       var subject = propertiesForSearch[Constants.KeyAttributes.Subject];
       var documentKindName = propertiesForSearch[Constants.KeyAttributes.DocumentKind];
@@ -38,7 +38,7 @@ namespace ImportData.IntegrationServicesClient.Models
           RegistrationDate = registrationDate,
           RegistrationNumber = registrationNumber,
           Created = registrationDate
-        }, exceptionList, logger);
+        }, exceptionList, logger, isBatch);
       }
 
       return null;
@@ -59,13 +59,13 @@ namespace ImportData.IntegrationServicesClient.Models
       return null;
     }
 
-    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
       {
         var lifeCycleState = ((IOrders)entity).LifeCycleState;
-        entity = BusinessLogic.CreateEntity((IOrders)entity, exceptionList, logger);
-        return ((IOrders)entity)?.UpdateLifeCycleState(lifeCycleState);
+        entity = BusinessLogic.CreateEntity((IOrders)entity, exceptionList, logger, isBatch);
+        return ((IOrders)entity)?.UpdateLifeCycleState(lifeCycleState, isBatch);
       }
       else
         return BusinessLogic.UpdateEntity((IOrders)entity, exceptionList, logger);

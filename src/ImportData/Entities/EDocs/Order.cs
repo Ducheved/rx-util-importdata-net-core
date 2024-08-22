@@ -12,5 +12,6 @@ namespace ImportData
   {
     public override int PropertiesCount { get { return 14; } }
     protected override Type EntityType { get { return typeof(IOrders); } }
+    public override int RequestsPerBatch => 4;
   }
 }

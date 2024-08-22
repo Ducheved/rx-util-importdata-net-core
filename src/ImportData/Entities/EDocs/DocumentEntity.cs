@@ -15,7 +15,7 @@ namespace ImportData.Entities.EDocs
     /// </summary>
     protected virtual bool RequiredDocumentBody { get { return false; } }
 
-    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates)
+    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates, bool isBatch = false)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
 
@@ -38,7 +38,7 @@ namespace ImportData.Entities.EDocs
         var update_body = ExtraParameters.ContainsKey("update_body") && ExtraParameters["update_body"] == "true";
 
         if (!string.IsNullOrWhiteSpace(filePath) && entity != null)
-          exceptionList.AddRange(BusinessLogic.ImportBody((IElectronicDocuments)entity, filePath, logger, update_body));
+          exceptionList.AddRange(BusinessLogic.ImportBody((IElectronicDocuments)entity, filePath, logger, update_body, isBatch));
       }
 
       return exceptionList;
