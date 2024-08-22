@@ -32,12 +32,24 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("Пол", RequiredType.NotRequired, PropertyType.Simple)]
     public string Sex { get; set; }
 
-    new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
       var firstName = propertiesForSearch[Constants.KeyAttributes.FirstName];
       var middleName = propertiesForSearch[Constants.KeyAttributes.MiddleName];
       var lastName = propertiesForSearch[Constants.KeyAttributes.LastName];
-      var person = BusinessLogic.GetEntityWithFilter<IPersons>(x => x.FirstName == firstName && x.MiddleName == middleName && x.LastName == lastName, exceptionList, logger);
+      var email = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Email) ?
+        propertiesForSearch[Constants.KeyAttributes.Email] :
+        string.Empty;
+      var phones = propertiesForSearch.ContainsKey(Constants.KeyAttributes.Phones) ?
+        propertiesForSearch[Constants.KeyAttributes.Phones] :
+        string.Empty;
+
+      var person = BusinessLogic.GetEntityWithFilter<IPersons>(x => x.FirstName == firstName && 
+        x.MiddleName == middleName && 
+        x.LastName == lastName && 
+        (email == "" || (email != "" && x.Email == email)) &&
+        (phones == "" || (phones != "" && x.Phones == phones)),
+        exceptionList, logger);
 
       if (person != null)
         return person;
@@ -47,6 +59,8 @@ namespace ImportData.IntegrationServicesClient.Models
         FirstName = firstName,
         MiddleName = middleName,
         LastName = lastName,
+        Email = email,
+        Phones = phones,
         Name = string.Format("{0} {1} {2}", lastName, firstName, middleName),
         Status = Constants.AttributeValue[Constants.KeyAttributes.Status]
       }, exceptionList, logger);
@@ -61,12 +75,12 @@ namespace ImportData.IntegrationServicesClient.Models
       return BusinessLogic.GetEntityWithFilter<IPersons>(x => x.FirstName == firstName && x.MiddleName == middleName && x.LastName == lastName, exceptionList, logger);
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((IPersons)entity, exceptionList, logger);
+        return BusinessLogic.CreateEntity((IPersons)entity, exceptionList, logger);
       else
-        BusinessLogic.UpdateEntity((IPersons)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((IPersons)entity, exceptionList, logger);
     }
   }
 }

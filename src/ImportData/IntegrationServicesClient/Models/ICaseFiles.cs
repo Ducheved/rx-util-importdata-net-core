@@ -52,7 +52,7 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("НОР", RequiredType.NotRequired, PropertyType.Entity)]
     public IBusinessUnits BusinessUnit { get; set; }
 
-    new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
       var title = propertiesForSearch[Constants.KeyAttributes.Title];
       var index = propertiesForSearch[Constants.KeyAttributes.Index];
@@ -79,12 +79,12 @@ namespace ImportData.IntegrationServicesClient.Models
       return BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Title == title && x.Index == index, exceptionList, logger);
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((ICaseFiles)entity, exceptionList, logger);
+        return BusinessLogic.CreateEntity((ICaseFiles)entity, exceptionList, logger);
       else
-        BusinessLogic.UpdateEntity((ICaseFiles)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((ICaseFiles)entity, exceptionList, logger);
     }
   }
 }

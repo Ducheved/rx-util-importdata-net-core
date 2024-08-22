@@ -10,6 +10,7 @@ namespace ImportData
   {
     public override int PropertiesCount { get { return 4; } }
     protected override Type EntityType { get { return typeof(IOutgoingLetterAddresseess); } }
+    public override int RequestsPerBatch => 1;
 
     protected override bool FillProperies(List<Structures.ExceptionsStruct> exceptionList, Logger logger)
     {

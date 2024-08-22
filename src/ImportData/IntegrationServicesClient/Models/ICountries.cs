@@ -21,12 +21,12 @@ namespace ImportData.IntegrationServicesClient.Models
       return BusinessLogic.GetEntityWithFilter<ICountries>(x => x.Name == name && x.Code == code, exceptionList, logger);
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((ICountries)entity, exceptionList, logger);
+        return BusinessLogic.CreateEntity((ICountries)entity, exceptionList, logger);
       else
-        BusinessLogic.UpdateEntity((ICountries)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((ICountries)entity, exceptionList, logger);
     }
   }
 }

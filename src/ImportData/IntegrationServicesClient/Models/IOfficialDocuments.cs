@@ -138,14 +138,29 @@ namespace ImportData.IntegrationServicesClient.Models
     /// <param name="entity">Сущность, свойство которого необходимо обновить.</param>
     /// <param name="lifeCycleState">Новое значение свойства LifeCycleState.</param>
     /// <returns>Обновленная сущность.</returns>
-    public static T UpdateLifeCycleState<T>(this T entity, string lifeCycleState) where T : IOfficialDocuments
+    public static T UpdateLifeCycleState<T>(this T entity, string lifeCycleState, bool isBatch = false) where T : IOfficialDocuments
     {
       if (!string.IsNullOrEmpty(lifeCycleState))
+      {
+        if (isBatch)
+          return UpdateLifeCycleStateBatch(entity, lifeCycleState);
+
         entity = Client.Instance()
                          .For<T>()
                          .Key(entity)
                          .Set(new { LifeCycleState = lifeCycleState })
                          .UpdateEntryAsync().Result;
+      }
+
+      return entity;
+    }
+
+    private static T UpdateLifeCycleStateBatch<T>(T entity, string lifeCycleState) where T : IOfficialDocuments
+    {
+      BatchClient.AddRequest(odata => odata.For<T>()
+                           .Key(entity)
+                           .Set(new { LifeCycleState = lifeCycleState })
+                           .UpdateEntryAsync());
 
       return entity;
     }

@@ -24,7 +24,7 @@ namespace ImportData.IntegrationServicesClient.Models
       return null;
     }
 
-    new public static void CreateOrUpdate(IEntityBase entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntityBase entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var outgoingLetterAddresseess = (IOutgoingLetterAddresseess)entity;
       var outgoingLetter = outgoingLetterAddresseess.OutgoingDocumentBase;
@@ -35,7 +35,8 @@ namespace ImportData.IntegrationServicesClient.Models
         DeliveryMethod = outgoingLetterAddresseess.DeliveryMethod,
         Correspondent = outgoingLetterAddresseess.Correspondent,
       };
-      outgoingLetter.CreateAddressee(addressee, logger);
+      outgoingLetter.CreateAddressee(addressee, logger, isBatch);
+      return addressee;
     }
   }
 }

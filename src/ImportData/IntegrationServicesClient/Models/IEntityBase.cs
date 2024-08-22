@@ -30,7 +30,7 @@ namespace ImportData.IntegrationServicesClient.Models
     /// <param name="exceptionList">Список ошибок.</param>
     /// <param name="logger">Логировщик.</param>
     /// <returns>Созданная сущность.</returns>
-    public static IEntityBase CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    public static IEntityBase CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
       return null;
     }
@@ -42,7 +42,7 @@ namespace ImportData.IntegrationServicesClient.Models
     /// <param name="isNewEntity">True, если сущность создается, false, если обновляется.</param>
     /// <param name="exceptionList">Список ошибок.</param>
     /// <param name="logger">Логировщик.</param>
-    public static IEntityBase CreateOrUpdate(IEntityBase entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    public static IEntityBase CreateOrUpdate(IEntityBase entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       return null;
     }

@@ -11,13 +11,13 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("Должность", RequiredType.NotRequired, PropertyType.Simple)]
     public string JobTitle { get; set; }
 
-    [PropertyOptions("Телефон", RequiredType.NotRequired, PropertyType.Simple)]
+    [PropertyOptions("Телефоны", RequiredType.NotRequired, PropertyType.Simple)]
     public string Phone { get; set; }
 
     [PropertyOptions("Факс", RequiredType.NotRequired, PropertyType.Simple)]
     public string Fax { get; set; }
 
-    [PropertyOptions("Эл. Почта", RequiredType.NotRequired, PropertyType.Simple)]
+    [PropertyOptions("Эл. почта", RequiredType.NotRequired, PropertyType.Simple)]
     public string Email { get; set; }
 
     [PropertyOptions("Примечание", RequiredType.NotRequired, PropertyType.Simple)]
@@ -43,12 +43,12 @@ namespace ImportData.IntegrationServicesClient.Models
       return BusinessLogic.GetEntityWithFilter<IContacts>(x => x.Name == name, exceptionList, logger);
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((IContacts)entity, exceptionList, logger);
+        return BusinessLogic.CreateEntity((IContacts)entity, exceptionList, logger);
       else
-        BusinessLogic.UpdateEntity((IContacts)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((IContacts)entity, exceptionList, logger);
     }
   }
 }

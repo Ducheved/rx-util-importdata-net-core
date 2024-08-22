@@ -27,7 +27,7 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("Руководитель", RequiredType.NotRequired, PropertyType.EntityWithCreate, AdditionalCharacters.ForSearch)]
     public IEmployees Manager { get; set; }
 
-    new public static IDepartments CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IDepartments CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
       var name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
       var businessUnitName = propertiesForSearch[Constants.KeyAttributes.BusinessUnit];
@@ -61,12 +61,12 @@ namespace ImportData.IntegrationServicesClient.Models
       return BusinessLogic.GetEntityWithFilter<IDepartments>(x => x.Name == name, exceptionList, logger);
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((IDepartments)entity, exceptionList, logger);
+        return BusinessLogic.CreateEntity((IDepartments)entity, exceptionList, logger);
       else
-        BusinessLogic.UpdateEntity((IDepartments)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((IDepartments)entity, exceptionList, logger);
     }
   }
 }

@@ -12,6 +12,7 @@ namespace ImportData
   {
     public override int PropertiesCount { get { return 12; } }
     protected override Type EntityType { get { return typeof(IOutgoingLetters); } }
+    public override int RequestsPerBatch => 3;
 
     protected override string GetName()
     {
