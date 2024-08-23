@@ -64,5 +64,22 @@ namespace ImportData.IntegrationServicesClient.Models
       registrationDate = DateTimeOffset.MinValue;
       return false;
     }
+
+    /// <summary>
+    /// Преобразовать в DateTimeOffset строку.
+    /// </summary>
+    /// <param name="regDate">Строка для преобразования.</param>
+    /// <returns>Результат преобразования.</returns>
+    public static DateTimeOffset GetDate(string regDate)
+    {
+      DateTimeOffset registrationDate = DateTimeOffset.MinValue;
+      if (double.TryParse(regDate, out var date))
+      {
+        registrationDate = new DateTimeOffset(DateTime.FromOADate(date), TimeSpan.Zero);
+        registrationDate = DateTimeOffset.Parse(registrationDate.ToString("yyyy-MM-dd"));
+        return registrationDate;
+      }
+      return registrationDate;
+    }
   }
 }

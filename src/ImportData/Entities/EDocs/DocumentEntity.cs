@@ -57,7 +57,11 @@ namespace ImportData.Entities.EDocs
       ResultValues[Constants.KeyAttributes.Name] = GetName();
       ResultValues[Constants.KeyAttributes.Created] = (DateTimeOffset?)ResultValues[Constants.KeyAttributes.RegistrationDate];
       ResultValues[Constants.KeyAttributes.RegistrationState] = BusinessLogic.GetRegistrationsState((string)ResultValues[Constants.KeyAttributes.RegistrationState]);
-      ResultValues[Constants.KeyAttributes.LifeCycleState] = BusinessLogic.GetPropertyLifeCycleState(Constants.AttributeValue[Constants.KeyAttributes.Status]);
+
+      if (ResultValues.ContainsKey(Constants.KeyAttributes.LifeCycleState) && ResultValues[Constants.KeyAttributes.LifeCycleState] != null)
+        ResultValues[Constants.KeyAttributes.LifeCycleState] = BusinessLogic.GetPropertyLifeCycleState((string)ResultValues[Constants.KeyAttributes.LifeCycleState]);
+      else
+        ResultValues[Constants.KeyAttributes.LifeCycleState] = BusinessLogic.GetPropertyLifeCycleState(Constants.AttributeValue[Constants.KeyAttributes.Status]);
 
       return false;
     }

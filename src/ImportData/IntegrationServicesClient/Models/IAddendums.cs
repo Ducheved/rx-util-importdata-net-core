@@ -33,7 +33,7 @@ namespace ImportData.IntegrationServicesClient.Models
       set { documentDate = value.HasValue ? new DateTimeOffset(value.Value.Date, TimeSpan.Zero) : new DateTimeOffset?(); }
     }
 
-    [PropertyOptions("Журнал регистрации", RequiredType.NotRequired, PropertyType.Entity, AdditionalCharacters.ForSearch)]
+    [PropertyOptions("Журнал регистрации", RequiredType.Required, PropertyType.Entity, AdditionalCharacters.ForSearch)]
     new public IDocumentRegisters DocumentRegister { get; set; }
 
     [PropertyOptions("Регистрация", RequiredType.NotRequired, PropertyType.Simple)]

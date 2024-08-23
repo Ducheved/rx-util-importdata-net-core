@@ -87,13 +87,13 @@ namespace Tests.Databooks
         Common.CheckParam(actualPerson.Bank?.Name.ToLower(), parameters[shift + 17].ToLower(), "Bank"),
         Common.CheckParam(actualPerson.Account, parameters[shift + 18], "Account"),
         Common.CheckParam(actualEmployee.Note, parameters[shift + 19], "Note"),
-        
-        Common.CheckParam(actualEmployee.NeedNotifyExpiredAssignments != null ?
-          actualEmployee.NeedNotifyExpiredAssignments.ToString() : (false).ToString(), (false).ToString(), "NeedNotifyExpiredAssignments"),
-        Common.CheckParam(actualEmployee.NeedNotifyNewAssignments != null ?
-          actualEmployee.NeedNotifyNewAssignments.ToString() : (false).ToString(), (false).ToString(), "NeedNotifyNewAssignments"),
-        Common.CheckParam(actualEmployee.NeedNotifyAssignmentsSummary  != null ?
-          actualEmployee.NeedNotifyAssignmentsSummary.ToString() : (false).ToString(), (false).ToString(), "NeedNotifyAssignmentsSummary")
+
+        Common.CheckParam(actualEmployee.NeedNotifyExpiredAssignments != null ? actualEmployee.NeedNotifyExpiredAssignments.ToString() : (false).ToString(),
+          string.IsNullOrEmpty(parameters[shift + 15]) ? (false).ToString() : (true).ToString(), "NeedNotifyExpiredAssignments"),
+        Common.CheckParam(actualEmployee.NeedNotifyNewAssignments != null ? actualEmployee.NeedNotifyExpiredAssignments.ToString() : (false).ToString(),
+          string.IsNullOrEmpty(parameters[shift + 15]) ? (false).ToString() : (true).ToString(), "NeedNotifyNewAssignments"),
+        Common.CheckParam(actualEmployee.NeedNotifyAssignmentsSummary != null ? actualEmployee.NeedNotifyExpiredAssignments.ToString() : (false).ToString(),
+          string.IsNullOrEmpty(parameters[shift + 15]) ? (false).ToString() : (true).ToString(), "NeedNotifyAssignmentsSummary"),
       };
 
       errorList = errorList.Where(x => !string.IsNullOrEmpty(x)).ToList();

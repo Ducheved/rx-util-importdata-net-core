@@ -259,7 +259,7 @@ namespace ImportData
       {
         if (ResultValues.ContainsKey(property.Name))
           if (property.PropertyType == typeof(double))
-            property.SetValue(entity, Convert.ToDouble(ResultValues[property.Name]));
+            property.SetValue(entity, Convert.ToDouble(ResultValues[property.Name], CultureInfo.InvariantCulture));
           else
             property.SetValue(entity, ResultValues[property.Name]);
       }
