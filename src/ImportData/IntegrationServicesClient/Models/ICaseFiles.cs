@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace ImportData.IntegrationServicesClient.Models
@@ -73,9 +74,17 @@ namespace ImportData.IntegrationServicesClient.Models
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
-      var name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
-      
-      return BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Name == name, exceptionList, logger);
+      if (propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName))
+      {
+        var name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
+        return BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Name == name, exceptionList, logger);
+      }
+      else
+      {
+        var title = propertiesForSearch[Constants.KeyAttributes.Title];
+        var index = propertiesForSearch[Constants.KeyAttributes.Index];
+        return BusinessLogic.GetEntityWithFilter<ICaseFiles>(x => x.Index == index && x.Title == title, exceptionList, logger);
+      }
     }
 
     new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

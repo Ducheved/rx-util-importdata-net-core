@@ -18,7 +18,12 @@ namespace ImportData
     {
       if ((DateTimeOffset)ResultValues[Constants.KeyAttributes.RegistrationDate] == DateTimeOffset.MinValue)
         ResultValues[Constants.KeyAttributes.RegistrationDate] = null;
+      
       base.FillProperies(exceptionList, logger);
+
+      if (ResultValues[Constants.KeyAttributes.Created] == null)
+        ResultValues[Constants.KeyAttributes.Created] = DateTimeOffset.Now;
+
       return false;
     }
   }

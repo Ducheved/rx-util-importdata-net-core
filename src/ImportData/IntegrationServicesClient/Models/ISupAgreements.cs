@@ -86,7 +86,7 @@ namespace ImportData.IntegrationServicesClient.Models
         return ((ISupAgreements)entity)?.UpdateLifeCycleState(lifeCycleState);
       }
       else
-      {
+      {        
         return BusinessLogic.UpdateEntity((ISupAgreements)entity, exceptionList, logger);
       }
     }

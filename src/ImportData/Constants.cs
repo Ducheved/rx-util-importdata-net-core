@@ -85,6 +85,7 @@ namespace ImportData
       public const string Subject = "Subject";
       public const string Substitute = "Substitute";
       public const string Title = "Title";
+      public const string TotalAmount = "TotalAmount";
       public const string TypeAuthentication = "TypeAuthentication";
       public const string User = "User";
       public const string TIN = "TIN";

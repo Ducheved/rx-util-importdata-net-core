@@ -1,5 +1,6 @@
 using ImportData;
 using Microsoft.VisualBasic;
+using System.Globalization;
 using Xunit.Extensions.Ordering;
 
 namespace Tests.EDocs
@@ -36,27 +37,24 @@ namespace Tests.EDocs
       var exceptionList = new List<Structures.ExceptionsStruct>();
       var regNumber = parameters[shift + 0].Trim();
       var docDate = IEntityBase.GetDate(parameters[shift + 1].Trim());
+      var leadingDocumentNumber = parameters[shift + 2].Trim();
+      var leadingDocumentDate = IEntityBase.GetDate(parameters[shift + 3].Trim());
 
       var actualSupAgreement = BusinessLogic.GetEntityWithFilter<ISupAgreements>(x => x.RegistrationNumber != null &&
           x.RegistrationNumber == regNumber &&
           x.DocumentDate == docDate, exceptionList, TestSettings.Logger, true);
 
-      var counterpartyName = parameters[shift + 4];
-      var counterparty = BusinessLogic.GetEntityWithFilter<ICounterparties>(c => c.Name == counterpartyName, new List<Structures.ExceptionsStruct>(), TestSettings.Logger);
-      var counterpartyId = counterparty?.Id ?? -1;
-      var leadDocSearchResult = IOfficialDocuments.GetLeadingDocument(TestSettings.Logger, parameters[shift + 2], Common.ParseDate(parameters[shift + 3]), counterpartyId);
+      var leadingDocument = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null &&
+        x.RegistrationNumber == leadingDocumentNumber &&
+        x.DocumentDate == leadingDocumentDate, exceptionList, TestSettings.Logger, true);
 
       var name = Common.GetDocumentName(parameters[shift + 5], parameters[shift + 0], parameters[shift + 1], parameters[shift + 6]);
 
-      if (!string.IsNullOrEmpty(leadDocSearchResult.errorMessage))
-        return leadDocSearchResult.errorMessage;
+      if (leadingDocument == null)
+        return $"Не найден ведущий документ: №{leadingDocumentNumber} от {leadingDocumentDate}";
 
       if (actualSupAgreement == null)
         return $"Не найдено дополнительное соглашение: {name}";
-
-      var leadingDocument = BusinessLogic.GetEntityWithFilter<IContracts>(x => x.RegistrationNumber != null &&
-        x.RegistrationNumber == actualSupAgreement.LeadingDocument.RegistrationNumber &&
-        x.DocumentDate == docDate, exceptionList, TestSettings.Logger, true);
 
       var errorList = new List<string>
             {
@@ -72,7 +70,7 @@ namespace Tests.EDocs
                 Common.CheckParam(actualSupAgreement.LastVersion(), parameters[shift + 9], "LastVersion"),
                 Common.CheckParam(actualSupAgreement.ValidFrom, parameters[shift + 10], "ValidFrom"),
                 Common.CheckParam(actualSupAgreement.ValidTill, parameters[shift + 11], "ValidTill"),
-                Common.CheckParam(actualSupAgreement.TotalAmount, parameters[shift + 12], "TotalAmount"),
+                Common.CheckParam(actualSupAgreement.TotalAmount, Convert.ToDouble(parameters[shift + 12], CultureInfo.InvariantCulture), "TotalAmount"),
                 Common.CheckParam(actualSupAgreement.Currency, parameters[shift + 13], "Currency"),
                 Common.CheckParam(actualSupAgreement.LifeCycleState, BusinessLogic.GetPropertyLifeCycleState(parameters[shift + 14]), "LifeCycleState"),
                 Common.CheckParam(actualSupAgreement.ResponsibleEmployee , parameters[shift + 15], "ResponsibleEmployee"),
@@ -80,7 +78,7 @@ namespace Tests.EDocs
                 Common.CheckParam(actualSupAgreement.Note, parameters[shift + 17], "Note"),
                 Common.CheckParam(actualSupAgreement.DocumentRegister?.Id, parameters[shift + 18], "DocumentRegister"),
                 Common.CheckParam(actualSupAgreement.RegistrationState, BusinessLogic.GetRegistrationsState(parameters[shift + 19]), "RegistrationState"),
-                Common.CheckParam(actualSupAgreement.CaseFile, parameters[shift + 20], "CaseFile"),
+                Common.CheckParam(actualSupAgreement.CaseFile?.Name, parameters[shift + 20], "CaseFile"),
                 Common.CheckParam(actualSupAgreement.PlacedToCaseFileDate, parameters[shift + 21], "PlacedToCaseFileDate")
             };
 
