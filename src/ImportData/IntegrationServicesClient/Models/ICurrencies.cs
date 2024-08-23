@@ -31,12 +31,12 @@ namespace ImportData.IntegrationServicesClient.Models
       return BusinessLogic.GetEntityWithFilter<ICurrencies>(x => x.Name == name, exceptionList, logger);
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((ICurrencies)entity, exceptionList, logger);
+        return BusinessLogic.CreateEntity((ICurrencies)entity, exceptionList, logger);
       else
-        BusinessLogic.UpdateEntity((ICurrencies)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((ICurrencies)entity, exceptionList, logger);
     }
   }
 }

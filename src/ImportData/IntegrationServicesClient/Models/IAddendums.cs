@@ -62,14 +62,14 @@ namespace ImportData.IntegrationServicesClient.Models
       return addendum;
     }
 
-    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
       {
         var lifeCycleState = ((IAddendums)entity).LifeCycleState;
-        entity = BusinessLogic.CreateEntity((IAddendums)entity, exceptionList, logger);
+        entity = BusinessLogic.CreateEntity((IAddendums)entity, exceptionList, logger, isBatch);
 
-        return ((IAddendums)entity)?.UpdateLifeCycleState(lifeCycleState);
+        return ((IAddendums)entity)?.UpdateLifeCycleState(lifeCycleState, isBatch);
       }
       else
       {

@@ -77,13 +77,13 @@ namespace ImportData.IntegrationServicesClient.Models
       return supAgreement;
     }
 
-    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
       {
         var lifeCycleState = ((ISupAgreements)entity).LifeCycleState;
-        entity = BusinessLogic.CreateEntity((ISupAgreements)entity, exceptionList, logger);
-        return ((ISupAgreements)entity)?.UpdateLifeCycleState(lifeCycleState);
+        entity = BusinessLogic.CreateEntity((ISupAgreements)entity, exceptionList, logger, isBatch);
+        return ((ISupAgreements)entity)?.UpdateLifeCycleState(lifeCycleState, isBatch);
       }
       else
       {        

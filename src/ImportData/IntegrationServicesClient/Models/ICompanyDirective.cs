@@ -33,13 +33,13 @@ namespace ImportData.IntegrationServicesClient.Models
       return null;
     }
 
-    new public static IEntity CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntity CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
       {
         var lifeCycleState = ((ICompanyDirective)entity).LifeCycleState;
-        entity = BusinessLogic.CreateEntity((ICompanyDirective)entity, exceptionList, logger);
-        return ((ICompanyDirective)entity)?.UpdateLifeCycleState(lifeCycleState);
+        entity = BusinessLogic.CreateEntity((ICompanyDirective)entity, exceptionList, logger, isBatch);
+        return ((ICompanyDirective)entity)?.UpdateLifeCycleState(lifeCycleState, isBatch);
       }
       else
       {

@@ -17,7 +17,7 @@ namespace ImportData.IntegrationServicesClient.Models
     public string Note { get; set; }
     public string Status { get; set; }
 
-    new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
       int? retentionPeriod;
       var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
@@ -51,13 +51,13 @@ namespace ImportData.IntegrationServicesClient.Models
         x.RetentionPeriod == retentionPeriod, exceptionList, logger);
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       ((IFileRetentionPeriods)entity).Status = Constants.AttributeValue[Constants.KeyAttributes.Status];
       if (isNewEntity)
-        BusinessLogic.CreateEntity((IFileRetentionPeriods)entity, exceptionList, logger);
+        return BusinessLogic.CreateEntity((IFileRetentionPeriods)entity, exceptionList, logger);
       else
-        BusinessLogic.UpdateEntity((IFileRetentionPeriods)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((IFileRetentionPeriods)entity, exceptionList, logger);
     }
   }
 }

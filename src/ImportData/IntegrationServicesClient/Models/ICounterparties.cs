@@ -14,10 +14,10 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("Почтовый адрес", RequiredType.NotRequired, PropertyType.Simple)]
     public string PostalAddress { get; set; }
 
-    [PropertyOptions("Телефоны", RequiredType.NotRequired, PropertyType.Simple)]
+    [PropertyOptions("Телефоны", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string Phones { get; set; }
 
-    [PropertyOptions("Эл. почта", RequiredType.NotRequired, PropertyType.Simple)]
+    [PropertyOptions("Эл. почта", RequiredType.NotRequired, PropertyType.Simple, AdditionalCharacters.ForSearch)]
     public string Email { get; set; }
 
     [PropertyOptions("Сайт", RequiredType.NotRequired, PropertyType.Simple)]
@@ -62,7 +62,7 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("Ответственный", RequiredType.NotRequired, PropertyType.Entity)]
     public IEmployees Responsible { get; set; }
 
-    new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntity CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
       var name = propertiesForSearch.ContainsKey(Constants.KeyAttributes.CustomFieldName) ?
           propertiesForSearch[Constants.KeyAttributes.CustomFieldName] : propertiesForSearch[Constants.KeyAttributes.Name];

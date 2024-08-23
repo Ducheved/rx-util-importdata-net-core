@@ -45,7 +45,7 @@ namespace ImportData.IntegrationServicesClient.Models
 
     }
 
-    new public static ICompanies CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static ICompanies CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
       var name = propertiesForSearch[Constants.KeyAttributes.Name];
 
@@ -56,12 +56,12 @@ namespace ImportData.IntegrationServicesClient.Models
       }, exceptionList, logger);
     }
 
-    new public static void CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
-        BusinessLogic.CreateEntity((ICompanies)entity, exceptionList, logger);
+        return BusinessLogic.CreateEntity((ICompanies)entity, exceptionList, logger);
       else
-        BusinessLogic.UpdateEntity((ICompanies)entity, exceptionList, logger);
+        return BusinessLogic.UpdateEntity((ICompanies)entity, exceptionList, logger);
     }
   }
 }

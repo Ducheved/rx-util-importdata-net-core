@@ -8,7 +8,7 @@ namespace ImportData.IntegrationServicesClient.Models
     public string Note { get; set; }
     public string Status { get; set; }
 
-    new public static IDocumentGroupBases CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IDocumentGroupBases CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
       var name = propertiesForSearch[Constants.KeyAttributes.DocumentGroup];
 

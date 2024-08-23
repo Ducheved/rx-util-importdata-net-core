@@ -8,10 +8,10 @@ namespace ImportData.Entities.Databooks
 {
   public class Login : Entity
   {
-    public override int PropertiesCount { get { return 4; } }
+    public override int PropertiesCount { get { return 5; } }
     protected override Type EntityType { get { return typeof(ILogins); } }
 
-    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates)
+    public override IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates, bool isBatch = false)
     {
       var exceptionList = new List<Structures.ExceptionsStruct>();
 
@@ -29,7 +29,7 @@ namespace ImportData.Entities.Databooks
       {
         // Добавляем информацию по логину для сотрудника и обновляем данные о сотруднике в системе.
         employee.Login = (ILogins)entity;
-        MethodCall(employee.GetType(), Constants.EntityActions.CreateOrUpdate, employee, false, exceptionList, logger);
+        MethodCall(employee.GetType(), Constants.EntityActions.CreateOrUpdate, employee, false, isBatch, exceptionList, logger);
       }
 
       return exceptionList;
@@ -66,6 +66,7 @@ namespace ImportData.Entities.Databooks
       var firstName = NamingParameters[Constants.KeyAttributes.FirstNameRu];
       var middleName = NamingParameters[Constants.KeyAttributes.MiddleNameRu];
       var lastName = NamingParameters[Constants.KeyAttributes.LastNameRu];
+      var email = NamingParameters[Constants.KeyAttributes.Email].Trim().ToLower();
 
       if (string.IsNullOrWhiteSpace(firstName))
       {
@@ -87,7 +88,7 @@ namespace ImportData.Entities.Databooks
       }
 
       var name = string.IsNullOrWhiteSpace(middleName) ? string.Format("{0} {1}", lastName, firstName) : string.Format("{0} {1} {2}", lastName, firstName, middleName);
-      employee = BusinessLogic.GetEntityWithFilter<IEmployees>(x => x.Name == name, exceptionList, logger);
+      employee = BusinessLogic.GetEntityWithFilter<IEmployees>(x =>(email == "" && x.Name == name) || (email != "" && x.Email.ToLower().Trim() == email), exceptionList, logger);
 
       if (employee == null)
       {

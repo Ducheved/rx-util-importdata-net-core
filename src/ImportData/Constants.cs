@@ -45,7 +45,7 @@ namespace ImportData
       public const string DocumentKind = "DocumentKind";
       public const string DocumentRegister = "DocumentRegister";
       public const string EndDate = "EndDate";
-      public const string Email= "Email";
+      public const string Email = "Email";
       public const string FirstName = "FirstName";
       public const string FirstNameRu = "Имя";
       public const string HeadCompany = "HeadCompany";
@@ -70,6 +70,7 @@ namespace ImportData
       public const string OurSignatory = "OurSignatory";
       public const string OutgoingDocumentBase = "OutgoingDocumentBase";
       public const string Person = "Person";
+      public const string Phones = "Phones";
       public const string PreparedBy = "PreparedBy";
       public const string Region = "Region";
       public const string RegistrationDate = "RegistrationDate";
@@ -207,6 +208,7 @@ namespace ImportData
     {
       public const string IntegrationServiceUrlParamName = "INTEGRATION_SERVICE_URL";
       public const string RequestTimeoutParamName = "INTEGRATION_SERVICE_REQUEST_TIMEOUT";
+      public const string BatchRequestsCountParamName = "INTEGRATION_SERVICE_BATCH_REQUESTS_COUNT";
     }
 
     public const string ignoreDuplicates = "ignore";

@@ -66,12 +66,12 @@ namespace ImportData.IntegrationServicesClient.Models
       return incomingLetters;
     }
 
-    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+    new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       if (isNewEntity)
       {
-        entity = BusinessLogic.CreateEntity((IIncomingLetters)entity, exceptionList, logger);
-        return ((IIncomingLetters)entity)?.UpdateLifeCycleState(Constants.AttributeValue[Constants.KeyAttributes.Status]);
+        entity = BusinessLogic.CreateEntity((IIncomingLetters)entity, exceptionList, logger, isBatch);
+        return ((IIncomingLetters)entity)?.UpdateLifeCycleState(Constants.AttributeValue[Constants.KeyAttributes.Status], isBatch);
       }
       else
         return BusinessLogic.UpdateEntity((IIncomingLetters)entity, exceptionList, logger);

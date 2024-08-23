@@ -191,11 +191,14 @@ namespace ImportData
     /// <typeparam name="T">Тип сущности.</typeparam>
     /// <param name="entity">Экземпляр сущности.</param>
     /// <returns>Созданная сущность.</returns>
-    public static T CreateEntity<T>(T entity, List<Structures.ExceptionsStruct> exceptionList, Logger logger) where T : class
+    public static T CreateEntity<T>(T entity, List<Structures.ExceptionsStruct> exceptionList, Logger logger, bool isBatch = false) where T : IEntityBase
     {
       logger.Info(string.Format("Создание сущности {0}", PrintInfo(typeof(T))));
       try
       {
+        if (isBatch)
+          return CreateEntityBatch(entity, exceptionList, logger);
+
         var createdEntity = Client.CreateEntity<T>(entity, logger);
 
         if (createdEntity == null)
@@ -223,6 +226,13 @@ namespace ImportData
       }
 
       return null;
+    }
+
+    private static T CreateEntityBatch<T>(T entity, List<Structures.ExceptionsStruct> exceptionList, Logger logger) where T : IEntityBase
+    {
+      logger.Info(string.Format("Создание сущности {0}", PrintInfo(typeof(T))));
+      var createdEntity = BatchClient.CreateEntity(entity);
+      return createdEntity;
     }
 
     /// <summary>
@@ -268,8 +278,11 @@ namespace ImportData
     /// <param name="pathToBody">Путь к телу документа.</param>
     /// <param name="logger">Логировщик.</param>
     /// <returns>Список ошибок.</returns>
-    public static IEnumerable<Structures.ExceptionsStruct> ImportBody(IElectronicDocuments edoc, string pathToBody, Logger logger, bool update_body = false)
+    public static IEnumerable<Structures.ExceptionsStruct> ImportBody(IElectronicDocuments edoc, string pathToBody, Logger logger, bool update_body = false, bool isBatch = false)
     {
+      if (isBatch)
+        return ImportBodyBatch(edoc, pathToBody, logger, update_body);
+
       var exceptionList = new List<Structures.ExceptionsStruct>();
       logger.Info("Импорт тела документа");
 
@@ -320,6 +333,81 @@ namespace ImportData
       }
 
       return exceptionList;
+    }
+
+    private static IEnumerable<Structures.ExceptionsStruct> ImportBodyBatch<T>(T edoc, string pathToBody, Logger logger, bool update_body = false) where T : IElectronicDocuments
+    {
+      var exceptionList = new List<Structures.ExceptionsStruct>();
+      logger.Info("Импорт тела документа");
+
+      try
+      {
+        if (!File.Exists(pathToBody))
+        {
+          var message = string.Format("Не найден файл по заданому пути: \"{0}\"", pathToBody);
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+          logger.Warn(message);
+
+          return exceptionList;
+        }
+
+        // GetExtension возвращает расширение в формате ".<расширение>". Убираем точку.
+        var extention = Path.GetExtension(pathToBody).Replace(".", "");
+        var associatedApplication = BusinessLogic.GetEntityWithFilter<IAssociatedApplications>(a => a.Extension == extention, exceptionList, logger);
+
+        if (associatedApplication != null)
+        {
+          var lastVersion = BatchClient.CreateVersionBatch(edoc, edoc.Name, associatedApplication);
+
+          lastVersion.Body ??= new IBinaryData();
+
+          lastVersion.Body.Value = File.ReadAllBytes(pathToBody);
+          lastVersion.AssociatedApplication = associatedApplication;
+
+          BatchClient.FillBody(edoc, lastVersion);
+        }
+        else
+        {
+          var message = string.Format("Не обнаружено соответствующее приложение-обработчик для файлов с расширением \"{0}\"", extention);
+          exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+          logger.Warn(message);
+
+          return exceptionList;
+        }
+      }
+      catch (Exception ex)
+      {
+        var message = string.Format("Не удается создать тело документа. Ошибка: \"{0}\"", ex.Message);
+        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        logger.Warn(message);
+
+        return exceptionList;
+      }
+
+      return exceptionList;
+
+    }
+
+    public static List<Structures.ExceptionsStruct> ExecuteBatch(Logger logger)
+    {
+      var exceptions = new List<Structures.ExceptionsStruct>();
+      try
+      {
+        BatchClient.Execute();
+      }
+      catch (AggregateException ex) when (ex.InnerException is WebRequestException)
+      {
+        var message = $"Не удалось выполнить batch запрос. Ошибка: {ex.InnerException.Message} Ответ: {(ex.InnerException as WebRequestException).Response}";
+        exceptions.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        logger.Error(message);
+      }
+      catch (Exception ex)
+      {
+        var message = $"Не удалось выполнить batch запрос. Ошибка: {ex.Message}";
+        exceptions.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+        logger.Error(message);
+      }
+      return exceptions;
     }
 
     /// <summary>
