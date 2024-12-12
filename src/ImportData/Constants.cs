@@ -33,6 +33,8 @@ namespace ImportData
       public const string City = "City";
       public const string Code = "Code";
       public const string Correspondent = "Correspondent";
+      public const string CounterpartyKind = "CounterpartyKind";
+      public const string Kind = "Kind";
       public const string Counterparty = "Counterparty";
       public const string Company = "Company";
       public const string Created = "Created";
@@ -121,6 +123,11 @@ namespace ImportData
       public const string CreateEntity = "CreateEntity";
       public const string FindEntity = "FindEntity";
       public const string CreateOrUpdate = "CreateOrUpdate";
+    }
+
+    public class PropertyNames
+    {
+        public const string CounterpartyKind = "Вид контрагента";
     }
 
     public class SheetNames

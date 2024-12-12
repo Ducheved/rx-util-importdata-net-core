@@ -20,6 +20,9 @@ namespace ImportData.IntegrationServicesClient.Models
     [PropertyOptions("Головная орг.", RequiredType.NotRequired, PropertyType.EntityWithCreate)]
     public ICompanies HeadCompany { get; set; }
 
+    [PropertyOptions("Вид контрагента", RequiredType.NotRequired, PropertyType.Entity)]
+    public virtual ICounterpartyKind Kind { get; set; } 
+        
     new public static ICompanies FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var name = string.Empty;
@@ -45,15 +48,23 @@ namespace ImportData.IntegrationServicesClient.Models
 
     }
 
-    new public static ICompanies CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
+    public static ICompanies CreateEntity(Dictionary<string, string> propertiesForSearch, Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch, NLog.Logger logger)
     {
-      var name = propertiesForSearch[Constants.KeyAttributes.Name];
+        var name = propertiesForSearch[Constants.KeyAttributes.Name];
 
-      return BusinessLogic.CreateEntity<ICompanies>(new ICompanies()
-      {
-        Name = name,
-        Status = Constants.AttributeValue[Constants.KeyAttributes.Status]
-      }, exceptionList, logger);
+        var company = new ICompanies()
+        {
+            Name = name,
+            Status = "Active"
+        };
+
+        if (entity.ResultValues.ContainsKey("Kind"))
+        {
+            company.Kind = (ICounterpartyKind)entity.ResultValues["Kind"];
+            logger.Info($"Установлен вид контрагента при создании: {company.Kind.Name}");
+        }
+
+        return BusinessLogic.CreateEntity(company, exceptionList, logger);
     }
 
     new public static IEntityBase CreateOrUpdate(IEntity entity, bool isNewEntity, bool isBatch, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)

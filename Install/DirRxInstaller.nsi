@@ -3,11 +3,11 @@ LoadLanguageFile "${NSISDIR}\Contrib\Language files\Russian.nlf"
 ; Переменные.
 !define TEMP1 $R0 ;Temp variable
 ; Наименование инсталятора.
-Name "утилита импорта данных"
+Name "утилита импорта данных CorpTec"
 ; Директория инсталяции.
 InstallDir "$PROGRAMFILES64\Directum Company\DirectumRX\ImportData"
 ; Наименование инсталятора.
-OutFile "Setup.exe"
+OutFile "Setup_CorpTec.exe"
 
 VIProductVersion 4.0.41139.0
 VIAddVersionKey FileVersion 4.0.41139.0

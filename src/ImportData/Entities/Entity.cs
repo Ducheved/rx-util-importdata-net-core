@@ -33,148 +33,193 @@ namespace ImportData
     /// </summary>
     public virtual int PropertiesCount { get; }
 
-    /// <summary>
-    /// Сохранение сущности в RX.
-    /// </summary>
-    /// <param name="logger">Логировщик.</param>
-    /// <param name="ignoreDuplicates">Игнорирование дублей.</param>
-    /// <param name="isBatch">Пакетный импорт.</param>
-    /// <returns>Список ошибок.</returns>
-    public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates, bool isBatch = false)
-    {
-      var exceptionList = new List<Structures.ExceptionsStruct>();
-      ResultValues = new Dictionary<string, object>();
-
-      var properties = EntityType.GetProperties();
-      foreach (var property in properties)
-      {
-        var options = BusinessLogic.GetPropertyOptions(property);
-        if (options == null)
-          continue;
-
-        object variableForParameters = null;
-        // Обработка свойств модели, которые заполняются/создаются из нескольких столбцов шаблона.
-        if (options.Characters == AdditionalCharacters.CreateFromOtherProperties)
+        /// <summary>
+        /// Сохранение сущности в RX.
+        /// </summary>
+        /// <param name="logger">Логировщик.</param>
+        /// <param name="ignoreDuplicates">Игнорирование дублей.</param>
+        /// <param name="isBatch">Пакетный импорт.</param>
+        /// <returns>Список ошибок.</returns>
+        public virtual IEnumerable<Structures.ExceptionsStruct> SaveToRX(NLog.Logger logger, string ignoreDuplicates, bool isBatch = false)
         {
-          var propertiesForSearch = GetPropertiesForSearch(property.PropertyType, exceptionList, logger);
-
-          if (propertiesForSearch == null)
-            return exceptionList;
-
-          // При обработке сущности сначала выполняется поиск сущности для тех сущностей
-          // создание дублей которых избыточно и не требуется. Если сущность найдена - возвращается сущность, иначе создается новая.
-          variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);
-
-          if (variableForParameters == null)
-            variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, isBatch, logger);
-        }
-        else
-        {
-          if (!NamingParameters.ContainsKey(options.ExcelName))
-            continue;
-
-          variableForParameters = NamingParameters[options.ExcelName].Trim();
-          if (options.IsRequired())
-          {
-            if (CheckPropertyNull(options, variableForParameters, Constants.Resources.EmptyColumn, exceptionList, logger) == Constants.ErrorTypes.Error)
-              return exceptionList;
-          }
-
-          // Свойства с типом Дата везде обрабатываются одинаково, поэтому можно преобразовать в общем коде.
-          if (property.PropertyType == typeof(DateTimeOffset?))
-          {
-            variableForParameters = TransformDateTime((string)variableForParameters, options, exceptionList, logger);
-            if (variableForParameters == null && options.IsRequired())
-              return exceptionList;
-          }
-
-          // Работа с полями-сущностями.
-          if (options.Type == PropertyType.Entity || options.Type == PropertyType.EntityWithCreate)
-          {
-            var entityName = (string)variableForParameters;
-            // баг - при поиске необязательного ссылочного объекта, у которого название для поиска является обязателньым - ошибка становится критичной
-            // hack: если необязательное поле пустое - пропускаем, нет смысла дальше искать
-            if (!options.IsRequired() && string.IsNullOrEmpty(entityName))
+            try
             {
-              ResultValues.Add(property.Name, null);
-              continue;
+                logger.Info("Начало метода SaveToRX");
+                var exceptionList = new List<Structures.ExceptionsStruct>();
+
+                if (EntityType == null)
+                {
+                    var message = "EntityType не определен";
+                    logger.Error(message);
+                    exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+                    return exceptionList;
+                }
+
+                ResultValues = new Dictionary<string, object>();
+                logger.Info($"Обработка сущности типа: {EntityType.Name}");
+
+                var properties = EntityType.GetProperties();
+                foreach (var property in properties)
+                {
+                    try
+                    {
+                        var options = BusinessLogic.GetPropertyOptions(property);
+                        if (options == null)
+                            continue;
+
+                        logger.Info($"Обработка свойства: {property.Name}");
+                        object variableForParameters = null;
+
+                        if (options.Characters == AdditionalCharacters.CreateFromOtherProperties)
+                        {
+                            var propertiesForSearch = GetPropertiesForSearch(property.PropertyType, exceptionList, logger);
+                            if (propertiesForSearch == null)
+                            {
+                                logger.Error($"Не удалось получить свойства для поиска для {property.Name}");
+                                return exceptionList;
+                            }
+
+                            variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);
+
+                            if (variableForParameters == null)
+                                variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, isBatch, logger);
+                        }
+                        else
+                        {
+                            if (!NamingParameters.ContainsKey(options.ExcelName))
+                            {
+                                logger.Info($"Пропуск свойства {property.Name}: не найдено в NamingParameters");
+                                continue;
+                            }
+
+                            variableForParameters = NamingParameters[options.ExcelName].Trim();
+                            if (options.IsRequired())
+                            {
+                                if (CheckPropertyNull(options, variableForParameters, Constants.Resources.EmptyColumn, exceptionList, logger) == Constants.ErrorTypes.Error)
+                                {
+                                    logger.Error($"Обязательное свойство {property.Name} пустое");
+                                    return exceptionList;
+                                }
+                            }
+
+                            if (property.PropertyType == typeof(DateTimeOffset?))
+                            {
+                                variableForParameters = TransformDateTime((string)variableForParameters, options, exceptionList, logger);
+                                if (variableForParameters == null && options.IsRequired())
+                                    return exceptionList;
+                            }
+
+                            if (options.Type == PropertyType.Entity || options.Type == PropertyType.EntityWithCreate)
+                            {
+                                var entityName = (string)variableForParameters;
+                                if (!options.IsRequired() && string.IsNullOrEmpty(entityName))
+                                {
+                                    ResultValues.Add(property.Name, null);
+                                    continue;
+                                }
+
+                                var propertiesForSearch = GetPropertiesForSearch(property.PropertyType, exceptionList, logger);
+                                if (propertiesForSearch == null)
+                                    propertiesForSearch = new Dictionary<string, string>();
+
+                                propertiesForSearch.TryAdd(Constants.KeyAttributes.CustomFieldName, entityName);
+                                logger.Info($"Поиск сущности для свойства {property.Name} по имени: {entityName}");
+
+                                variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);
+
+                                if (options.Type == PropertyType.EntityWithCreate && variableForParameters == null && !string.IsNullOrEmpty(entityName))
+                                {
+                                    logger.Info($"Создание новой сущности для свойства {property.Name}");
+                                    variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, isBatch, logger);
+                                }
+
+                                if (CheckPropertyNull(options, variableForParameters, Constants.Resources.EmptyProperty, exceptionList, logger) == Constants.ErrorTypes.Error)
+                                    return exceptionList;
+                            }
+                        }
+
+                        ResultValues.Add(property.Name, variableForParameters);
+                    }
+                    catch (Exception propEx)
+                    {
+                        var message = $"Ошибка при обработке свойства {property.Name}: {propEx.Message}";
+                        logger.Error(message);
+                        logger.Error($"Stack trace: {propEx.StackTrace}");
+                        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+                        return exceptionList;
+                    }
+                }
+
+                var hasTransformationErrors = FillProperies(exceptionList, logger);
+                if (hasTransformationErrors)
+                {
+                    logger.Error("Обнаружены ошибки при трансформации свойств");
+                    return exceptionList;
+                }
+
+                try
+                {
+                    var propertiesForCreate = GetPropertiesForSearch(EntityType, exceptionList, logger);
+
+                    if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
+                    {
+                        logger.Info("Поиск существующей сущности");
+                        entity = (IEntityBase)MethodCall(EntityType, Constants.EntityActions.FindEntity, propertiesForCreate, this, true, exceptionList, logger);
+                    }
+
+                    if (entity == null)
+                    {
+                        isNewEntity = true;
+                        entity = (IEntityBase)Activator.CreateInstance(EntityType);
+                        logger.Info("Создан новый экземпляр сущности");
+                    }
+
+                    UpdateProperties(entity);
+                    logger.Info("Свойства сущности обновлены");
+
+                    entity = (IEntityBase)MethodCall(EntityType, Constants.EntityActions.CreateOrUpdate, entity, isNewEntity, isBatch, exceptionList, logger);
+
+                    if (entity != null)
+                    {
+                        logger.Info("Заполнение коллекций");
+                        FillCollections(exceptionList, logger);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Ошибка при создании/обновлении сущности: {ex.Message}";
+                    logger.Error(message);
+                    logger.Error($"Stack trace: {ex.StackTrace}");
+                    exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = message });
+                    return exceptionList;
+                }
+
+                return exceptionList;
             }
-            
-            // Добавляем поля и значения для поиска или создания сущностей.
-            var propertiesForSearch = GetPropertiesForSearch(property.PropertyType, exceptionList, logger);            
-
-            if (propertiesForSearch == null)
-              propertiesForSearch = new Dictionary<string, string>();
-
-            // Добавляем поле под служебным наименованием и его значение для
-            // работы со связанными с импортируемой сущностью другими сущностями в системе
-            // (поиск и создание, к примеру, головная организация, регионы, пользователи), чтобы явно можно было определить
-            // их наименование и не спутать с наименованием (полем NAME) обрабатываемой в импорте сущности.
-            propertiesForSearch.TryAdd(Constants.KeyAttributes.CustomFieldName, entityName);
-            // Пробуем найти сущность в системе.
-            variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.FindEntity, propertiesForSearch, this, false, exceptionList, logger);
-
-            // Создаем сущность, если не удалось найти.
-            if (options.Type == PropertyType.EntityWithCreate && variableForParameters == null && !string.IsNullOrEmpty(entityName))
-              variableForParameters = MethodCall(property.PropertyType, Constants.EntityActions.CreateEntity, propertiesForSearch, this, exceptionList, isBatch, logger);
-
-            if (CheckPropertyNull(options, variableForParameters, Constants.Resources.EmptyProperty, exceptionList, logger) == Constants.ErrorTypes.Error)
-              return exceptionList;
-          }
+            catch (Exception ex)
+            {
+                var message = $"Общая ошибка в SaveToRX: {ex.Message}";
+                logger.Error(message);
+                logger.Error($"Stack trace: {ex.StackTrace}");
+                return new List<Structures.ExceptionsStruct> {
+            new Structures.ExceptionsStruct {
+                ErrorType = Constants.ErrorTypes.Error,
+                Message = message
+            }
+        };
+            }
         }
-
-        ResultValues.Add(property.Name, variableForParameters);
-      }
-
-      // Специфичные преобразования / проверки полей, которые нет возможности унифицировать.
-      // Если метод вернул true, значит при проверках была добавлена ошибка, сущность не может быть загружена.
-      var hasTransformationErrors = FillProperies(exceptionList, logger);
-      if (hasTransformationErrors)
-        return exceptionList;
-
-      // Обновление сущности.
-      try
-      {
-        var propertiesForCreate = GetPropertiesForSearch(EntityType, exceptionList, logger);
-        if (ignoreDuplicates.ToLower() != Constants.ignoreDuplicates.ToLower())
-          entity = (IEntityBase)MethodCall(EntityType, Constants.EntityActions.FindEntity, propertiesForCreate, this, true, exceptionList, logger);
-        if (entity == null)
-        {
-          isNewEntity = true;
-          entity = (IEntityBase)Activator.CreateInstance(EntityType);
-        }
-
-        // Заполнение полей.
-        UpdateProperties(entity);
-
-        // Создание сущности.
-        entity = (IEntityBase)MethodCall(EntityType, Constants.EntityActions.CreateOrUpdate, entity, isNewEntity, isBatch, exceptionList, logger);
-
-        // При необходимость дозаполнить свойства-коллекции.
-        if(entity != null)
-          FillCollections(exceptionList, logger);
-      }
-      catch (Exception ex)
-      {
-        exceptionList.Add(new Structures.ExceptionsStruct { ErrorType = Constants.ErrorTypes.Error, Message = ex.Message });
-
-        return exceptionList;
-      }
-
-      return exceptionList;
-    }
-
-    /// <summary>
-    /// Получить значения полей шаблона для создания свойства-сущности.
-    /// </summary>
-    /// <param name="entityProperty">Свойство-сущность.</param>
-    /// <param name="exceptionList">Список исключений.</param>
-    /// <param name="logger">Логировщик.</param>
-    /// <returns>Список пар {Название свойства - Значение} из свойств, по которым должна искаться / создаваться сущность. </returns>
-    /// Метод собирает все свойства по иерархии, помеченные ForSearch  и их значения, 
-    /// логика их использования и "отбрасывания" ненужных лежит в частном методе сущности.
-    /// У сущности может не быть свойств, соответствующих полю шаблона (например, ФИО для Персоны контакта, нет у Контакта), их значения нужно куда-то сохранить.
-    protected Dictionary<string, string> GetPropertiesForSearch(Type type, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
+        /// <summary>
+        /// Получить значения полей шаблона для создания свойства-сущности.
+        /// </summary>
+        /// <param name="entityProperty">Свойство-сущность.</param>
+        /// <param name="exceptionList">Список исключений.</param>
+        /// <param name="logger">Логировщик.</param>
+        /// <returns>Список пар {Название свойства - Значение} из свойств, по которым должна искаться / создаваться сущность. </returns>
+        /// Метод собирает все свойства по иерархии, помеченные ForSearch  и их значения, 
+        /// логика их использования и "отбрасывания" ненужных лежит в частном методе сущности.
+        /// У сущности может не быть свойств, соответствующих полю шаблона (например, ФИО для Персоны контакта, нет у Контакта), их значения нужно куда-то сохранить.
+        protected Dictionary<string, string> GetPropertiesForSearch(Type type, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {
       var properties = type.GetProperties();
       var propertiesForSearch = new Dictionary<string, string>();
