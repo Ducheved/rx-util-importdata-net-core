@@ -24,7 +24,7 @@ namespace ImportData.IntegrationServicesClient.Models
     public string PersonnelNumber { get; set; }
 
     [PropertyOptions("Группа сотрудников", RequiredType.NotRequired, PropertyType.EntityWithCreate)]
-    public virtual IEmployeeGroups EmployeeGroup { get; set; }
+    public virtual IConnectorDirRXSAPEmployeeGroups GroupIdCorptec { get; set; }
 
     new public static IEntity FindEntity(Dictionary<string, string> propertiesForSearch, Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList, NLog.Logger logger)
     {

@@ -5,26 +5,26 @@ using System.Linq;
 namespace ImportData.IntegrationServicesClient.Models
 {
     [EntityName("Группа сотрудников")]
-    public class IEmployeeGroups : IEntity
+    public class IConnectorDirRXSAPEmployeeGroups : IEntity
     {
         public int Id { get; set; }
 
         [PropertyOptions("Наименование", RequiredType.Required, PropertyType.Simple)]
-        public string Name { get; set; } // Убираем override
+        public string Name { get; set; }
 
         [PropertyOptions("Код группы", RequiredType.NotRequired, PropertyType.Simple)]
         public string Code { get; set; }
 
         public string Status { get; set; }
 
-        new public static IEmployeeGroups FindEntity(Dictionary<string, string> propertiesForSearch,
+        new public static IConnectorDirRXSAPEmployeeGroups FindEntity(Dictionary<string, string> propertiesForSearch,
             Entity entity, bool isEntityForUpdate, List<Structures.ExceptionsStruct> exceptionList,
             NLog.Logger logger)
         {
             try
             {
                 logger.Info($"=== Начало поиска IEmployeeGroups===");
-                logger.Info($"Тип сущности: {typeof(IEmployeeGroups).FullName}");
+                logger.Info($"Тип сущности: {typeof(IConnectorDirRXSAPEmployeeGroups).FullName}");
 
                 if (propertiesForSearch == null)
                 {
@@ -47,7 +47,7 @@ namespace ImportData.IntegrationServicesClient.Models
                 var name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
                 logger.Info($"Поиск группы по имени: {name}");
 
-                var result = BusinessLogic.GetEntityWithFilter<IEmployeeGroups>(
+                var result = BusinessLogic.GetEntityWithFilter<IConnectorDirRXSAPEmployeeGroups>(
                     x => x.Name.ToLower().Trim() == name.ToLower().Trim() && x.Status == "Active",
                     exceptionList,
                     logger);
@@ -71,7 +71,7 @@ namespace ImportData.IntegrationServicesClient.Models
             }
         }
 
-        new public static IEmployeeGroups CreateEntity(Dictionary<string, string> propertiesForSearch,
+        new public static IConnectorDirRXSAPEmployeeGroups CreateEntity(Dictionary<string, string> propertiesForSearch,
             Entity entity, List<Structures.ExceptionsStruct> exceptionList, bool isBatch,
             NLog.Logger logger)
         {
@@ -88,7 +88,7 @@ namespace ImportData.IntegrationServicesClient.Models
                 var name = propertiesForSearch[Constants.KeyAttributes.CustomFieldName];
                 logger.Info($"Создание новой группы с именем: {name}");
 
-                var employeeGroup = new IEmployeeGroups
+                var employeeGroup = new IConnectorDirRXSAPEmployeeGroups
                 {
                     Name = name,
                     Code = name,
@@ -130,7 +130,7 @@ namespace ImportData.IntegrationServicesClient.Models
                     return null;
                 }
 
-                var employeeGroup = entity as IEmployeeGroups;
+                var employeeGroup = entity as IConnectorDirRXSAPEmployeeGroups;
                 if (employeeGroup == null)
                 {
                     logger.Error($"Неверный тип сущности: {entity.GetType().Name}");
